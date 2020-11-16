@@ -2,6 +2,7 @@ import {makeSchema, objectType, stringArg} from '@nexus/schema'
 import { AuthenticationError } from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, signup, SignupInput} from "./operations/user-operations";
+import {createNote} from "./operations/note-operations";
 
 const User = objectType({
   name: 'User',
@@ -10,8 +11,19 @@ const User = objectType({
     t.model.firstName();
     t.model.lastName();
     t.model.username();
+    t.model.notes();
   },
-})
+});
+
+const Note = objectType({
+  name: 'Note',
+  definition(t) {
+    t.model.id();
+    t.model.text();
+    t.model.creatorId();
+    t.model.user();
+  },
+});
 
 const Query = objectType({
   name: 'Query',
@@ -53,11 +65,20 @@ const Mutation = objectType({
         return login(context.prisma.user, inputs);
       }
     });
+    t.field("createNote", {
+      type: "Note",
+      args: {
+        text: stringArg({nullable: false}),
+      },
+      resolve: async (_, inputs, context) => {
+        return createNote(context, inputs);
+      }
+    });
   },
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User],
+  types: [Query, Mutation, User, Note],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',

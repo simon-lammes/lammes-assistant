@@ -13,6 +13,17 @@ model User {
   lastName       String @map("last_name")
   hashedPassword String @map("hashed_password")
   username       String @unique
+  notes          Note[] @relation("notesToUsers")
 
   @@map("users")
+}
+
+model Note {
+  id               Int      @id @default(autoincrement())
+  text             String
+  updatedTimestamp DateTime @default(now()) @map("updated_timestamp")
+  creatorId        Int      @map("creator_id")
+  user             User     @relation("notesToUsers", fields: [creatorId], references: [id])
+
+  @@map("notes")
 }
