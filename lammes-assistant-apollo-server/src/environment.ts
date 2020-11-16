@@ -1,7 +1,10 @@
+import * as dotenv from 'dotenv';
+import {DotenvParseOptions} from "dotenv";
+
 /**
  * Contains all variables configured in the '.env' file.
  */
-export interface Environment {
+export interface Environment extends DotenvParseOptions {
   DATABASE_URL: string;
   /**
    * A secret string that can be used to sign JWT tokens.
@@ -9,8 +12,8 @@ export interface Environment {
   SECRET: string;
 }
 
-const result = require('dotenv').config()
+const result = dotenv.config()
 if (result.error) {
   throw result.error;
 }
-export const environment: Environment = result.parsed;
+export const environment: Environment = result.parsed as unknown as Environment;

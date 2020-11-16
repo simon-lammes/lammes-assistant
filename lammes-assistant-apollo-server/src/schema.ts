@@ -1,7 +1,7 @@
 import {makeSchema, objectType, stringArg} from '@nexus/schema'
 import { AuthenticationError } from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
-import {SignupInput, UserOperations} from "./operations/user";
+import {login, signup, SignupInput} from "./operations/user-operations";
 
 const User = objectType({
   name: 'User',
@@ -40,7 +40,7 @@ const Mutation = objectType({
         password: stringArg({nullable: false})
       },
       resolve: async (_, inputs: SignupInput, context) => {
-        return UserOperations.signup(context.prisma.user, inputs);
+        return signup(context.prisma.user, inputs);
       }
     });
     t.field("login", {
@@ -50,7 +50,7 @@ const Mutation = objectType({
         password: stringArg({nullable: false})
       },
       resolve: async (_, inputs, context) => {
-        return UserOperations.login(context.prisma.user, inputs);
+        return login(context.prisma.user, inputs);
       }
     });
   },

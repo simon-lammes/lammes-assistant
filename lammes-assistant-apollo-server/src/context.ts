@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import {ExpressContext} from "apollo-server-express/src/ApolloServer";
-import {JwtPayload, UserOperations} from "./operations/user";
+import {JwtPayload, verifyToken} from "./operations/user-operations";
 
 const prisma = new PrismaClient()
 
@@ -24,6 +24,6 @@ export interface Context {
 
 export function createContext({req}: ExpressContext): Context {
   const token = req.headers.authorization;
-  const jwtPayload = UserOperations.verifyToken(token);
+  const jwtPayload = verifyToken(token);
   return { prisma, jwtPayload };
 }
