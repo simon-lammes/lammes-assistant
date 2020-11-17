@@ -5,7 +5,7 @@
 type Mutation {
   createNote(text: String!): Note
   login(password: String!, username: String!): String
-  signupUser(firstName: String!, lastName: String!, password: String!, username: String!): User
+  register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
 }
 
 type Note {
@@ -21,6 +21,11 @@ input NoteWhereUniqueInput {
 
 type Query {
   users: [User]
+}
+
+type Registration {
+  jwtToken: String
+  user: User
 }
 
 type User {
