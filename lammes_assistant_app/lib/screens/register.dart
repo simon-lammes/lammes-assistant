@@ -3,23 +3,36 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:lammes_assistant_app/state/authentication_state.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final lastNameFocusNode = FocusNode();
+  final usernameFocusNode = FocusNode();
   final passwordFocusNode = FocusNode();
-  final String loginMutation = """
-    mutation Login(\$username: String!, \$password: String!) {
-      login(username: \$username, password: \$password)
+  final String registerMutation = """
+    mutation Register(\$firstName: String!, \$lastName: String!, \$username: String!, \$password: String!) {
+      register(
+        firstName: \$firstName
+        lastName: \$lastName
+        username: \$username
+        password: \$password
+      ) {
+        jwtToken
+      }
     }
   """;
 
   @override
   void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
     usernameController.dispose();
     passwordController.dispose();
     passwordFocusNode.dispose();
@@ -39,12 +52,27 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                FlutterLogo(
-                  size: 150,
+                Text(
+                  'Registration',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                TextField(
+                  decoration: InputDecoration(hintText: 'First Name'),
+                  autofocus: true,
+                  controller: firstNameController,
+                  textInputAction: TextInputAction.next,
+                  onEditingComplete: () => lastNameFocusNode.requestFocus(),
+                ),
+                TextField(
+                  decoration: InputDecoration(hintText: 'Last Name'),
+                  focusNode: lastNameFocusNode,
+                  controller: lastNameController,
+                  textInputAction: TextInputAction.next,
+                  onEditingComplete: () => usernameFocusNode.requestFocus(),
                 ),
                 TextField(
                   decoration: InputDecoration(hintText: 'Username'),
-                  autofocus: true,
+                  focusNode: usernameFocusNode,
                   controller: usernameController,
                   textInputAction: TextInputAction.next,
                   onEditingComplete: () => passwordFocusNode.requestFocus(),
@@ -57,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Mutation(
                   options: MutationOptions(
-                    document: gql(loginMutation),
+                    document: gql(registerMutation),
                     update: (GraphQLDataProxy cache, QueryResult result) {
                       return cache;
                     },
@@ -67,29 +95,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (resultData == null) {
                         return;
                       }
-                      final jwtToken = resultData['login'];
+                      final jwtToken = resultData['register']['jwtToken'];
                       Provider.of<AuthenticationState>(context, listen: false)
                           .storeJwtToken(jwtToken);
                     },
                   ),
                   builder: (
-                    RunMutation runMutation,
-                    QueryResult result,
-                  ) {
+                      RunMutation runMutation,
+                      QueryResult result,
+                      ) {
                     return RaisedButton(
                       onPressed: () async => runMutation({
+                        'firstName': firstNameController.value.text,
+                        'lastName': lastNameController.value.text,
                         'username': usernameController.value.text,
                         'password': passwordController.value.text,
                       }),
-                      child: Text('Login'),
+                      child: Text('Register'),
                     );
                   },
                 ),
-                Text('Don\'t have an account yet?'),
+                Text('Already having an account?'),
                 FlatButton(
-                  child: Text('Register'),
+                  child: Text('Login'),
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/register');
+                    Navigator.of(context).pushReplacementNamed('/');
                   },
                 ),
               ],

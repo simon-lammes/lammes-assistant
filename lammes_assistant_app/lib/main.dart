@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:lammes_assistant_app/screens/login.dart';
+import 'package:lammes_assistant_app/screens/register.dart';
 import 'package:lammes_assistant_app/state/authentication_state.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Flutter Demo',
           routes: {
-            '/': (context) => LoginScreen()
+            '/': (context) => LoginScreen(),
+            '/register': (context) => RegisterScreen(),
           },
           theme: ThemeData(
             // This is the theme of your application.

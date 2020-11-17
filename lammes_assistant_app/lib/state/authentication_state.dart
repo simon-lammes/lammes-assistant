@@ -7,7 +7,7 @@ class AuthenticationState extends ChangeNotifier {
     return _jwtToken;
   }
 
-  void handleLogin(String jwtToken) {
+  void storeJwtToken(String jwtToken) {
     _jwtToken = jwtToken;
     notifyListeners();
   }
