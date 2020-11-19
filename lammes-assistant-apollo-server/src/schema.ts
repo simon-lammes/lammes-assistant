@@ -2,7 +2,7 @@ import {makeSchema, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
-import {createNote} from "./operations/note-operations";
+import {createNote, fetchMyNotes} from "./operations/note-operations";
 
 const User = objectType({
   name: 'User',
@@ -48,7 +48,13 @@ const Query = objectType({
         }
         return prisma.user.findMany();
       }
-    })
+    });
+    t.list.field('myNotes', {
+      type: "Note",
+      resolve: (root, args, context) => {
+        return fetchMyNotes(context);
+      }
+    });
   },
 })
 

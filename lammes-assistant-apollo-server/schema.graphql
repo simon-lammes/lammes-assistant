@@ -20,6 +20,7 @@ input NoteWhereUniqueInput {
 }
 
 type Query {
+  myNotes: [Note]
   users: [User]
 }
 
