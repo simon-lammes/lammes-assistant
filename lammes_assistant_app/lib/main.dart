@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:lammes_assistant_app/screens/create_note.dart';
 import 'package:lammes_assistant_app/screens/login.dart';
 import 'package:lammes_assistant_app/screens/notes.dart';
 import 'package:lammes_assistant_app/screens/register.dart';
@@ -47,7 +48,8 @@ class MyApp extends StatelessWidget {
             '/splash': (context) => SplashScreen(),
             '/login': (context) => LoginScreen(),
             '/register': (context) => RegisterScreen(),
-            '/notes': (context) => NotesScreen()
+            '/notes': (context) => NotesScreen(),
+            '/createNote': (context) => CreateNoteScreen()
           },
           theme: ThemeData(
             primarySwatch: Colors.blue,

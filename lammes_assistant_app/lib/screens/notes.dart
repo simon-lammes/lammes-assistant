@@ -44,6 +44,10 @@ class NotesScreen extends StatelessWidget {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => Navigator.of(context).pushNamed('/createNote'),
+      ),
     );
   }
 }
