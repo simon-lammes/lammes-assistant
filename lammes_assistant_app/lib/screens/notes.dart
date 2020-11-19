@@ -16,13 +16,19 @@ class NotesScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Query(
-          options: QueryOptions(document: gql(myNotesQuery)),
+          options: QueryOptions(
+            document: gql(myNotesQuery),
+            optimisticResult: {
+              'myNotes': [
+                {'text': '...'},
+                {'text': '...'},
+                {'text': '...'}
+              ]
+            },
+          ),
           builder: (result, {fetchMore, refetch}) {
             if (result.hasException) {
               return Text(result.exception.toString());
-            }
-            if (result.isLoading) {
-              return Text("Loading...");
             }
             final List notes = result.data['myNotes'];
             return ListView.builder(
