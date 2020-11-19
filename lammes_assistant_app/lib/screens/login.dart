@@ -70,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       final jwtToken = resultData['login'];
                       Provider.of<AuthenticationState>(context, listen: false)
                           .storeJwtToken(jwtToken);
+                      Navigator.of(context).pushReplacementNamed('/notes');
                     },
                   ),
                   builder: (

@@ -98,6 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       final jwtToken = resultData['register']['jwtToken'];
                       Provider.of<AuthenticationState>(context, listen: false)
                           .storeJwtToken(jwtToken);
+                      Navigator.of(context).pushReplacementNamed('/notes');
                     },
                   ),
                   builder: (
