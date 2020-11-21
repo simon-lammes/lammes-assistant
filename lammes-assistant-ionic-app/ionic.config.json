@@ -1,0 +1,7 @@
+{
+  "name": "lammes-assistant-ionic-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
