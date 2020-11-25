@@ -20,7 +20,7 @@ export class UnauthenticatedGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
-    if (this.authenticationService.isUserAuthenticated) {
+    if (await this.authenticationService.isUserAuthenticated()) {
       await this.router.navigateByUrl('/tabs');
       return false;
     } else {

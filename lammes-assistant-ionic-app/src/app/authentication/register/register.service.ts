@@ -36,6 +36,6 @@ export class RegisterService {
       }
     }).toPromise();
     const {jwtToken} = data.registration;
-    this.authenticationService.storeJwtToken(jwtToken);
+    await this.authenticationService.storeJwtToken(jwtToken);
   }
 }

@@ -27,6 +27,6 @@ export class LoginService {
         password
       }
     }).toPromise();
-    this.authenticationService.storeJwtToken(data.login);
+    await this.authenticationService.storeJwtToken(data.login);
   }
 }
