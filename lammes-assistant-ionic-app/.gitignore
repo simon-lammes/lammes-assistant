@@ -29,3 +29,6 @@ npm-debug.log*
 /platforms
 /plugins
 /www
+
+# The reason why it is ignored is described in the readme.
+/schema.graphql

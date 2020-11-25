@@ -1,18 +1,24 @@
-import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
+import {AuthenticatedGuard} from './authentication/authenticated.guard';
 
 const routes: Routes = [
   {
     path: 'tabs',
+    canActivate: [AuthenticatedGuard],
     loadChildren: () => import('./tabs/tabs.module').then( m => m.TabsPageModule)
+  },
+  {
+    path: 'register',
+    loadChildren: () => import('./authentication/register/register.module').then(m => m.RegisterPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./authentication/login/login.module').then( m => m.LoginPageModule)
   },
   {
     path: '**',
     redirectTo: 'tabs'
-  },
-  {
-    path: 'notes',
-    loadChildren: () => import('./notes/notes.module').then( m => m.NotesPageModule)
   }
 ];
 

@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <ion-item>
+      <ion-label>Username</ion-label>
+      <ion-input type="text" formControlName="username"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Password</ion-label>
+      <ion-input type="text" formControlName="password"></ion-input>
+    </ion-item>
+    <ion-button type="submit" [disabled]="!loginForm.valid" class="standard-left-right-margin standard-top-margin">
+      Login
+    </ion-button>
+  </form>
+  <div style="display: flex" class="standard-left-right-margin">
+    <ion-note style="align-self: center">No Account yet?</ion-note>
+    <ion-button fill="clear" routerLink="/register">Register</ion-button>
+  </div>
+</ion-content>
