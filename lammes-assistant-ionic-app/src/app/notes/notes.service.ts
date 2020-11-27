@@ -48,7 +48,7 @@ export class NotesService {
   );
 
   constructor(
-    private apollo: Apollo
+    private apollo: Apollo,
   ) {
   }
 
