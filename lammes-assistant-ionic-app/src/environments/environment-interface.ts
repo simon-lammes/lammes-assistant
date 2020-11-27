@@ -17,4 +17,10 @@ export interface Environment {
    * The uri of the GraphQL endpoint used by this application.
    */
   uriGraphQl: string;
+
+  /**
+   * When a network request fails, we should retry. But we should wait a bit before we retry so that we do not waste resources.
+   * This constant specifies in milliseconds for how long we wait.
+   */
+  networkRetryDelayMilliseconds: number;
 }

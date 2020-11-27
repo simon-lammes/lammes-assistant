@@ -2,15 +2,19 @@
 ### Do not make changes to this file directly
 
 
+scalar DateTime
+
 type Mutation {
   createNote(text: String!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
+  resolveNotes(noteIds: [Int!]!): DateTime
 }
 
 type Note {
   creatorId: Int!
   id: Int!
+  resolvedTimestamp: DateTime
   text: String!
   user: User!
 }
@@ -20,7 +24,7 @@ input NoteWhereUniqueInput {
 }
 
 type Query {
-  myNotes: [Note]
+  myPendingNotes: [Note]
   users: [User]
 }
 

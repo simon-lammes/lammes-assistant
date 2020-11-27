@@ -10,12 +10,14 @@ export interface CreateNoteData {
 }
 
 export interface Note {
+  id: number;
   text: string;
 }
 
 const usersNotesQuery = gql`
     query UsersNotes {
-        myNotes {
+        myPendingNotes {
+            id,
             text
         }
     }
@@ -24,9 +26,16 @@ const usersNotesQuery = gql`
 const createNoteMutation = gql`
     mutation CreateNote($text: String!) {
         createNote(text: $text) {
+            id,
             text
         }
     }
+`;
+
+const resolveNotesMutation = gql`
+  mutation ResolveNotes($noteIds: [Int!]!) {
+      resolveNotes(noteIds: $noteIds)
+  }
 `;
 
 @Injectable({
@@ -34,8 +43,8 @@ const createNoteMutation = gql`
 })
 export class NotesService {
 
-  readonly usersNotes$ = this.apollo.watchQuery<{ myNotes: Note[] }>({query: usersNotesQuery}).valueChanges.pipe(
-    map(({data}) => data.myNotes)
+  readonly usersNotes$ = this.apollo.watchQuery<{ myPendingNotes: Note[] }>({query: usersNotesQuery}).valueChanges.pipe(
+    map(({data}) => data.myPendingNotes)
   );
 
   constructor(
@@ -50,25 +59,46 @@ export class NotesService {
    * this note gets appended the users notes. If you want to know more about this concept, I recommend this article
    * https://www.apollographql.com/docs/angular/features/cache-updates/
    * and I highly recommend this video https://www.youtube.com/watch?v=zWhVAN4Tg6M
-   * We want the queries to update immediately even when the network is slow, thich is why we use work with an optimistic response.
-   * You can read more about optimistic responses here: https://www.apollographql.com/docs/angular/features/optimistic-ui/
    */
   async createNote(data: CreateNoteData) {
     await this.apollo.mutate({
       mutation: createNoteMutation,
       variables: data,
-      optimisticResponse: {
-        __typename: 'Mutation',
-        createNote: {
-          __typename: 'Note',
-          text: data.text
-        }
-      },
+      // I faced a problem with optimisticResponse that I could not fix which is why I do not provide it anymore.
+      // If you find a solution, please apply it. It would be nicer if we made use of the optimisticResponse.
+      // The problem is that we need our result data to have an id. This is important because we need the notes' id,
+      // otherwise we wouldn't explicitly request it in our graphql query. However, we cannot predict the id of a
+      // newly created note for the optimisticResponse. Not providing an id when it is expected leads to errors.
+      optimisticResponse: undefined,
       update: (cache, mutationResult) => {
-        const cachedData = cache.readQuery({query: usersNotesQuery}) as { myNotes: Note[] };
+        const cachedData = cache.readQuery({query: usersNotesQuery}) as { myPendingNotes: Note[] };
         const newNote = (mutationResult.data as { createNote: Note }).createNote;
         const updatedCacheData = {
-          myNotes: [...cachedData.myNotes, newNote]
+          myPendingNotes: [...cachedData.myPendingNotes, newNote]
+        };
+        cache.writeQuery({query: usersNotesQuery, data: updatedCacheData});
+      }
+    }).toPromise();
+  }
+
+  async checkOffNotes(checkedOffNoteIds: number[]) {
+    if (checkedOffNoteIds.length === 0) {
+      return;
+    }
+    await this.apollo.mutate({
+      mutation: resolveNotesMutation,
+      variables: {
+        noteIds: checkedOffNoteIds
+      },
+      optimisticResponse: {
+        data: {
+          resolveNotes: new Date()
+        }
+      },
+      update: (cache) => {
+        const cachedData = cache.readQuery({query: usersNotesQuery}) as { myPendingNotes: Note[] };
+        const updatedCacheData = {
+          myPendingNotes: cachedData.myPendingNotes.filter(x => !checkedOffNoteIds.includes(x.id))
         };
         cache.writeQuery({query: usersNotesQuery, data: updatedCacheData});
       }

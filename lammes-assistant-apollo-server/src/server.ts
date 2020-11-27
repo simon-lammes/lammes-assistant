@@ -1,9 +1,10 @@
-import { ApolloServer } from 'apollo-server'
-import { schema } from './schema'
-import { createContext } from './context'
+import {ApolloServer} from 'apollo-server'
+import {schema} from './schema'
+import {createContext} from './context'
+import {myLogger} from "./logger";
 
 
-new ApolloServer({ schema, context: createContext }).listen(
+new ApolloServer({ schema, context: createContext, plugins: [myLogger] }).listen(
   { port: 4000 },
   () =>
     console.log(

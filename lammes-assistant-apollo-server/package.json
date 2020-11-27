@@ -10,18 +10,18 @@
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly src/server"
   },
   "dependencies": {
-    "@nexus/schema": "0.17.0",
-    "@prisma/client": "^2.11.0",
+    "@nexus/schema": "^0.19.1",
+    "@prisma/client": "^2.12.1",
     "@types/node-fetch": "2.5.7",
     "apollo-server": "2.19.0",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "graphql": "15.4.0",
     "jsonwebtoken": "^8.5.1",
-    "nexus-plugin-prisma": "0.23.1"
+    "nexus-plugin-prisma": "^0.25.0"
   },
   "devDependencies": {
-    "@prisma/cli": "^2.11.0",
+    "@prisma/cli": "^2.12.1",
     "@types/bcrypt": "^3.0.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "12.19.3",

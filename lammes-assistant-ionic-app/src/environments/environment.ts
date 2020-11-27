@@ -9,7 +9,8 @@ import {Environment} from './environment-interface';
  */
 export const environment: Environment = {
   production: false,
-  uriGraphQl: 'http://localhost:4000'
+  uriGraphQl: 'http://localhost:4000',
+  networkRetryDelayMilliseconds: 3000
 };
 
 /*

@@ -1,8 +1,8 @@
-import {makeSchema, objectType, stringArg} from '@nexus/schema'
+import {intArg, makeSchema, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
-import {createNote, fetchMyNotes} from "./operations/note-operations";
+import {createNote, fetchMyPendingNotes, resolveNotes} from "./operations/note-operations";
 
 const User = objectType({
   name: 'User',
@@ -20,6 +20,7 @@ const Note = objectType({
   definition(t) {
     t.model.id();
     t.model.text();
+    t.model.resolvedTimestamp();
     t.model.creatorId();
     t.model.user();
   },
@@ -35,7 +36,7 @@ const Registration = objectType({
       type: "User"
     });
   }
-})
+});
 
 const Query = objectType({
   name: 'Query',
@@ -49,10 +50,10 @@ const Query = objectType({
         return prisma.user.findMany();
       }
     });
-    t.list.field('myNotes', {
+    t.list.field('myPendingNotes', {
       type: "Note",
       resolve: (root, args, context) => {
-        return fetchMyNotes(context);
+        return fetchMyPendingNotes(context);
       }
     });
   },
@@ -70,7 +71,7 @@ const Mutation = objectType({
         password: stringArg({nullable: false})
       },
       resolve: async (_, inputs: SignupInput, context) => {
-        return register(context.prisma.user, inputs);
+        return register(context, inputs);
       }
     });
     t.field("login", {
@@ -80,7 +81,7 @@ const Mutation = objectType({
         password: stringArg({nullable: false})
       },
       resolve: async (_, inputs, context) => {
-        return login(context.prisma.user, inputs);
+        return login(context, inputs);
       }
     });
     t.field("createNote", {
@@ -90,6 +91,18 @@ const Mutation = objectType({
       },
       resolve: async (_, inputs, context) => {
         return createNote(context, inputs);
+      }
+    });
+    t.field("resolveNotes", {
+      type: "DateTime",
+      args: {
+        noteIds: intArg({
+          list: true,
+          nullable: false,
+        })
+      },
+      resolve: (root, args, context) => {
+        return resolveNotes(context, args);
       }
     });
   },

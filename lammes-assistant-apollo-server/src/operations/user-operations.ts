@@ -1,8 +1,9 @@
-import {User, UserDelegate} from "@prisma/client";
+import {User} from "@prisma/client";
 import {ApolloError, AuthenticationError} from "apollo-server";
 import {environment} from "../environment";
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import {Context} from "../context";
 
 /**
  * The required input for creating a new user.
@@ -29,7 +30,8 @@ export interface JwtPayload {
   userId: number;
 }
 
-export async function register(userDao: UserDelegate, {firstName, lastName, username, password}: SignupInput): Promise<{ user: User, jwtToken: string }> {
+export async function register(context: Context, {firstName, lastName, username, password}: SignupInput): Promise<{ user: User, jwtToken: string }> {
+  const userDao = context.prisma.user;
   const userWithSameUsername = await userDao.findFirst({where: {username}});
   if (userWithSameUsername) {
     throw new ApolloError("A user with that username already exists", "USERNAME_COLLISION");
@@ -50,7 +52,8 @@ export async function register(userDao: UserDelegate, {firstName, lastName, user
   }
 }
 
-export async function login(userDao: UserDelegate, {username, password}: SignInInput): Promise<string> {
+export async function login(context: Context, {username, password}: SignInInput): Promise<string> {
+  const userDao = context.prisma.user;
   const user = await userDao.findFirst({where: {username}});
   if (!user) {
     throw new AuthenticationError('User with that username does not exist.');

@@ -19,11 +19,12 @@ model User {
 }
 
 model Note {
-  id               Int      @id @default(autoincrement())
-  text             String
-  updatedTimestamp DateTime @default(now()) @map("updated_timestamp")
-  creatorId        Int      @map("creator_id")
-  user             User     @relation("notesToUsers", fields: [creatorId], references: [id])
+  id                Int       @id @default(autoincrement())
+  text              String
+  updatedTimestamp  DateTime  @default(now()) @map("updated_timestamp")
+  creatorId         Int       @map("creator_id")
+  resolvedTimestamp DateTime? @map("resolved_timestamp")
+  user              User      @relation("notesToUsers", fields: [creatorId], references: [id])
 
   @@map("notes")
 }

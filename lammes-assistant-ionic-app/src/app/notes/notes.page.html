@@ -6,7 +6,8 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let note of notes$ | async">
+    <ion-item *ngFor="let note of pendingNotes$ | async">
+      <ion-checkbox color="primary" slot="start" (ionChange)="onNoteCheckedChanged($event, note.id)"></ion-checkbox>
       <ion-label>{{note.text}}</ion-label>
     </ion-item>
   </ion-list>
