@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {map} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 /**
  * The data that is needed for creating a note.
@@ -12,13 +13,25 @@ export interface CreateNoteData {
 export interface Note {
   id: number;
   text: string;
+  description: string | undefined;
 }
 
 const usersNotesQuery = gql`
     query UsersNotes {
         myPendingNotes {
             id,
-            text
+            text,
+            description
+        }
+    }
+`;
+
+const fetchNoteQuery = gql`
+    query FetchNote($noteId: Int!) {
+        note(id: $noteId) {
+            id,
+            text,
+            description
         }
     }
 `;
@@ -27,15 +40,26 @@ const createNoteMutation = gql`
     mutation CreateNote($text: String!) {
         createNote(text: $text) {
             id,
-            text
+            text,
+            description
         }
     }
 `;
 
 const resolveNotesMutation = gql`
-  mutation ResolveNotes($noteIds: [Int!]!) {
-      resolveNotes(noteIds: $noteIds)
-  }
+    mutation ResolveNotes($noteIds: [Int!]!) {
+        resolveNotes(noteIds: $noteIds)
+    }
+`;
+
+const editNoteMutation = gql`
+    mutation EditNote($id: Int!, $text: String!, $description: String!) {
+        editNote(id: $id, text: $text, description: $description) {
+            id,
+            text,
+            description
+        }
+    }
 `;
 
 @Injectable({
@@ -103,5 +127,21 @@ export class NotesService {
         cache.writeQuery({query: usersNotesQuery, data: updatedCacheData});
       }
     }).toPromise();
+  }
+
+  fetchNote(noteId: number): Observable<Note> {
+    return this.apollo.watchQuery<{ note: Note }>({
+      query: fetchNoteQuery,
+      variables: {noteId}
+    }).valueChanges.pipe(
+      map(({data}) => data.note)
+    );
+  }
+
+  editNote(args: { id: number, text: string, description: string }) {
+    return this.apollo.mutate({
+      mutation: editNoteMutation,
+      variables: {...args},
+    });
   }
 }

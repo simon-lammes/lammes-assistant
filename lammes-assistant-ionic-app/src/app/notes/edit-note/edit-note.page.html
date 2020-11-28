@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title *ngIf="note$ | async as note">Edit Note: {{note.text}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/tabs/notes">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form *ngIf="noteForm" [formGroup]="noteForm" (ngSubmit)="saveChanges()">
+    <ion-item>
+      <ion-label>Note text</ion-label>
+      <ion-input type="text" formControlName="text" (ionBlur)="trim('text')"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Description</ion-label>
+      <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')"></ion-textarea>
+    </ion-item>
+    <ion-button type="submit" [disabled]="!noteForm.valid" expand="block">
+      Save Changes
+    </ion-button>
+  </form>
+</ion-content>

@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: NotesPage
+  },  {
+    path: 'edit-note',
+    loadChildren: () => import('./edit-note/edit-note.module').then( m => m.EditNotePageModule)
   }
+
 ];
 
 @NgModule({

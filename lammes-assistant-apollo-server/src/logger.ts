@@ -1,10 +1,5 @@
 import {PluginDefinition} from "apollo-server-core/src/types";
-import {
-  BaseContext,
-  GraphQLRequestContext,
-  GraphQLRequestContextDidEncounterErrors,
-  ValueOrPromise
-} from "apollo-server-types";
+import {BaseContext, GraphQLRequestContextDidEncounterErrors, ValueOrPromise} from "apollo-server-types";
 import {GraphQLRequestListener} from "apollo-server-plugin-base/src/index";
 
 /**
@@ -12,7 +7,7 @@ import {GraphQLRequestListener} from "apollo-server-plugin-base/src/index";
  * It is inspired by the following documentation: https://www.apollographql.com/docs/apollo-server/monitoring/metrics/
  */
 export const myLogger: PluginDefinition = {
-  requestDidStart(): GraphQLRequestListener<BaseContext> | void {
+  requestDidStart(): GraphQLRequestListener | void {
     return {
       didEncounterErrors(requestContext: GraphQLRequestContextDidEncounterErrors<BaseContext>): ValueOrPromise<void> {
         console.error(requestContext.errors);

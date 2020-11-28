@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CreateNoteData, Note, NotesService} from './notes.service';
 import {Observable} from 'rxjs';
 import {ActionSheetController, AlertController} from '@ionic/angular';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-notes',
@@ -15,6 +16,7 @@ export class NotesPage implements OnInit {
     private notesService: NotesService,
     private alertController: AlertController,
     private actionSheetController: ActionSheetController,
+    private router: Router
   ) {
   }
 
@@ -57,6 +59,13 @@ export class NotesPage implements OnInit {
           icon: 'checkmark-outline',
           handler: async () => {
             await this.notesService.checkOffNotes([note.id]);
+          }
+        },
+        {
+          text: 'Edit',
+          icon: 'create-outline',
+          handler: async () => {
+            await this.router.navigateByUrl(`/tabs/notes/edit-note/${note.id}`);
           }
         },
         {
