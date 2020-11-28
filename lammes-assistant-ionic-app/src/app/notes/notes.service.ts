@@ -13,15 +13,28 @@ export interface CreateNoteData {
 export interface Note {
   id: number;
   text: string;
-  description: string | undefined;
+  description?: string;
+  resolvedTimestamp?: string;
 }
 
-const usersNotesQuery = gql`
-    query UsersNotes {
+const usersPendingNotesQuery = gql`
+    query UsersPendingNotes {
         myPendingNotes {
             id,
             text,
-            description
+            description,
+            resolvedTimestamp
+        }
+    }
+`;
+
+const usersResolvedNotesQuery = gql`
+    query UsersResolvedNotes {
+        myResolvedNotes {
+            id,
+            text,
+            description,
+            resolvedTimestamp
         }
     }
 `;
@@ -31,7 +44,8 @@ const fetchNoteQuery = gql`
         note(id: $noteId) {
             id,
             text,
-            description
+            description,
+            resolvedTimestamp
         }
     }
 `;
@@ -41,14 +55,20 @@ const createNoteMutation = gql`
         createNote(text: $text) {
             id,
             text,
-            description
+            description,
+            resolvedTimestamp
         }
     }
 `;
 
 const resolveNotesMutation = gql`
-    mutation ResolveNotes($noteIds: [Int!]!) {
-        resolveNotes(noteIds: $noteIds)
+    mutation ResolveNotes($noteId: Int!) {
+        resolveNote(noteId: $noteId) {
+            id,
+            text,
+            description,
+            resolvedTimestamp
+        }
     }
 `;
 
@@ -57,7 +77,8 @@ const editNoteMutation = gql`
         editNote(id: $id, text: $text, description: $description) {
             id,
             text,
-            description
+            description,
+            resolvedTimestamp
         }
     }
 `;
@@ -67,8 +88,12 @@ const editNoteMutation = gql`
 })
 export class NotesService {
 
-  readonly usersNotes$ = this.apollo.watchQuery<{ myPendingNotes: Note[] }>({query: usersNotesQuery}).valueChanges.pipe(
+  readonly usersPendingNotes$ = this.apollo.watchQuery<{ myPendingNotes: Note[] }>({query: usersPendingNotesQuery}).valueChanges.pipe(
     map(({data}) => data.myPendingNotes)
+  );
+
+  readonly usersResolvedNotes$ = this.apollo.watchQuery<{ myResolvedNotes: Note[] }>({query: usersResolvedNotesQuery}).valueChanges.pipe(
+    map(({data}) => data.myResolvedNotes)
   );
 
   constructor(
@@ -95,36 +120,41 @@ export class NotesService {
       // newly created note for the optimisticResponse. Not providing an id when it is expected leads to errors.
       optimisticResponse: undefined,
       update: (cache, mutationResult) => {
-        const cachedData = cache.readQuery({query: usersNotesQuery}) as { myPendingNotes: Note[] };
+        const cachedData = cache.readQuery({query: usersPendingNotesQuery}) as { myPendingNotes: Note[] };
         const newNote = (mutationResult.data as { createNote: Note }).createNote;
         const updatedCacheData = {
           myPendingNotes: [...cachedData.myPendingNotes, newNote]
         };
-        cache.writeQuery({query: usersNotesQuery, data: updatedCacheData});
+        cache.writeQuery({query: usersPendingNotesQuery, data: updatedCacheData});
       }
     }).toPromise();
   }
 
-  async checkOffNotes(checkedOffNoteIds: number[]) {
-    if (checkedOffNoteIds.length === 0) {
-      return;
-    }
-    await this.apollo.mutate({
+  async resolveNote(note: Note) {
+    await this.apollo.mutate<{ resolveNote: Note }, { noteId: number }>({
       mutation: resolveNotesMutation,
-      variables: {
-        noteIds: checkedOffNoteIds
-      },
-      optimisticResponse: {
-        data: {
-          resolveNotes: new Date()
-        }
-      },
-      update: (cache) => {
-        const cachedData = cache.readQuery({query: usersNotesQuery}) as { myPendingNotes: Note[] };
-        const updatedCacheData = {
-          myPendingNotes: cachedData.myPendingNotes.filter(x => !checkedOffNoteIds.includes(x.id))
+      variables: {noteId: note.id},
+      update: (cache, mutationResult) => {
+        // Update the cache for the pending notes.
+        const cachedPendingNotes = cache.readQuery({query: usersPendingNotesQuery}) as { myPendingNotes: Note[] };
+        const updatedCachedPendingNotes = {
+          myPendingNotes: cachedPendingNotes.myPendingNotes.filter(x => x.id !== note.id)
         };
-        cache.writeQuery({query: usersNotesQuery, data: updatedCacheData});
+        cache.writeQuery({query: usersPendingNotesQuery, data: updatedCachedPendingNotes});
+
+        // Update the cache for the resolved notes.
+        try {
+          const cachedResolvedNotes = cache.readQuery({query: usersResolvedNotesQuery}) as { myResolvedNotes: Note[] };
+          const resolvedNote = mutationResult.data.resolveNote;
+          const updatedCachedResolvedNotes = {
+            myResolvedNotes: [resolvedNote, ...cachedResolvedNotes.myResolvedNotes]
+          };
+          cache.writeQuery({query: usersResolvedNotesQuery, data: updatedCachedResolvedNotes});
+        } catch (e) {
+          // If the query that we are updating the cache for does is not yet cached, readQuery will throw an exception.
+          // In this case, we do not need to update the cache because this query is not yet cached.
+          // Thus, we can just catch and ignore this error.
+        }
       }
     }).toPromise();
   }

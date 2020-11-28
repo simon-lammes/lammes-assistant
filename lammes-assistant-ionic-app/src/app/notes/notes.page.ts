@@ -3,6 +3,12 @@ import {CreateNoteData, Note, NotesService} from './notes.service';
 import {Observable} from 'rxjs';
 import {ActionSheetController, AlertController} from '@ionic/angular';
 import {Router} from '@angular/router';
+import {ActionSheetButton} from '@ionic/core/dist/types/components/action-sheet/action-sheet-interface';
+
+/**
+ * These are the options the user can choose by clicking on a segment.
+ */
+type SegmentOption = 'pending' | 'resolved';
 
 @Component({
   selector: 'app-notes',
@@ -11,6 +17,8 @@ import {Router} from '@angular/router';
 })
 export class NotesPage implements OnInit {
   pendingNotes$: Observable<Note[]>;
+  resolvedNotes$: Observable<Note[]>;
+  selectedSegmentOption: SegmentOption = 'pending';
 
   constructor(
     private notesService: NotesService,
@@ -21,7 +29,8 @@ export class NotesPage implements OnInit {
   }
 
   ngOnInit() {
-    this.pendingNotes$ = this.notesService.usersNotes$;
+    this.pendingNotes$ = this.notesService.usersPendingNotes$;
+    this.resolvedNotes$ = this.notesService.usersResolvedNotes$;
   }
 
   async createNote() {
@@ -51,16 +60,18 @@ export class NotesPage implements OnInit {
   }
 
   async onNoteClicked(note: Note) {
+    // We only want a complete button, if the note has not been resolved yet.
+    const completeButton: ActionSheetButton = note.resolvedTimestamp?.length > 0 ? undefined : {
+      text: 'Resolve',
+      icon: 'checkmark-outline',
+      handler: async () => {
+        await this.notesService.resolveNote(note);
+      }
+    };
     const actionSheet = await this.actionSheetController.create({
       header: `Note: ${note.text}`,
       buttons: [
-        {
-          text: 'Complete',
-          icon: 'checkmark-outline',
-          handler: async () => {
-            await this.notesService.checkOffNotes([note.id]);
-          }
-        },
+        completeButton,
         {
           text: 'Edit',
           icon: 'create-outline',
@@ -76,7 +87,14 @@ export class NotesPage implements OnInit {
           }
         }
       ]
+        // We might have set some buttons (e.g. the resolve button) set to undefined because we want to hide it.
+        // We need to filter out those undefined values from the array.
+        .filter(button => button)
     });
     await actionSheet.present();
+  }
+
+  onSegmentChange($event: any) {
+    this.selectedSegmentOption = $event.detail.value;
   }
 }

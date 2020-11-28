@@ -5,16 +5,35 @@
 </ion-header>
 
 <ion-content>
-  <ion-list>
+  <ion-segment mode="md" [value]="selectedSegmentOption" (ionChange)="onSegmentChange($event)">
+    <ion-segment-button value="pending">
+      <ion-label>Pending</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="resolved">
+      <ion-label>Resolved</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list *ngIf="selectedSegmentOption === 'pending'">
     <ion-item *ngFor="let note of pendingNotes$ | async" button (click)="onNoteClicked(note)">
       <ion-label>
         <h2>{{note.text}}</h2>
-<!--        <h3>Due Date</h3>-->
         <p *ngIf="note.description">{{note.description}}</p>
       </ion-label>
     </ion-item>
   </ion-list>
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+
+  <ion-list *ngIf="selectedSegmentOption === 'resolved'">
+    <ion-item *ngFor="let note of resolvedNotes$ | async" button (click)="onNoteClicked(note)">
+      <ion-label>
+        <h2>{{note.text}}</h2>
+        <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
+        <p *ngIf="note.description">{{note.description}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="selectedSegmentOption === 'pending'">
     <ion-fab-button (click)="createNote()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

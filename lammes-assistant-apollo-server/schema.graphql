@@ -9,7 +9,7 @@ type Mutation {
   editNote(description: String!, id: Int!, text: String!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
-  resolveNotes(noteIds: [Int!]!): DateTime
+  resolveNote(noteId: Int!): Note
 }
 
 type Note {
@@ -27,6 +27,7 @@ input NoteWhereUniqueInput {
 
 type Query {
   myPendingNotes: [Note]
+  myResolvedNotes: [Note]
   note(id: Int!): Note
   users: [User]
 }

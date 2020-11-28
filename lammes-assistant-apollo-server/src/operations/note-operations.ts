@@ -8,8 +8,8 @@ export interface CreateNoteInput {
   text: string;
 }
 
-interface ResolveNotesInput {
-  noteIds: number[];
+interface ResolveNoteInput {
+  noteId: number;
 }
 
 export async function createNote(context: Context, {text}: CreateNoteInput): Promise<Note> {
@@ -40,36 +40,44 @@ export async function fetchMyPendingNotes(context: Context): Promise<Note[]> {
   });
 }
 
-export async function resolveNotes(context: Context, {noteIds}: ResolveNotesInput): Promise<Date> {
+export async function fetchMyResolvedNotes(context: Context): Promise<Note[]> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can fetch your notes when you are authenticated.');
+  }
+  return context.prisma.note.findMany({
+    where: {
+      creatorId: userId,
+      resolvedTimestamp: {not: null}
+    },
+    orderBy: {
+      resolvedTimestamp: 'desc'
+    }
+  });
+}
+
+export async function resolveNote(context: Context, {noteId}: ResolveNoteInput): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only resolve notes when you are authenticated.');
   }
-  const now = new Date();
-  const notesToResolveThatDoNotBelongToUser = await context.prisma.note.findMany({
+  const note = await context.prisma.note.findFirst({
     where: {
-      id: {
-        in: noteIds
-      },
-      creatorId: {
-        not: userId
-      }
+      id: noteId
     }
   });
-  if (notesToResolveThatDoNotBelongToUser.length > 0) {
-    throw generateAuthorizationError("You cannot resolve notes of other users.", {"wrongNoteIds": notesToResolveThatDoNotBelongToUser.map(note => note.id)});
+  if (!note) {
+    throw generateNotFoundError(`No note with id ${noteId}.`);
   }
-  await context.prisma.note.updateMany({
-    where: {
-      id: {
-        in: noteIds
-      }
-    },
+  if (note.creatorId !== userId) {
+    throw generateAuthorizationError("You cannot resolve notes of other users.");
+  }
+  return await context.prisma.note.update({
+    where: {id: noteId},
     data: {
-      resolvedTimestamp: now
+      resolvedTimestamp: new Date()
     }
   });
-  return now;
 }
 
 export async function fetchNote(context: Context, noteId: number): Promise<Note> {

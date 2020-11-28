@@ -2,7 +2,14 @@ import {intArg, makeSchema, nonNull, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
-import {createNote, editNote, fetchMyPendingNotes, fetchNote, resolveNotes} from "./operations/note-operations";
+import {
+  createNote,
+  editNote,
+  fetchMyPendingNotes,
+  fetchMyResolvedNotes,
+  fetchNote,
+  resolveNote
+} from "./operations/note-operations";
 
 const User = objectType({
   name: 'User',
@@ -57,6 +64,12 @@ const Query = objectType({
         return fetchMyPendingNotes(context);
       }
     });
+    t.list.field('myResolvedNotes', {
+      type: "Note",
+      resolve: (root, args, context) => {
+        return fetchMyResolvedNotes(context);
+      }
+    });
     t.field('note', {
       type: 'Note',
       args: {
@@ -103,16 +116,13 @@ const Mutation = objectType({
         return createNote(context, inputs);
       }
     });
-    t.field("resolveNotes", {
-      type: "DateTime",
+    t.field("resolveNote", {
+      type: "Note",
       args: {
-        noteIds: intArg({
-          list: true,
-          nullable: false,
-        })
+        noteId: nonNull(intArg())
       },
       resolve: (root, args, context) => {
-        return resolveNotes(context, args);
+        return resolveNote(context, args);
       }
     });
     t.field("editNote", {
