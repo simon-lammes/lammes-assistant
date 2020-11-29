@@ -1,0 +1,13 @@
+name: lammes-assistant
+
+static_sites:
+- name: lammes-assistant-ionic-app
+  github:
+    repo: simon-lammes/lammes-assistant
+    branch: master
+    deploy_on_push: true
+  source_dir: lammes-assistant-ionic-app
+  dockerfile_path: lammes-assistant-ionic-app/Dockerfile
+  output_dir: /app
+  routes:
+  - path: /site
