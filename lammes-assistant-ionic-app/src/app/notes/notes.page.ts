@@ -8,7 +8,7 @@ import {ActionSheetButton} from '@ionic/core/dist/types/components/action-sheet/
 /**
  * These are the options the user can choose by clicking on a segment.
  */
-type SegmentOption = 'pending' | 'resolved';
+type SegmentOption = 'deferred' | 'pending' | 'resolved';
 
 @Component({
   selector: 'app-notes',
@@ -16,6 +16,7 @@ type SegmentOption = 'pending' | 'resolved';
   styleUrls: ['./notes.page.scss'],
 })
 export class NotesPage implements OnInit {
+  deferredNotes$: Observable<Note[]>;
   pendingNotes$: Observable<Note[]>;
   resolvedNotes$: Observable<Note[]>;
   selectedSegmentOption: SegmentOption = 'pending';
@@ -29,6 +30,7 @@ export class NotesPage implements OnInit {
   }
 
   ngOnInit() {
+    this.deferredNotes$ = this.notesService.usersDeferredNotes$;
     this.pendingNotes$ = this.notesService.usersPendingNotes$;
     this.resolvedNotes$ = this.notesService.usersResolvedNotes$;
   }

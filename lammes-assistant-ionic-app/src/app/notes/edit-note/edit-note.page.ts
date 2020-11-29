@@ -41,7 +41,8 @@ export class EditNotePage implements OnInit {
     this.noteForm = this.formBuilder.group({
       id: [note.id],
       text: this.formBuilder.control(note.text, [Validators.required, Validators.min(1)]),
-      description: ['']
+      description: [''],
+      startTimestamp: this.formBuilder.control(note.startTimestamp)
     });
   }
 

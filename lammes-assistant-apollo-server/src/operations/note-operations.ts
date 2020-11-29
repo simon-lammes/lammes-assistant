@@ -27,6 +27,24 @@ export async function createNote(context: Context, {text}: CreateNoteInput): Pro
   });
 }
 
+export async function fetchMyDeferredNotes(context: Context): Promise<Note[]> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only fetch your notes when you are authenticated.');
+  }
+  return context.prisma.note.findMany({
+    where: {
+      creatorId: userId,
+      resolvedTimestamp: null,
+      // Deferred notes are notes whose startTime is in the future.
+      startTimestamp: {gt: new Date()}
+    },
+    orderBy: {
+      startTimestamp: 'asc'
+    },
+  });
+}
+
 export async function fetchMyPendingNotes(context: Context): Promise<Note[]> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -35,7 +53,12 @@ export async function fetchMyPendingNotes(context: Context): Promise<Note[]> {
   return context.prisma.note.findMany({
     where: {
       creatorId: userId,
-      resolvedTimestamp: null
+      resolvedTimestamp: null,
+      // We only want those notes whose startTimestamp is in the past. This is a criterion we have set for **pending** notes.
+      startTimestamp: {lte: new Date()}
+    },
+    orderBy: {
+      updatedTimestamp: 'desc'
     }
   });
 }
@@ -95,7 +118,7 @@ export async function fetchNote(context: Context, noteId: number): Promise<Note>
   return note;
 }
 
-export async function editNote(context: Context, editedNote: {id: number, text: string, description: string}): Promise<Note> {
+export async function editNote(context: Context, editedNote: {id: number, text: string, description: string, startTimestamp: string}): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only edit notes when you are authenticated.');
@@ -112,7 +135,8 @@ export async function editNote(context: Context, editedNote: {id: number, text: 
     data: {
       updatedTimestamp: new Date(),
       description: editedNote.description?.length > 0 ? editedNote.description : null,
-      text: editedNote.text
+      text: editedNote.text,
+      startTimestamp: editedNote.startTimestamp
     }
   });
 }

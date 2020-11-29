@@ -4,7 +4,7 @@ import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
 import {
   createNote,
-  editNote,
+  editNote, fetchMyDeferredNotes,
   fetchMyPendingNotes,
   fetchMyResolvedNotes,
   fetchNote,
@@ -28,6 +28,8 @@ const Note = objectType({
     t.model.id();
     t.model.text();
     t.model.description();
+    t.model.updatedTimestamp();
+    t.model.startTimestamp();
     t.model.resolvedTimestamp();
     t.model.creatorId();
     t.model.user();
@@ -56,6 +58,12 @@ const Query = objectType({
           throw new AuthenticationError('Must be signed in to view users');
         }
         return prisma.user.findMany();
+      }
+    });
+    t.list.field('myDeferredNotes', {
+      type: "Note",
+      resolve: (root, args, context) => {
+        return fetchMyDeferredNotes(context);
       }
     });
     t.list.field('myPendingNotes', {
@@ -130,7 +138,8 @@ const Mutation = objectType({
       args: {
         id: nonNull(intArg()),
         text: nonNull(stringArg()),
-        description: nonNull(stringArg())
+        description: nonNull(stringArg()),
+        startTimestamp: nonNull(stringArg())
       },
       resolve: (root, args, context) => {
         return editNote(context, args);

@@ -10,12 +10,16 @@
 <ion-content>
   <form *ngIf="noteForm" [formGroup]="noteForm" (ngSubmit)="saveChanges()">
     <ion-item>
-      <ion-label>Note text</ion-label>
+      <ion-label>Note Text</ion-label>
       <ion-input type="text" formControlName="text" (ionBlur)="trim('text')"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Description</ion-label>
       <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label>Start Time</ion-label>
+      <ion-datetime displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="startTimestamp"></ion-datetime>
     </ion-item>
     <ion-button type="submit" [disabled]="!noteForm.valid" expand="block">
       Save Changes

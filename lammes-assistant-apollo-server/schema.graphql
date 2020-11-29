@@ -6,7 +6,7 @@ scalar DateTime
 
 type Mutation {
   createNote(text: String!): Note
-  editNote(description: String!, id: Int!, text: String!): Note
+  editNote(description: String!, id: Int!, startTimestamp: String!, text: String!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
   resolveNote(noteId: Int!): Note
@@ -17,7 +17,9 @@ type Note {
   description: String
   id: Int!
   resolvedTimestamp: DateTime
+  startTimestamp: DateTime
   text: String!
+  updatedTimestamp: DateTime!
   user: User!
 }
 
@@ -26,6 +28,7 @@ input NoteWhereUniqueInput {
 }
 
 type Query {
+  myDeferredNotes: [Note]
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

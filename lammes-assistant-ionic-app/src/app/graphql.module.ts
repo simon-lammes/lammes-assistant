@@ -18,6 +18,14 @@ export function createApollo(httpLink: HttpLink, authenticationService: Authenti
     typePolicies: {
       Query: {
         fields: {
+          myDeferredNotes: {
+            // We explicitly want to throw away the existing cache because in some cases we want to delete entries.
+            // The incoming value should be the new source of truth. BTW, it worked before but by coding this explicitly,
+            // we avoid getting a warning from apollo that we might lose data.
+            merge: (existing, incoming) => {
+              return incoming;
+            }
+          },
           myPendingNotes: {
             // We explicitly want to throw away the existing cache because in some cases we want to delete entries.
             // The incoming value should be the new source of truth. BTW, it worked before but by coding this explicitly,

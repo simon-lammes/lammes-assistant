@@ -6,6 +6,9 @@
 
 <ion-content>
   <ion-segment mode="md" [value]="selectedSegmentOption" (ionChange)="onSegmentChange($event)">
+    <ion-segment-button value="deferred">
+      <ion-label>Deferred</ion-label>
+    </ion-segment-button>
     <ion-segment-button value="pending">
       <ion-label>Pending</ion-label>
     </ion-segment-button>
@@ -13,6 +16,16 @@
       <ion-label>Resolved</ion-label>
     </ion-segment-button>
   </ion-segment>
+
+  <ion-list *ngIf="selectedSegmentOption === 'deferred'">
+    <ion-item *ngFor="let note of deferredNotes$ | async" button (click)="onNoteClicked(note)">
+      <ion-label>
+        <h2>{{note.text}}</h2>
+        <h3>Deferred till {{note.startTimestamp | date:'short' }}</h3>
+        <p *ngIf="note.description">{{note.description}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
 
   <ion-list *ngIf="selectedSegmentOption === 'pending'">
     <ion-item *ngFor="let note of pendingNotes$ | async" button (click)="onNoteClicked(note)">
