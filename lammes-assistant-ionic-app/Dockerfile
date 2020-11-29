@@ -18,7 +18,7 @@ RUN npm ci
 # Consequently, all following steps cannot make use of the cache and thus this step should be as far at the end as possible.
 COPY . .
 
-RUN ionic run --prod
+RUN ionic build --prod
 
 # Now take the build angular application and copy it to the next stage: A simple alpine image used by digitaloceans web plattform for hosting.
 FROM alpine
