@@ -1,0 +1,5 @@
+node_modules/
+dist/
+src/generated/
+# *.env* not ignored because prisma needs it for finding the database URL
+/.idea/

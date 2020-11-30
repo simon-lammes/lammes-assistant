@@ -13,4 +13,15 @@ static_sites:
   # route to the index.html and let the Angular router handle the rest of the routing.
   catchall_document: index.html
   routes:
-  - path: /
+  - path: /site
+
+services:
+- name: lammes-assistant-apollo-server
+  github:
+    repo: simon-lammes/lammes-assistant
+    branch: master
+    deploy_on_push: true
+  source_dir: lammes-assistant-apollo-server
+  dockerfile_path: lammes-assistant-apollo-server/Dockerfile
+  router:
+    - /api

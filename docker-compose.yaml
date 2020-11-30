@@ -1,0 +1,9 @@
+version: '3.5'
+services:
+  lammes-assistant-apollo-server:
+    env_file:
+    - lammes-assistant-apollo-server/.env
+    build:
+      context: ./lammes-assistant-apollo-server
+    ports:
+     - "4000:4000"

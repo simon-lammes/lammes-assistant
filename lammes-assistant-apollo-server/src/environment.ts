@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import {DotenvParseOptions} from "dotenv";
+import {DotenvParseOptions} from 'dotenv';
 
 /**
  * Contains all variables configured in the '.env' file.
@@ -14,6 +14,7 @@ export interface Environment extends DotenvParseOptions {
 
 const result = dotenv.config()
 if (result.error) {
-  throw result.error;
+  console.warn('Nodes library dotenv has not found a .env file for configuration. ' +
+    'This is no problem when the environment variables are configured from outside, which is usually the case in docker containers for example.');
 }
-export const environment: Environment = result.parsed as unknown as Environment;
+export const environment: Environment = process.env as unknown as Environment;
