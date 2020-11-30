@@ -1,12 +1,18 @@
 ## Developer Guide
 
+### Local Development
+
+Run `npm install` and then `ionic serve`. As configuration, we use [`environment.ts`](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.ts). By default, the app is configured to communicate with a local server instance. If you do not have a local server instance running and want to use the server instance hosted on DigitalOcean, please copy the value for uriGraphQL from [`environment.prod.ts`](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.prod.ts) into the [`environment.ts`](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.ts).
+
 ### Deploy to Android
 
-Because we need the android emulator to the server running on our PC, we need a different configuration. Currently, we use the environment.prod.ts for this purpose. Therefore, we need to build with the prod flag. Run:
+Build the project with production settings by running:
 
 ```
 ionic cap copy --prod
 ```
+
+This will use the configuration that is specified in [`environment.prod.ts`.](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.prod.ts)
 
 In case you changed something in the source code of the native portion (in the android directory), run:
 
