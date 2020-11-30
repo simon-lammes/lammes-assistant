@@ -1,27 +1,48 @@
+# This file is easier to manage when you just copy the current value from the DigitalOcean App Platform console.
+# You might ask why this file exists then. We use it to track changes to our App Platform instnace configuration.
+# Furthermore, there are some aspects of app platform that cannot yet be managed in the UI but only with this file.
+# An example is support for monorepos. This project is a monorepo so we needed to configure our App Plattform via 
+# this file. Whenever you use this file to update the configuration, make sure this file contains the latest changes you made in
+# the DigitalOcean UI. BTW, it is save to store encryped variables in this file. Those are prefixed with "EV[". Reference:
+# https://www.digitalocean.com/community/questions/how-to-use-environment-values-of-type-secret-on-following-submissions
+databases:
+- engine: PG
+  name: lammes-assistant-dev
+  num_nodes: 1
+  size: db-s-dev-database
+  version: "12"
 name: lammes-assistant
-
-static_sites:
-- name: lammes-assistant-ionic-app
-  github:
-    repo: simon-lammes/lammes-assistant
-    branch: master
-    deploy_on_push: true
-  source_dir: lammes-assistant-ionic-app
-  dockerfile_path: lammes-assistant-ionic-app/Dockerfile
-  output_dir: /app
-  # Needed for SPA routing. When the user visits /anything, we want digitalocean to 
-  # route to the index.html and let the Angular router handle the rest of the routing.
-  catchall_document: index.html
-  routes:
-  - path: /site
-
+region: ams
 services:
-- name: lammes-assistant-apollo-server
+- dockerfile_path: lammes-assistant-apollo-server/Dockerfile
+  envs:
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${lammes-assistant-dev.DATABASE_URL}
+  - key: SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:f2dsvfPBAXCNsFqmAORcilNhXBM9gQS8:LRBjnZueGMQ2QkD+PKSkvIHWiOsDsfwuYEBifMnYEnZtqrLni3DK0jAFDAQ5A2NX75In7K/Ym48QqCKr]
   github:
-    repo: simon-lammes/lammes-assistant
     branch: master
     deploy_on_push: true
+    repo: simon-lammes/lammes-assistant
+  http_port: 4000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  name: lammes-assistant-apollo-server
+  routes:
+  - path: /api
   source_dir: lammes-assistant-apollo-server
-  dockerfile_path: lammes-assistant-apollo-server/Dockerfile
-  router:
-    - /api
+static_sites:
+- catchall_document: index.html
+  dockerfile_path: lammes-assistant-ionic-app/Dockerfile
+  github:
+    branch: master
+    deploy_on_push: true
+    repo: simon-lammes/lammes-assistant
+  name: lammes-assistant-ionic-app
+  output_dir: /app
+  routes:
+  - path: /
+  source_dir: lammes-assistant-ionic-app
