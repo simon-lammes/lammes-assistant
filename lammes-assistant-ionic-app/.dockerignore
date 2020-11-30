@@ -1,5 +1,3 @@
-# Please keep .gitignore and .dockerignore in sync. They should always be the same.
-
 *~
 *.sw[mnpcod]
 .tmp
@@ -31,3 +29,6 @@ npm-debug.log*
 
 # The reason why it is ignored is described in the readme.
 /schema.graphql
+Dockerfile
+.dockerignore
+.gitignore

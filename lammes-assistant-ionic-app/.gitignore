@@ -1,5 +1,3 @@
-# Please keep .gitignore and .dockerignore in sync. They should always be the same.
-
 *~
 *.sw[mnpcod]
 .tmp
