@@ -5,11 +5,13 @@
 import {Environment} from './environment-interface';
 
 /**
- * The environment that is used when locally testing the application. In production it is replaced with environment.production.
+ * This environment is used when you develop locally but want this application to hit the remotely hosted GraphQL server.
+ * This is useful for when you do not have the GraphQL server locally set up or it is not running.
+ * You can start local testing with this configuration with 'npm run start'.
  */
 export const environment: Environment = {
   production: false,
-  uriGraphQl: 'http://localhost:4000',
+  uriGraphQl: 'https://lammes-assistant-5m7y3.ondigitalocean.app/api',
   networkRetryDelayMilliseconds: 3000
 };
 
