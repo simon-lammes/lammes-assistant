@@ -9,8 +9,8 @@ import {setContext} from '@apollo/client/link/context';
 export function createApollo(httpLink: HttpLink, authenticationService: AuthenticationService): ApolloClientOptions<any> {
   const auth = setContext(() => ({
     headers: {
-      Authorization: authenticationService.prematureIsUserAuthenticated()
-        ? `Bearer ${authenticationService.prematureGetCurrentJwtToken()}` : ''
+      Authorization: authenticationService.getJwtTokenSync()
+        ? `Bearer ${authenticationService.getJwtTokenSync()}` : ''
     },
   }));
   const link = ApolloLink.from([auth, httpLink.create({uri: environment.uriGraphQl})]);

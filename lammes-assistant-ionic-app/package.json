@@ -28,6 +28,7 @@
     "apollo-angular": "^2.1.0",
     "capacitor-secure-storage-plugin": "^0.5.0",
     "graphql": "^15.0.0",
+    "jwt-decode": "^3.1.2",
     "rxjs": "^6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "^0.10.3"
