@@ -6,13 +6,14 @@ import {generateNotFoundError} from "../custom-errors/not-found-error";
 
 export interface CreateNoteInput {
   text: string;
+  description?: string;
 }
 
 interface ResolveNoteInput {
   noteId: number;
 }
 
-export async function createNote(context: Context, {text}: CreateNoteInput): Promise<Note> {
+export async function createNote(context: Context, {text, description}: CreateNoteInput): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only create notes when you are authenticated.');
@@ -20,6 +21,7 @@ export async function createNote(context: Context, {text}: CreateNoteInput): Pro
   return context.prisma.note.create({
     data: {
       text,
+      description,
       user: {
         connect: {id: userId}
       }

@@ -43,6 +43,11 @@ export class NotesPage implements OnInit {
           name: 'text',
           type: 'text',
           placeholder: 'Note text'
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          placeholder: 'Description (optional)'
         }
       ],
       buttons: [
@@ -59,6 +64,9 @@ export class NotesPage implements OnInit {
       ]
     });
     await alert.present();
+    // I do not know a nicer way of autofocusing the first input element.
+    const firstInput: any = document.querySelector('ion-alert input');
+    firstInput.focus();
   }
 
   async onNoteClicked(note: Note) {

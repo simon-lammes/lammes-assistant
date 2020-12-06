@@ -1,4 +1,4 @@
-import {intArg, makeSchema, nonNull, objectType, stringArg} from '@nexus/schema'
+import {intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
@@ -119,6 +119,7 @@ const Mutation = objectType({
       type: "Note",
       args: {
         text: stringArg({nullable: false}),
+        description: nullable(stringArg())
       },
       resolve: async (_, inputs, context) => {
         return createNote(context, inputs);

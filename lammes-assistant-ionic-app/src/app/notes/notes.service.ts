@@ -9,6 +9,7 @@ import {ApolloCache, FetchResult} from '@apollo/client/core';
  */
 export interface CreateNoteData {
   text: string;
+  description?: string;
 }
 
 export interface Note {
@@ -73,8 +74,8 @@ const fetchNoteQuery = gql`
 `;
 
 const createNoteMutation = gql`
-    mutation CreateNote($text: String!) {
-        createNote(text: $text) {
+    mutation CreateNote($text: String!, $description: String) {
+        createNote(text: $text, description: $description) {
             id,
             text,
             description,
