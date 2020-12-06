@@ -4,6 +4,7 @@ import {environment} from "../environment";
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import {Context} from "../context";
+import {generateNotFoundError} from "../custom-errors/not-found-error";
 
 /**
  * The required input for creating a new user.
@@ -56,7 +57,7 @@ export async function login(context: Context, {username, password}: SignInInput)
   const userDao = context.prisma.user;
   const user = await userDao.findFirst({where: {username}});
   if (!user) {
-    throw new AuthenticationError('User with that username does not exist.');
+    throw generateNotFoundError('User with that username does not exist.');
   }
   const hashedPassword = user.hashedPassword;
   const rightPassword = await bcrypt.compare(password, hashedPassword);
