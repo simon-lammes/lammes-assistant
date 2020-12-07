@@ -4,7 +4,8 @@ import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
 import {
   createNote,
-  editNote, fetchMyDeferredNotes,
+  editNote,
+  fetchMyDeferredNotes,
   fetchMyPendingNotes,
   fetchMyResolvedNotes,
   fetchNote,
@@ -81,7 +82,7 @@ const Query = objectType({
     t.field('note', {
       type: 'Note',
       args: {
-        id: intArg({nullable: false})
+        id: nonNull(intArg())
       },
       resolve: (root, args, context) => {
         return fetchNote(context, args.id);
@@ -96,10 +97,10 @@ const Mutation = objectType({
     t.field("register", {
       type: "Registration",
       args: {
-        firstName: stringArg({nullable: false}),
-        lastName: stringArg({nullable: false}),
-        username: stringArg({nullable: false}),
-        password: stringArg({nullable: false})
+        firstName: nonNull(stringArg()),
+        lastName: nonNull(stringArg()),
+        username: nonNull(stringArg()),
+        password: nonNull(stringArg())
       },
       resolve: async (_, inputs: SignupInput, context) => {
         return register(context, inputs);
@@ -108,8 +109,8 @@ const Mutation = objectType({
     t.field("login", {
       type: "String",
       args: {
-        username: stringArg({nullable: false}),
-        password: stringArg({nullable: false})
+        username: nonNull(stringArg()),
+        password: nonNull(stringArg())
       },
       resolve: async (_, inputs, context) => {
         return login(context, inputs);
@@ -118,7 +119,7 @@ const Mutation = objectType({
     t.field("createNote", {
       type: "Note",
       args: {
-        text: stringArg({nullable: false}),
+        text: nonNull(stringArg()),
         description: nullable(stringArg())
       },
       resolve: async (_, inputs, context) => {
