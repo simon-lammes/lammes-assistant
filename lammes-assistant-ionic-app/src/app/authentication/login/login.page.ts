@@ -17,12 +17,18 @@ export class LoginPage implements OnInit {
     private loginService: LoginService,
     private router: Router,
     private toastController: ToastController
-  ) { }
+  ) {
+  }
+
+  get showPassword(): boolean {
+    return this.loginForm.value.showPassword;
+  }
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      showPassword: [false]
     });
   }
 
@@ -49,6 +55,7 @@ export class LoginPage implements OnInit {
     const toast = await this.toastController.create({
       header: message,
       duration: 5000,
+      color: 'warning',
       buttons: [
         {
           icon: 'close-outline',

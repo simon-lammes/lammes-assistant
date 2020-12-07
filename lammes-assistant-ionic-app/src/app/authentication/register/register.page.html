@@ -20,7 +20,12 @@
     </ion-item>
     <ion-item>
       <ion-label>Password</ion-label>
-      <ion-input type="text" formControlName="password"></ion-input>
+      <ion-input *ngIf="showPassword" type="text" formControlName="password"></ion-input>
+      <ion-input *ngIf="!showPassword" type="password" formControlName="password"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Show password</ion-label>
+      <ion-checkbox slot="end" formControlName="showPassword"></ion-checkbox>
     </ion-item>
     <ion-button  type="submit" [disabled]="!registerForm.valid" class="standard-left-right-margin standard-top-margin">Register</ion-button>
     <div style="display: flex" class="standard-left-right-margin">

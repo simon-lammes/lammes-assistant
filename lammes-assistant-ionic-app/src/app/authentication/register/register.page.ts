@@ -18,12 +18,17 @@ export class RegisterPage implements OnInit {
   ) {
   }
 
+  get showPassword(): boolean {
+    return this.registerForm.value.showPassword;
+  }
+
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       username: ['', Validators.required],
       password: ['', Validators.required],
+      showPassword: [false]
     });
   }
 
