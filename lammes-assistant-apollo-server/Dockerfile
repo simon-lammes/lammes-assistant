@@ -1,4 +1,4 @@
-FROM node:12-alpine AS builder
+FROM node:12 AS builder
 
 WORKDIR /src
 
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Now take the build angular application and copy it to the next stage: An nginx server hosting the generated content.
-FROM node:12-alpine
+FROM node:12
 
 # Copy the build application from stage "builder" into a directory that is hosted by nginx.
 COPY --from=builder /src/dist /dist
