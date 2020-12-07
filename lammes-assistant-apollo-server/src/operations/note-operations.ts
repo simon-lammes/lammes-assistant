@@ -6,7 +6,7 @@ import {generateNotFoundError} from "../custom-errors/not-found-error";
 
 export interface CreateNoteInput {
   text: string;
-  description?: string;
+  description?: string | null;
 }
 
 interface ResolveNoteInput {
