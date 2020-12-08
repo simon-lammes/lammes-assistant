@@ -8,7 +8,7 @@ import {
   fetchMyDeferredNotes,
   fetchMyPendingNotes,
   fetchMyResolvedNotes,
-  fetchNote,
+  fetchNote, reopenNote,
   resolveNote
 } from "./operations/note-operations";
 
@@ -134,6 +134,15 @@ const Mutation = objectType({
       },
       resolve: (root, args, context) => {
         return resolveNote(context, args);
+      }
+    });
+    t.field("reopenNote", {
+      type: "Note",
+      args: {
+        noteId: nonNull(intArg())
+      },
+      resolve: (root, args, context) => {
+        return reopenNote(context, args);
       }
     });
     t.field("editNote", {
