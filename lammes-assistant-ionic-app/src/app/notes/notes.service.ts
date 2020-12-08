@@ -22,102 +22,83 @@ export interface Note {
   updatedTimestamp: string;
 }
 
+/**
+ * Specifies which data we want when querying or mutating notes. We want to ask for the same fields in every query
+ * so that our cache for all queries can be updated with all required fields.
+ */
+const noteFragment = gql`
+    fragment NoteFragment on Note {
+        id,
+        text,
+        description,
+        resolvedTimestamp,
+        startTimestamp,
+        updatedTimestamp,
+        deadlineTimestamp
+    }
+`;
+
 const usersDeferredNotesQuery = gql`
     query UsersDeferredNotes {
         myDeferredNotes {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const usersPendingNotesQuery = gql`
     query UsersPendingNotes {
         myPendingNotes {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const usersResolvedNotesQuery = gql`
     query UsersResolvedNotes {
         myResolvedNotes {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const fetchNoteQuery = gql`
     query FetchNote($noteId: Int!) {
         note(id: $noteId) {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const createNoteMutation = gql`
     mutation CreateNote($text: String!, $description: String) {
         createNote(text: $text, description: $description) {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const resolveNotesMutation = gql`
     mutation ResolveNotes($noteId: Int!) {
         resolveNote(noteId: $noteId) {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 const editNoteMutation = gql`
     mutation EditNote($id: Int!, $text: String!, $description: String!, $startTimestamp: String, $deadlineTimestamp: String) {
         editNote(id: $id, text: $text, description: $description, startTimestamp: $startTimestamp, deadlineTimestamp: $deadlineTimestamp) {
-            id,
-            text,
-            description,
-            resolvedTimestamp,
-            startTimestamp,
-            updatedTimestamp,
-            deadlineTimestamp
+            ...NoteFragment
         }
     }
+    ${noteFragment}
 `;
 
 @Injectable({
