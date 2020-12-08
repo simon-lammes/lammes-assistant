@@ -18,6 +18,7 @@ export interface Note {
   description?: string;
   resolvedTimestamp?: string;
   startTimestamp?: string;
+  deadlineTimestamp?: string;
   updatedTimestamp: string;
 }
 
@@ -29,7 +30,8 @@ const usersDeferredNotesQuery = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
@@ -42,7 +44,8 @@ const usersPendingNotesQuery = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
@@ -55,7 +58,8 @@ const usersResolvedNotesQuery = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
@@ -68,7 +72,8 @@ const fetchNoteQuery = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
@@ -81,7 +86,8 @@ const createNoteMutation = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
@@ -94,20 +100,22 @@ const resolveNotesMutation = gql`
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;
 
 const editNoteMutation = gql`
-    mutation EditNote($id: Int!, $text: String!, $description: String!, $startTimestamp: String) {
-        editNote(id: $id, text: $text, description: $description, startTimestamp: $startTimestamp) {
+    mutation EditNote($id: Int!, $text: String!, $description: String!, $startTimestamp: String, $deadlineTimestamp: String) {
+        editNote(id: $id, text: $text, description: $description, startTimestamp: $startTimestamp, deadlineTimestamp: $deadlineTimestamp) {
             id,
             text,
             description,
             resolvedTimestamp,
             startTimestamp,
-            updatedTimestamp
+            updatedTimestamp,
+            deadlineTimestamp
         }
     }
 `;

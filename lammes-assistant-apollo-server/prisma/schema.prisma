@@ -26,6 +26,7 @@ model Note {
   resolvedTimestamp DateTime? @map("resolved_timestamp")
   description       String?
   startTimestamp    DateTime? @default(now()) @map("start_timestamp")
+  deadlineTimestamp DateTime? @map("deadline_timestamp")
   user              User      @relation("notesToUsers", fields: [creatorId], references: [id])
 
   @@map("notes")

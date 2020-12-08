@@ -27,6 +27,10 @@ export class EditNotePage implements OnInit {
     return this.noteForm.value.includeStartTimestamp;
   }
 
+  get includeDeadlineTimestamp(): boolean {
+    return this.noteForm.value.includeDeadlineTimestamp;
+  }
+
   async ngOnInit() {
     this.noteId$ = this.activatedRoute.paramMap.pipe(map(value => +value.get('noteId')));
     this.note$ = this.noteId$.pipe(switchMap(noteId => this.notesService.fetchNote(noteId)));
@@ -58,7 +62,9 @@ export class EditNotePage implements OnInit {
       text: this.formBuilder.control(note.text, [Validators.required, Validators.min(1)]),
       description: [note.description ?? ''],
       includeStartTimestamp: this.formBuilder.control(!!note.startTimestamp),
-      startTimestamp: this.formBuilder.control(note.startTimestamp)
+      startTimestamp: this.formBuilder.control(note.startTimestamp),
+      includeDeadlineTimestamp: this.formBuilder.control(!!note.deadlineTimestamp),
+      deadlineTimestamp: this.formBuilder.control(note.deadlineTimestamp)
     });
   }
 }

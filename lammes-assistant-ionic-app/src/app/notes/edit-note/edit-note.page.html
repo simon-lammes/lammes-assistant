@@ -25,6 +25,14 @@
       <ion-label>Start Time</ion-label>
       <ion-datetime [disabled]="!includeStartTimestamp" displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="startTimestamp"></ion-datetime>
     </ion-item>
+    <ion-item>
+      <ion-label>Set Deadline</ion-label>
+      <ion-checkbox slot="end" formControlName="includeDeadlineTimestamp"></ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label>Deadline</ion-label>
+      <ion-datetime [disabled]="!includeStartTimestamp" displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="deadlineTimestamp"></ion-datetime>
+    </ion-item>
     <ion-button type="submit" [disabled]="!noteForm.valid" expand="block">
       Save Changes
     </ion-button>

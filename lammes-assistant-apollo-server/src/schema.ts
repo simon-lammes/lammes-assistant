@@ -31,6 +31,7 @@ const Note = objectType({
     t.model.description();
     t.model.updatedTimestamp();
     t.model.startTimestamp();
+    t.model.deadlineTimestamp();
     t.model.resolvedTimestamp();
     t.model.creatorId();
     t.model.user();
@@ -141,7 +142,8 @@ const Mutation = objectType({
         id: nonNull(intArg()),
         text: nonNull(stringArg()),
         description: nonNull(stringArg()),
-        startTimestamp: nullable(stringArg())
+        startTimestamp: nullable(stringArg()),
+        deadlineTimestamp: nullable(stringArg())
       },
       resolve: (root, args, context) => {
         return editNote(context, args);

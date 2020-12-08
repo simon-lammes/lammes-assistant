@@ -6,7 +6,7 @@ scalar DateTime
 
 type Mutation {
   createNote(description: String, text: String!): Note
-  editNote(description: String!, id: Int!, startTimestamp: String, text: String!): Note
+  editNote(deadlineTimestamp: String, description: String!, id: Int!, startTimestamp: String, text: String!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
   resolveNote(noteId: Int!): Note
@@ -14,6 +14,7 @@ type Mutation {
 
 type Note {
   creatorId: Int!
+  deadlineTimestamp: DateTime
   description: String
   id: Int!
   resolvedTimestamp: DateTime
