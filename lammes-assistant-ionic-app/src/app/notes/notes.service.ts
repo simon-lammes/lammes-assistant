@@ -100,7 +100,7 @@ const resolveNotesMutation = gql`
 `;
 
 const editNoteMutation = gql`
-    mutation EditNote($id: Int!, $text: String!, $description: String!, $startTimestamp: String!) {
+    mutation EditNote($id: Int!, $text: String!, $description: String!, $startTimestamp: String) {
         editNote(id: $id, text: $text, description: $description, startTimestamp: $startTimestamp) {
             id,
             text,
@@ -182,7 +182,7 @@ export class NotesService {
     );
   }
 
-  editNote(args: { id: number, text: string, description: string, startTimestamp?: string }) {
+  editNote(args: { id: number, text: string, description: string, startTimestamp?: string | null }) {
     return this.apollo.mutate<{ editNote: Note }>({
       mutation: editNoteMutation,
       variables: {...args},

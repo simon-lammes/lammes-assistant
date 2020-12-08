@@ -21,7 +21,8 @@
     <ion-item *ngFor="let note of deferredNotes$ | async" button (click)="onNoteClicked(note)">
       <ion-label>
         <h2>{{note.text}}</h2>
-        <h3>Deferred till {{note.startTimestamp | date:'short' }}</h3>
+        <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
+        <h3 *ngIf="!note.startTimestamp">No start time</h3>
         <p *ngIf="note.description">{{note.description}}</p>
       </ion-label>
     </ion-item>

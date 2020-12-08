@@ -38,8 +38,15 @@ export async function fetchMyDeferredNotes(context: Context): Promise<Note[]> {
     where: {
       creatorId: userId,
       resolvedTimestamp: null,
-      // Deferred notes are notes whose startTime is in the future.
-      startTimestamp: {gt: new Date()}
+      // Deferred notes are notes whose startTime is in the future or not even specified.
+      OR: [
+        {
+          startTimestamp: {gt: new Date()}
+        },
+        {
+          startTimestamp: null
+        }
+      ]
     },
     orderBy: {
       startTimestamp: 'asc'

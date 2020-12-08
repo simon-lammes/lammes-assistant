@@ -23,6 +23,10 @@ export class EditNotePage implements OnInit {
   ) {
   }
 
+  get includeStartTimestamp(): boolean {
+    return this.noteForm.value.includeStartTimestamp;
+  }
+
   async ngOnInit() {
     this.noteId$ = this.activatedRoute.paramMap.pipe(map(value => +value.get('noteId')));
     this.note$ = this.noteId$.pipe(switchMap(noteId => this.notesService.fetchNote(noteId)));
@@ -30,8 +34,19 @@ export class EditNotePage implements OnInit {
   }
 
   async saveChanges() {
-    await this.notesService.editNote(this.noteForm.value).toPromise();
+    await this.notesService.editNote({
+      ...this.noteForm.value,
+      startTimestamp: this.includeStartTimestamp ? this.noteForm.value.startTimestamp : null
+    }).toPromise();
     await this.router.navigateByUrl('/tabs/notes');
+  }
+
+  /**
+   * Trims the input of the user.
+   */
+  trim(formControlName: string) {
+    const control = this.noteForm.controls[formControlName];
+    control.patchValue(control.value.trim());
   }
 
   private async setupForm() {
@@ -41,16 +56,9 @@ export class EditNotePage implements OnInit {
     this.noteForm = this.formBuilder.group({
       id: [note.id],
       text: this.formBuilder.control(note.text, [Validators.required, Validators.min(1)]),
-      description: [note.description],
+      description: [note.description ?? ''],
+      includeStartTimestamp: this.formBuilder.control(!!note.startTimestamp),
       startTimestamp: this.formBuilder.control(note.startTimestamp)
     });
-  }
-
-  /**
-   * Trims the input of the user.
-   */
-  trim(formControlName: string) {
-    const control = this.noteForm.controls[formControlName];
-    control.patchValue(control.value.trim());
   }
 }

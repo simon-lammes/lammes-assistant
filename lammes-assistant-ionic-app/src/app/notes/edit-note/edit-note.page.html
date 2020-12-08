@@ -18,8 +18,12 @@
       <ion-textarea auto-grow type="text" formControlName="description" (ionBlur)="trim('description')"></ion-textarea>
     </ion-item>
     <ion-item>
+      <ion-label>Include Start Time</ion-label>
+      <ion-checkbox slot="end" formControlName="includeStartTimestamp"></ion-checkbox>
+    </ion-item>
+    <ion-item>
       <ion-label>Start Time</ion-label>
-      <ion-datetime displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="startTimestamp"></ion-datetime>
+      <ion-datetime [disabled]="!includeStartTimestamp" displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="startTimestamp"></ion-datetime>
     </ion-item>
     <ion-button type="submit" [disabled]="!noteForm.valid" expand="block">
       Save Changes

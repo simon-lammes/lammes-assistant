@@ -141,7 +141,7 @@ const Mutation = objectType({
         id: nonNull(intArg()),
         text: nonNull(stringArg()),
         description: nonNull(stringArg()),
-        startTimestamp: nonNull(stringArg())
+        startTimestamp: nullable(stringArg())
       },
       resolve: (root, args, context) => {
         return editNote(context, args);
