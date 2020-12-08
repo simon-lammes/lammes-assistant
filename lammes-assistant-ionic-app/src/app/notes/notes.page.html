@@ -18,44 +18,68 @@
   </ion-segment>
 
   <ion-list *ngIf="selectedSegmentOption === 'deferred'">
-    <ion-item *ngFor="let note of deferredNotes$ | async" button (click)="onNoteClicked(note)">
-      <ion-label>
-        <h2>{{note.text}}</h2>
-        <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
-        <h3 *ngIf="!note.startTimestamp">No start time</h3>
-        <p *ngIf="note.description">{{note.description}}</p>
-      </ion-label>
-    </ion-item>
+    <ion-item-sliding *ngFor="let note of deferredNotes$ | async">
+      <ion-item-options side="start" (ionSwipe)="resolveNote(note)">
+        <ion-item-option expandable="true" color="success" (click)="resolveNote(note)">
+          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+          Resolve
+        </ion-item-option>
+      </ion-item-options>
+      <ion-item button>
+        <ion-label>
+          <h2>{{note.text}}</h2>
+          <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
+          <h3 *ngIf="!note.startTimestamp">No start time</h3>
+          <p *ngIf="note.description">{{note.description}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-item-sliding>
   </ion-list>
 
   <ion-list *ngIf="selectedSegmentOption === 'pending'">
-    <ion-item *ngFor="let note of pendingNotes$ | async" button (click)="onNoteClicked(note)">
-      <ion-label>
-        <h2>{{note.text}}</h2>
-        <ng-container [ngSwitch]="getDeadlineStatus(note)">
-          <h3 *ngSwitchCase="DeadlineStatus.DueSometime">
-            Due till {{note.deadlineTimestamp | date:'short' }}
-          </h3>
-          <h3 *ngSwitchCase="DeadlineStatus.DueSoon" style="color: var(--ion-color-warning)">
-            Urgently due till {{note.deadlineTimestamp | date:'short' }}
-          </h3>
-          <h3 *ngSwitchCase="DeadlineStatus.Overdue" style="color: var(--ion-color-danger)">
-            Overdue since {{note.deadlineTimestamp | date:'short' }}
-          </h3>
-        </ng-container>
-        <p *ngIf="note.description">{{note.description}}</p>
-      </ion-label>
-    </ion-item>
+    <ion-item-sliding *ngFor="let note of pendingNotes$ | async">
+      <ion-item-options side="start" (ionSwipe)="resolveNote(note)">
+        <ion-item-option expandable="true" color="success" (click)="resolveNote(note)">
+          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+          Resolve
+        </ion-item-option>
+      </ion-item-options>
+      <ion-item button [routerLink]="'/tabs/notes/edit-note/' + note.id">
+        <ion-label>
+          <h2>{{note.text}}</h2>
+          <ng-container [ngSwitch]="getDeadlineStatus(note)">
+            <h3 *ngSwitchCase="DeadlineStatus.DueSometime">
+              Due till {{note.deadlineTimestamp | date:'short' }}
+            </h3>
+            <h3 *ngSwitchCase="DeadlineStatus.DueSoon" style="color: var(--ion-color-warning)">
+              Urgently due till {{note.deadlineTimestamp | date:'short' }}
+            </h3>
+            <h3 *ngSwitchCase="DeadlineStatus.Overdue" style="color: var(--ion-color-danger)">
+              Overdue since {{note.deadlineTimestamp | date:'short' }}
+            </h3>
+          </ng-container>
+          <p *ngIf="note.description">{{note.description}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-item-sliding>
   </ion-list>
 
   <ion-list *ngIf="selectedSegmentOption === 'resolved'">
-    <ion-item *ngFor="let note of resolvedNotes$ | async" button (click)="onNoteClicked(note)">
-      <ion-label>
-        <h2>{{note.text}}</h2>
-        <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
-        <p *ngIf="note.description">{{note.description}}</p>
-      </ion-label>
-    </ion-item>
+    <ion-item-sliding *ngFor="let note of resolvedNotes$ | async">
+      <ion-item button>
+        <ion-label>
+          <h2>{{note.text}}</h2>
+          <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
+          <p *ngIf="note.description">{{note.description}}</p>
+        </ion-label>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option expandable="true">
+          <ion-icon name="arrow-undo-outline"></ion-icon>
+          Reopen
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="selectedSegmentOption === 'pending'">
