@@ -32,6 +32,17 @@
     <ion-item *ngFor="let note of pendingNotes$ | async" button (click)="onNoteClicked(note)">
       <ion-label>
         <h2>{{note.text}}</h2>
+        <ng-container [ngSwitch]="getDeadlineStatus(note)">
+          <h3 *ngSwitchCase="DeadlineStatus.DueSometime">
+            Due till {{note.deadlineTimestamp | date:'short' }}
+          </h3>
+          <h3 *ngSwitchCase="DeadlineStatus.DueSoon" style="color: var(--ion-color-warning)">
+            Urgently due till {{note.deadlineTimestamp | date:'short' }}
+          </h3>
+          <h3 *ngSwitchCase="DeadlineStatus.Overdue" style="color: var(--ion-color-danger)">
+            Overdue since {{note.deadlineTimestamp | date:'short' }}
+          </h3>
+        </ng-container>
         <p *ngIf="note.description">{{note.description}}</p>
       </ion-label>
     </ion-item>

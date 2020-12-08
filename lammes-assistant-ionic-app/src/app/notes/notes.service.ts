@@ -5,6 +5,11 @@ import {Observable} from 'rxjs';
 import {ApolloCache, FetchResult} from '@apollo/client/core';
 
 /**
+ * The biggest date possible. It is in the future.
+ */
+const maxDate = new Date(8640000000000000);
+
+/**
  * The data that is needed for creating a note.
  */
 export interface CreateNoteData {
@@ -240,6 +245,7 @@ export class NotesService {
   ) {
     const editedNote = mutationResult.data.editNote;
     const now = new Date();
+    // Update cache for deffered notes.
     try {
       const deferredCache = cache.readQuery({query: usersDeferredNotesQuery}) as { myDeferredNotes: Note[] };
       const deferredNotes = deferredCache.myDeferredNotes;
@@ -248,12 +254,18 @@ export class NotesService {
       const updatedDeferredNotes = deferredNotes.filter(x => x.id !== editedNote.id);
       if (shouldEditedNoteBeIncluded) {
         updatedDeferredNotes.push(editedNote);
-        updatedDeferredNotes.sort((a, b) =>
-          new Date(a.startTimestamp ?? 0).getTime() - new Date(b.startTimestamp ?? 0).getTime());
+        updatedDeferredNotes.sort((a, b) => {
+          const comparisonByStartTime = new Date(a.startTimestamp ?? maxDate).getTime() - new Date(b.startTimestamp ?? maxDate).getTime();
+          if (comparisonByStartTime !== 0) {
+            return comparisonByStartTime;
+          }
+          return a.text.localeCompare(b.text);
+        });
       }
       cache.writeQuery({query: usersDeferredNotesQuery, data: {myDeferredNotes: updatedDeferredNotes}});
     } catch (e) {
     }
+    // Update cache for pending notes.
     try {
       const pendingCache = cache.readQuery({query: usersPendingNotesQuery}) as { myPendingNotes: Note[] };
       const pendingNotes = pendingCache.myPendingNotes;
@@ -262,11 +274,18 @@ export class NotesService {
       const updatedDeferredNotes = pendingNotes.filter(x => x.id !== editedNote.id);
       if (shouldEditedNoteBeIncluded) {
         updatedDeferredNotes.push(editedNote);
-        updatedDeferredNotes.sort((a, b) => new Date(b.updatedTimestamp).getTime() - new Date(a.updatedTimestamp).getTime());
+        updatedDeferredNotes.sort((a, b) => {
+          const firstComparison = new Date(a.deadlineTimestamp ?? maxDate).getTime() - new Date(b.deadlineTimestamp ?? maxDate).getTime();
+          if (firstComparison !== 0) {
+            return firstComparison;
+          }
+          return a.text.localeCompare(b.text);
+        });
       }
       cache.writeQuery({query: usersPendingNotesQuery, data: {myPendingNotes: updatedDeferredNotes}});
     } catch (e) {
     }
+    // Update cache for resolved notes.
     try {
       const resolvedCache = cache.readQuery({query: usersResolvedNotesQuery}) as { myResolvedNotes: Note[] };
       const resolvedNotes = resolvedCache.myResolvedNotes;
@@ -274,7 +293,13 @@ export class NotesService {
       const updatedDeferredNotes = resolvedNotes.filter(x => x.id !== editedNote.id);
       if (shouldEditedNoteBeIncluded) {
         updatedDeferredNotes.push(editedNote);
-        updatedDeferredNotes.sort((a, b) => new Date(b.resolvedTimestamp).getTime() - new Date(a.resolvedTimestamp).getTime());
+        updatedDeferredNotes.sort((a, b) => {
+          const firstComparison = new Date(b.resolvedTimestamp).getTime() - new Date(a.resolvedTimestamp).getTime();
+          if (firstComparison !== 0) {
+            return firstComparison;
+          }
+          return a.text.localeCompare(b.text);
+        });
       }
       cache.writeQuery({query: usersResolvedNotesQuery, data: {myResolvedNotes: updatedDeferredNotes}});
     } catch (e) {

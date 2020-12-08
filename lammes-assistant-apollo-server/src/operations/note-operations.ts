@@ -48,9 +48,14 @@ export async function fetchMyDeferredNotes(context: Context): Promise<Note[]> {
         }
       ]
     },
-    orderBy: {
-      startTimestamp: 'asc'
-    },
+    orderBy: [
+      {
+        startTimestamp: 'asc'
+      },
+      {
+        text: 'asc'
+      }
+    ],
   });
 }
 
@@ -66,9 +71,14 @@ export async function fetchMyPendingNotes(context: Context): Promise<Note[]> {
       // We only want those notes whose startTimestamp is in the past. This is a criterion we have set for **pending** notes.
       startTimestamp: {lte: new Date()}
     },
-    orderBy: {
-      updatedTimestamp: 'desc'
-    }
+    orderBy: [
+      {
+        deadlineTimestamp: 'asc'
+      },
+      {
+        text: 'asc'
+      }
+    ]
   });
 }
 
@@ -82,9 +92,14 @@ export async function fetchMyResolvedNotes(context: Context): Promise<Note[]> {
       creatorId: userId,
       resolvedTimestamp: {not: null}
     },
-    orderBy: {
-      resolvedTimestamp: 'desc'
-    }
+    orderBy: [
+      {
+        resolvedTimestamp: 'desc'
+      },
+      {
+        text: 'asc'
+      }
+    ]
   });
 }
 
@@ -127,7 +142,7 @@ export async function fetchNote(context: Context, noteId: number): Promise<Note>
   return note;
 }
 
-export async function editNote(context: Context, editedNote: {id: number, text: string, description: string, startTimestamp?: string | null, deadlineTimestamp?: string | null}): Promise<Note> {
+export async function editNote(context: Context, editedNote: { id: number, text: string, description: string, startTimestamp?: string | null, deadlineTimestamp?: string | null }): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only edit notes when you are authenticated.');

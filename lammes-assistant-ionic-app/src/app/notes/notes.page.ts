@@ -10,6 +10,16 @@ import {ActionSheetButton} from '@ionic/core/dist/types/components/action-sheet/
  */
 type SegmentOption = 'deferred' | 'pending' | 'resolved';
 
+/**
+ * The status of a notes deadline.
+ */
+enum DeadlineStatus {
+  NoDeadlineSpecified,
+  DueSometime,
+  DueSoon,
+  Overdue,
+}
+
 @Component({
   selector: 'app-notes',
   templateUrl: './notes.page.html',
@@ -20,6 +30,11 @@ export class NotesPage implements OnInit {
   pendingNotes$: Observable<Note[]>;
   resolvedNotes$: Observable<Note[]>;
   selectedSegmentOption: SegmentOption = 'pending';
+
+  /**
+   * This is member variable only exists, so that this enum can be used inside the html template.
+   */
+  DeadlineStatus = DeadlineStatus;
 
   constructor(
     private notesService: NotesService,
@@ -106,5 +121,21 @@ export class NotesPage implements OnInit {
 
   onSegmentChange($event: any) {
     this.selectedSegmentOption = $event.detail.value;
+  }
+
+  getDeadlineStatus(note: Note): DeadlineStatus {
+    if (!note.deadlineTimestamp) {
+      return DeadlineStatus.NoDeadlineSpecified;
+    }
+    const timeLeftInMilliseconds = new Date(note.deadlineTimestamp).getTime() - new Date().getTime();
+    if (timeLeftInMilliseconds <= 0) {
+      return DeadlineStatus.Overdue;
+    }
+    // We consider deadlines urgent that are within 24 hours.
+    // This should be made configurable in the future.
+    if (timeLeftInMilliseconds < 24 * 60 * 60 * 1000) {
+      return DeadlineStatus.DueSoon;
+    }
+    return DeadlineStatus.DueSometime;
   }
 }
