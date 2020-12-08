@@ -151,6 +151,25 @@ export async function reopenNote(context: Context, {noteId}: ResolveNoteInput): 
   });
 }
 
+export async function deleteNote(context: Context, {noteId}: ResolveNoteInput): Promise<Note> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only delete notes when you are authenticated.');
+  }
+  const note = await context.prisma.note.findFirst({
+    where: {
+      id: noteId
+    }
+  });
+  if (!note) {
+    throw generateNotFoundError(`No note with id ${noteId}.`);
+  }
+  if (note.creatorId !== userId) {
+    throw generateAuthorizationError("You cannot delete notes of other users.");
+  }
+  return await context.prisma.note.delete({where: {id: noteId}});
+}
+
 export async function fetchNote(context: Context, noteId: number): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {

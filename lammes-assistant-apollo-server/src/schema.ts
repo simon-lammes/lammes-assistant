@@ -3,7 +3,7 @@ import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
 import {
-  createNote,
+  createNote, deleteNote,
   editNote,
   fetchMyDeferredNotes,
   fetchMyPendingNotes,
@@ -143,6 +143,15 @@ const Mutation = objectType({
       },
       resolve: (root, args, context) => {
         return reopenNote(context, args);
+      }
+    });
+    t.field("deleteNote", {
+      type: "Note",
+      args: {
+        noteId: nonNull(intArg())
+      },
+      resolve: (root, args, context) => {
+        return deleteNote(context, args);
       }
     });
     t.field("editNote", {

@@ -107,4 +107,8 @@ export class NotesPage implements OnInit {
   async reopenNote(note: Note) {
     await this.notesService.reopenNote(note);
   }
+
+  async deleteNote(note: Note) {
+    await this.notesService.deleteNote(note);
+  }
 }

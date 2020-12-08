@@ -98,8 +98,17 @@ const resolveNotesMutation = gql`
 `;
 
 const reopenNoteMutation = gql`
-    mutation ReopenNotes($noteId: Int!) {
+    mutation ReopenNote($noteId: Int!) {
         reopenNote(noteId: $noteId) {
+            ...NoteFragment
+        }
+    }
+    ${noteFragment}
+`;
+
+const deleteNoteMutation = gql`
+    mutation DeleteNote($noteId: Int!) {
+        deleteNote(noteId: $noteId) {
             ...NoteFragment
         }
     }
@@ -156,7 +165,7 @@ export class NotesService {
       // newly created note for the optimisticResponse. Not providing an id when it is expected leads to errors.
       optimisticResponse: undefined,
       update: (cache, mutationResult) => {
-        this.updateCacheAfterNoteWasSaved(cache, mutationResult.data.createNote);
+        this.updateCacheAfterNoteChanged(cache, mutationResult.data.createNote);
       }
     }).toPromise();
   }
@@ -166,7 +175,7 @@ export class NotesService {
       mutation: resolveNotesMutation,
       variables: {noteId: note.id},
       update: (cache, mutationResult) => {
-        this.updateCacheAfterNoteWasSaved(cache, mutationResult.data.resolveNote);
+        this.updateCacheAfterNoteChanged(cache, mutationResult.data.resolveNote);
       }
     }).toPromise();
   }
@@ -176,7 +185,17 @@ export class NotesService {
       mutation: reopenNoteMutation,
       variables: {noteId: note.id},
       update: (cache, mutationResult) => {
-        this.updateCacheAfterNoteWasSaved(cache, mutationResult.data.reopenNote);
+        this.updateCacheAfterNoteChanged(cache, mutationResult.data.reopenNote);
+      }
+    }).toPromise();
+  }
+
+  async deleteNote(note: Note) {
+    await this.apollo.mutate<{ deleteNote: Note }, { noteId: number }>({
+      mutation: deleteNoteMutation,
+      variables: {noteId: note.id},
+      update: (cache, mutationResult) => {
+        this.updateCacheAfterNoteChanged(cache, mutationResult.data.deleteNote, true);
       }
     }).toPromise();
   }
@@ -195,34 +214,36 @@ export class NotesService {
       mutation: editNoteMutation,
       variables: {...args},
       update: (cache, mutationResult) => {
-        this.updateCacheAfterNoteWasSaved(cache, mutationResult.data.editNote);
+        this.updateCacheAfterNoteChanged(cache, mutationResult.data.editNote);
       }
     });
   }
 
   /**
-   * Updates all related query caches when the user changed or created a note.
-   * The updating tactic is as follows: We take the cache for a query and remove the saved/updated note.
-   * Then we check whether the edited note belongs into the result of that query. If yes, we insert it back and sort the result.
+   * Updates all related query caches when the user changed a note. Changes that can be handled by this method include:
+   * create, update, delete. The updating tactic is as follows: We take the cache for a query and remove the changed note.
+   * Then we check whether the changed note belongs into the result of that query. If yes, we insert it back and sort the result.
    * The sorting must orient to how the server sorts. For example, the server sorts the deferred notes by their start date, so
    * when updating the cache we must also sort by start date.
    * @param cache cache
-   * @param savedNote The note that has either been created or updated.
+   * @param changedNote The note that has either been created or updated.
+   * @param hasChangedNoteBeenDeleted set this exactly then to true when you call this method after you deleted a note
    */
-  private updateCacheAfterNoteWasSaved(
+  private updateCacheAfterNoteChanged(
     cache: ApolloCache<any>,
-    savedNote: Note
+    changedNote: Note,
+    hasChangedNoteBeenDeleted = false
   ) {
     const now = new Date();
     // Update cache for deffered notes.
     try {
       const deferredCache = cache.readQuery({query: usersDeferredNotesQuery}) as { myDeferredNotes: Note[] };
       const deferredNotes = deferredCache.myDeferredNotes;
-      const startDate = savedNote.startTimestamp ? new Date(savedNote.startTimestamp) : undefined;
-      const shouldEditedNoteBeIncluded = (!startDate || startDate > now) && !savedNote.resolvedTimestamp;
-      const updatedDeferredNotes = deferredNotes.filter(x => x.id !== savedNote.id);
+      const startDate = changedNote.startTimestamp ? new Date(changedNote.startTimestamp) : undefined;
+      const shouldEditedNoteBeIncluded = !hasChangedNoteBeenDeleted && (!startDate || startDate > now) && !changedNote.resolvedTimestamp;
+      const updatedDeferredNotes = deferredNotes.filter(x => x.id !== changedNote.id);
       if (shouldEditedNoteBeIncluded) {
-        updatedDeferredNotes.push(savedNote);
+        updatedDeferredNotes.push(changedNote);
         updatedDeferredNotes.sort((a, b) => {
           const comparisonByStartTime = new Date(a.startTimestamp ?? maxDate).getTime() - new Date(b.startTimestamp ?? maxDate).getTime();
           if (comparisonByStartTime !== 0) {
@@ -238,11 +259,11 @@ export class NotesService {
     try {
       const pendingCache = cache.readQuery({query: usersPendingNotesQuery}) as { myPendingNotes: Note[] };
       const pendingNotes = pendingCache.myPendingNotes;
-      const startDate = savedNote.startTimestamp ? new Date(savedNote.startTimestamp) : undefined;
-      const shouldEditedNoteBeIncluded = startDate && !savedNote.resolvedTimestamp && startDate <= now;
-      const updatedDeferredNotes = pendingNotes.filter(x => x.id !== savedNote.id);
+      const startDate = changedNote.startTimestamp ? new Date(changedNote.startTimestamp) : undefined;
+      const shouldEditedNoteBeIncluded = !hasChangedNoteBeenDeleted && startDate && !changedNote.resolvedTimestamp && startDate <= now;
+      const updatedDeferredNotes = pendingNotes.filter(x => x.id !== changedNote.id);
       if (shouldEditedNoteBeIncluded) {
-        updatedDeferredNotes.push(savedNote);
+        updatedDeferredNotes.push(changedNote);
         updatedDeferredNotes.sort((a, b) => {
           const firstComparison = new Date(a.deadlineTimestamp ?? maxDate).getTime() - new Date(b.deadlineTimestamp ?? maxDate).getTime();
           if (firstComparison !== 0) {
@@ -258,10 +279,10 @@ export class NotesService {
     try {
       const resolvedCache = cache.readQuery({query: usersResolvedNotesQuery}) as { myResolvedNotes: Note[] };
       const resolvedNotes = resolvedCache.myResolvedNotes;
-      const shouldEditedNoteBeIncluded = !!savedNote.resolvedTimestamp;
-      const updatedDeferredNotes = resolvedNotes.filter(x => x.id !== savedNote.id);
+      const shouldEditedNoteBeIncluded = !hasChangedNoteBeenDeleted && !!changedNote.resolvedTimestamp;
+      const updatedDeferredNotes = resolvedNotes.filter(x => x.id !== changedNote.id);
       if (shouldEditedNoteBeIncluded) {
-        updatedDeferredNotes.push(savedNote);
+        updatedDeferredNotes.push(changedNote);
         updatedDeferredNotes.sort((a, b) => {
           const firstComparison = new Date(b.resolvedTimestamp).getTime() - new Date(a.resolvedTimestamp).getTime();
           if (firstComparison !== 0) {
