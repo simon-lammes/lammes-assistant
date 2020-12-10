@@ -6,23 +6,25 @@
 # the DigitalOcean UI. BTW, it is save to store encryped variables in this file. Those are prefixed with "EV[". Reference:
 # https://www.digitalocean.com/community/questions/how-to-use-environment-values-of-type-secret-on-following-submissions
 databases:
-- engine: PG
-  name: lammes-assistant-dev
-  num_nodes: 1
-  size: db-s-dev-database
+- cluster_name: app-36c1bd8a-2972-4e2e-843e-0f9f13c90834
+  db_name: lammes_assistant_prod
+  db_user: graphql-server
+  engine: PG
+  name: app-36c1bd8a-2972-4e2e-843e-0f9f
+  production: true
   version: "12"
 name: lammes-assistant
 region: ams
 services:
 - dockerfile_path: lammes-assistant-apollo-server/Dockerfile
   envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    value: ${lammes-assistant-dev.DATABASE_URL}
   - key: SECRET
     scope: RUN_AND_BUILD_TIME
     type: SECRET
     value: EV[1:f2dsvfPBAXCNsFqmAORcilNhXBM9gQS8:LRBjnZueGMQ2QkD+PKSkvIHWiOsDsfwuYEBifMnYEnZtqrLni3DK0jAFDAQ5A2NX75In7K/Ym48QqCKr]
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${app-36c1bd8a-2972-4e2e-843e-0f9f.DATABASE_URL}
   github:
     branch: master
     deploy_on_push: true
