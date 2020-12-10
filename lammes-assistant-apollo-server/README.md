@@ -3,7 +3,7 @@
 ### Local Development
 
 - `npm install`
-- Make sure you have a running (Postgres) database instance running. It should have a schema that fits to the [prisma.schema file](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-apollo-server/prisma/schema.prisma). To understand this file, I recommend checking out the corresponding [Prisma documentation](https://www.prisma.io/docs/concepts/components/prisma-schema). If you have access to it (with credentials), you can use the development database hosted on DigitalOcean.
+- Make sure you have a running (Postgres) database instance running. It should have a schema that fits to the [prisma.schema file](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-apollo-server/prisma/schema.prisma). To understand this file, I recommend checking out the corresponding [Prisma documentation](https://www.prisma.io/docs/concepts/components/prisma-schema). If you have access to it (with credentials), you can use the production database hosted on DigitalOcean.
 - Add a `.env` file to the project with the following lines. Replace the placeholders identified by '<>' characters. For more information on the `DATABASE_URL` environment variable visit [this link](https://www.prisma.io/docs/concepts/components/prisma-schema).
 
 ```
