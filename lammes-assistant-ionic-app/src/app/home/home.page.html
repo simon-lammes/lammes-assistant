@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="noteToReview$ | async as note">
+    <ion-card-header>
+      <ion-card-subtitle>Review Note</ion-card-subtitle>
+      <ion-card-title>{{note.text}}</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ng-container>
+        {{note.description}}
+      </ng-container>
+      <ion-button fill="solid" expand="block" color="success" (click)="resolveNote(note)">Resolve</ion-button>
+      <ion-button fill="outline" expand="block" (click)="delayForADay(note)">Delay for a day</ion-button>
+      <ion-button fill="outline" expand="block" (click)="delay(note)">Delay for ...</ion-button>
+      <ion-button fill="clear" expand="block" (click)="editNote(note)">Edit</ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -9,6 +9,10 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
+        path: 'home',
+        loadChildren: () => import('../home/home.module').then(m => m.HomePageModule)
+      },
+      {
         path: 'notes',
         loadChildren: () => import('../notes/notes.module').then(m => m.NotesPageModule)
       },
@@ -18,7 +22,7 @@ const routes: Routes = [
       },
       {
         path: '**',
-        redirectTo: 'notes'
+        redirectTo: 'home'
       }
     ]
   }

@@ -158,8 +158,8 @@ const Mutation = objectType({
       type: "Note",
       args: {
         id: nonNull(intArg()),
-        text: nonNull(stringArg()),
-        description: nonNull(stringArg()),
+        text: nullable(stringArg()),
+        description: nullable(stringArg()),
         startTimestamp: nullable(stringArg()),
         deadlineTimestamp: nullable(stringArg())
       },

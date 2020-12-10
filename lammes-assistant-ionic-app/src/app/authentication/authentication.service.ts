@@ -42,7 +42,7 @@ export class AuthenticationService {
    */
   private asyncInitialization = new Promise(async resolve => {
     await this.loadJwtTokenFromSecureStorage();
-    resolve();
+    resolve(true);
   });
 
   constructor(

@@ -1,25 +1,28 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {map, switchMap, take} from 'rxjs/operators';
+import {Component, Input, OnInit} from '@angular/core';
+import {take} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {Note, NotesService} from '../notes.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ModalController} from '@ionic/angular';
 
 @Component({
-  selector: 'app-edit-note',
-  templateUrl: './edit-note.page.html',
-  styleUrls: ['./edit-note.page.scss'],
+  selector: 'app-edit-note-modal',
+  templateUrl: './edit-note-modal.page.html',
+  styleUrls: ['./edit-note-modal.page.scss'],
 })
-export class EditNotePage implements OnInit {
-  noteId$: Observable<number>;
+export class EditNoteModalPage implements OnInit {
+
+  @Input()
+  noteId: number;
+
   note$: Observable<Note>;
+
   noteForm: FormGroup;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private notesService: NotesService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private modalController: ModalController
   ) {
   }
 
@@ -32,8 +35,7 @@ export class EditNotePage implements OnInit {
   }
 
   async ngOnInit() {
-    this.noteId$ = this.activatedRoute.paramMap.pipe(map(value => +value.get('noteId')));
-    this.note$ = this.noteId$.pipe(switchMap(noteId => this.notesService.fetchNote(noteId)));
+    this.note$ = this.notesService.fetchNote(this.noteId);
     await this.setupForm();
   }
 
@@ -42,7 +44,7 @@ export class EditNotePage implements OnInit {
       ...this.noteForm.value,
       startTimestamp: this.includeStartTimestamp ? this.noteForm.value.startTimestamp : null
     }).toPromise();
-    await this.router.navigateByUrl('/tabs/notes');
+    await this.modalController.dismiss();
   }
 
   /**
@@ -66,5 +68,9 @@ export class EditNotePage implements OnInit {
       includeDeadlineTimestamp: this.formBuilder.control(!!note.deadlineTimestamp),
       deadlineTimestamp: this.formBuilder.control(note.deadlineTimestamp)
     });
+  }
+
+  async dismissModal() {
+    await this.modalController.dismiss();
   }
 }

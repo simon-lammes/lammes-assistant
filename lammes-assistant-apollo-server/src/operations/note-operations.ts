@@ -185,7 +185,7 @@ export async function fetchNote(context: Context, noteId: number): Promise<Note>
   return note;
 }
 
-export async function editNote(context: Context, editedNote: { id: number, text: string, description: string, startTimestamp?: string | null, deadlineTimestamp?: string | null }): Promise<Note> {
+export async function editNote(context: Context, editedNote: { id: number, text?: string | null, description?: string | null, startTimestamp?: string | null, deadlineTimestamp?: string | null }): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only edit notes when you are authenticated.');
@@ -201,8 +201,8 @@ export async function editNote(context: Context, editedNote: { id: number, text:
     where: {id: editedNote.id},
     data: {
       updatedTimestamp: new Date(),
-      description: editedNote.description?.length > 0 ? editedNote.description : null,
-      text: editedNote.text,
+      description: editedNote.description,
+      text: editedNote.text ?? undefined,
       startTimestamp: editedNote.startTimestamp,
       deadlineTimestamp: editedNote.deadlineTimestamp
     }

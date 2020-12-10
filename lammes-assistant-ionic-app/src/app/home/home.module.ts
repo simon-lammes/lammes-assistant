@@ -4,19 +4,19 @@ import {FormsModule} from '@angular/forms';
 
 import {IonicModule} from '@ionic/angular';
 
-import {NotesPageRoutingModule} from './notes-routing.module';
+import {HomePageRoutingModule} from './home-routing.module';
 
-import {NotesPage} from './notes.page';
-import {EditNoteModalPageModule} from './edit-note/edit-note-modal.module';
+import {HomePage} from './home.page';
+import {EditNoteModalPageModule} from '../notes/edit-note/edit-note-modal.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    NotesPageRoutingModule,
+    HomePageRoutingModule,
     EditNoteModalPageModule
   ],
-  declarations: [NotesPage]
+  declarations: [HomePage]
 })
-export class NotesPageModule {}
+export class HomePageModule {}

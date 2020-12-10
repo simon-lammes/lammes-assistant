@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-title *ngIf="note$ | async as note">Edit Note: {{note.text}}</ion-title>
     <ion-buttons slot="start">
-      <ion-back-button text="Close" defaultHref="/tabs/notes"></ion-back-button>
+      <ion-button (click)="dismissModal()">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -15,7 +15,7 @@
     </ion-item>
     <ion-item>
       <ion-label>Description</ion-label>
-      <ion-textarea auto-grow type="text" formControlName="description" (ionBlur)="trim('description')"></ion-textarea>
+      <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')" rows="4"></ion-textarea>
     </ion-item>
     <ion-item>
       <ion-label>Include Start Time</ion-label>

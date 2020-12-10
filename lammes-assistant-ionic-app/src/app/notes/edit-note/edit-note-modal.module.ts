@@ -4,18 +4,16 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {IonicModule} from '@ionic/angular';
 
-import {EditNotePageRoutingModule} from './edit-note-routing.module';
 
-import {EditNotePage} from './edit-note.page';
+import {EditNoteModalPage} from './edit-note-modal.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    EditNotePageRoutingModule,
     ReactiveFormsModule
   ],
-  declarations: [EditNotePage]
+  declarations: [EditNoteModalPage]
 })
-export class EditNotePageModule {}
+export class EditNoteModalPageModule {}

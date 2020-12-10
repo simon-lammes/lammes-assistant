@@ -1,7 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {CreateNoteData, Note, NotesService} from './notes.service';
 import {Observable} from 'rxjs';
-import {AlertController} from '@ionic/angular';
+import {EditNoteModalPage} from './edit-note/edit-note-modal.page';
+import {AlertController, ModalController} from '@ionic/angular';
 
 /**
  * These are the options the user can choose by clicking on a segment.
@@ -36,7 +37,8 @@ export class NotesPage implements OnInit {
 
   constructor(
     private notesService: NotesService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private modalController: ModalController
   ) {
   }
 
@@ -110,5 +112,15 @@ export class NotesPage implements OnInit {
 
   async deleteNote(note: Note) {
     await this.notesService.deleteNote(note);
+  }
+
+  async editNote(note: Note) {
+    const modal = await this.modalController.create({
+      component: EditNoteModalPage,
+      componentProps: {
+        noteId: note.id
+      }
+    });
+    await modal.present();
   }
 }

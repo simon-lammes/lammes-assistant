@@ -44,7 +44,7 @@
           Resolve
         </ion-item-option>
       </ion-item-options>
-      <ion-item button [routerLink]="'/tabs/notes/edit-note/' + note.id">
+      <ion-item button (click)="editNote(note)">
         <ion-label>
           <h2>{{note.text}}</h2>
           <ng-container [ngSwitch]="getDeadlineStatus(note)">
