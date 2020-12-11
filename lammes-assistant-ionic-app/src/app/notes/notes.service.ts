@@ -13,13 +13,13 @@ const maxDate = new Date(8640000000000000);
  * The data that is needed for creating a note.
  */
 export interface CreateNoteData {
-  text: string;
+  title: string;
   description?: string;
 }
 
 export interface Note {
   id: number;
-  text: string;
+  title: string;
   description?: string;
   resolvedTimestamp?: string;
   startTimestamp?: string;
@@ -34,7 +34,7 @@ export interface Note {
 const noteFragment = gql`
     fragment NoteFragment on Note {
         id,
-        text,
+        title,
         description,
         resolvedTimestamp,
         startTimestamp,
@@ -80,8 +80,8 @@ const fetchNoteQuery = gql`
 `;
 
 const createNoteMutation = gql`
-    mutation CreateNote($text: String!, $description: String) {
-        createNote(text: $text, description: $description) {
+    mutation CreateNote($title: String!, $description: String) {
+        createNote(title: $title, description: $description) {
             ...NoteFragment
         }
     }
@@ -116,8 +116,8 @@ const deleteNoteMutation = gql`
 `;
 
 const editNoteMutation = gql`
-    mutation EditNote($id: Int!, $text: String, $description: String, $startTimestamp: String, $deadlineTimestamp: String) {
-        editNote(id: $id, text: $text, description: $description, startTimestamp: $startTimestamp, deadlineTimestamp: $deadlineTimestamp) {
+    mutation EditNote($id: Int!, $title: String, $description: String, $startTimestamp: String, $deadlineTimestamp: String) {
+        editNote(id: $id, title: $title, description: $description, startTimestamp: $startTimestamp, deadlineTimestamp: $deadlineTimestamp) {
             ...NoteFragment
         }
     }
@@ -249,7 +249,7 @@ export class NotesService {
           if (comparisonByStartTime !== 0) {
             return comparisonByStartTime;
           }
-          return a.text.localeCompare(b.text);
+          return a.title.localeCompare(b.title);
         });
       }
       cache.writeQuery({query: usersDeferredNotesQuery, data: {myDeferredNotes: updatedDeferredNotes}});
@@ -269,7 +269,7 @@ export class NotesService {
           if (firstComparison !== 0) {
             return firstComparison;
           }
-          return a.text.localeCompare(b.text);
+          return a.title.localeCompare(b.title);
         });
       }
       cache.writeQuery({query: usersPendingNotesQuery, data: {myPendingNotes: updatedDeferredNotes}});
@@ -288,7 +288,7 @@ export class NotesService {
           if (firstComparison !== 0) {
             return firstComparison;
           }
-          return a.text.localeCompare(b.text);
+          return a.title.localeCompare(b.title);
         });
       }
       cache.writeQuery({query: usersResolvedNotesQuery, data: {myResolvedNotes: updatedDeferredNotes}});

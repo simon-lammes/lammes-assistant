@@ -27,7 +27,7 @@
       </ion-item-options>
       <ion-item button>
         <ion-label>
-          <h2>{{note.text}}</h2>
+          <h2>{{note.title}}</h2>
           <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
           <h3 *ngIf="!note.startTimestamp">No start time</h3>
           <p *ngIf="note.description">{{note.description}}</p>
@@ -46,7 +46,7 @@
       </ion-item-options>
       <ion-item button (click)="editNote(note)">
         <ion-label>
-          <h2>{{note.text}}</h2>
+          <h2>{{note.title}}</h2>
           <ng-container [ngSwitch]="getDeadlineStatus(note)">
             <h3 *ngSwitchCase="DeadlineStatus.DueSometime">
               Due till {{note.deadlineTimestamp | date:'short' }}
@@ -74,7 +74,7 @@
       </ion-item-options>
       <ion-item button>
         <ion-label>
-          <h2>{{note.text}}</h2>
+          <h2>{{note.title}}</h2>
           <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
           <p *ngIf="note.description">{{note.description}}</p>
         </ion-label>

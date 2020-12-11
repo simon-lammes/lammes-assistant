@@ -27,7 +27,7 @@ const Note = objectType({
   name: 'Note',
   definition(t) {
     t.model.id();
-    t.model.text();
+    t.model.title();
     t.model.description();
     t.model.updatedTimestamp();
     t.model.startTimestamp();
@@ -120,7 +120,7 @@ const Mutation = objectType({
     t.field("createNote", {
       type: "Note",
       args: {
-        text: nonNull(stringArg()),
+        title: nonNull(stringArg()),
         description: nullable(stringArg())
       },
       resolve: async (_, inputs, context) => {
@@ -158,7 +158,7 @@ const Mutation = objectType({
       type: "Note",
       args: {
         id: nonNull(intArg()),
-        text: nullable(stringArg()),
+        title: nullable(stringArg()),
         description: nullable(stringArg()),
         startTimestamp: nullable(stringArg()),
         deadlineTimestamp: nullable(stringArg())

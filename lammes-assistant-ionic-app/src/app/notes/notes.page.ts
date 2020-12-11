@@ -53,9 +53,9 @@ export class NotesPage implements OnInit {
       header: 'Create Note',
       inputs: [
         {
-          name: 'text',
+          name: 'title',
           type: 'text',
-          placeholder: 'Note text'
+          placeholder: 'Title'
         },
         {
           name: 'description',

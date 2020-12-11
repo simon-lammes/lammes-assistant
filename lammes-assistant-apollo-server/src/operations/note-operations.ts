@@ -5,7 +5,7 @@ import {generateAuthorizationError} from "../custom-errors/authorization-error";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
 
 export interface CreateNoteInput {
-  text: string;
+  title: string;
   description?: string | null;
 }
 
@@ -13,14 +13,14 @@ interface ResolveNoteInput {
   noteId: number;
 }
 
-export async function createNote(context: Context, {text, description}: CreateNoteInput): Promise<Note> {
+export async function createNote(context: Context, {title, description}: CreateNoteInput): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only create notes when you are authenticated.');
   }
   return context.prisma.note.create({
     data: {
-      text,
+      title,
       description,
       user: {
         connect: {id: userId}
@@ -53,7 +53,7 @@ export async function fetchMyDeferredNotes(context: Context): Promise<Note[]> {
         startTimestamp: 'asc'
       },
       {
-        text: 'asc'
+        title: 'asc'
       }
     ],
   });
@@ -76,7 +76,7 @@ export async function fetchMyPendingNotes(context: Context): Promise<Note[]> {
         deadlineTimestamp: 'asc'
       },
       {
-        text: 'asc'
+        title: 'asc'
       }
     ]
   });
@@ -97,7 +97,7 @@ export async function fetchMyResolvedNotes(context: Context): Promise<Note[]> {
         resolvedTimestamp: 'desc'
       },
       {
-        text: 'asc'
+        title: 'asc'
       }
     ]
   });
@@ -185,7 +185,7 @@ export async function fetchNote(context: Context, noteId: number): Promise<Note>
   return note;
 }
 
-export async function editNote(context: Context, editedNote: { id: number, text?: string | null, description?: string | null, startTimestamp?: string | null, deadlineTimestamp?: string | null }): Promise<Note> {
+export async function editNote(context: Context, editedNote: { id: number, title?: string | null, description?: string | null, startTimestamp?: string | null, deadlineTimestamp?: string | null }): Promise<Note> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only edit notes when you are authenticated.');
@@ -202,7 +202,7 @@ export async function editNote(context: Context, editedNote: { id: number, text?
     data: {
       updatedTimestamp: new Date(),
       description: editedNote.description,
-      text: editedNote.text ?? undefined,
+      title: editedNote.title ?? undefined,
       startTimestamp: editedNote.startTimestamp,
       deadlineTimestamp: editedNote.deadlineTimestamp
     }

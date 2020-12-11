@@ -11,8 +11,8 @@ model User {
   id             Int    @id @default(autoincrement())
   firstName      String @map("first_name")
   lastName       String @map("last_name")
-  hashedPassword String @map("hashed_password")
   username       String @unique
+  hashedPassword String @map("hashed_password")
   notes          Note[] @relation("notesToUsers")
 
   @@map("users")
@@ -20,13 +20,13 @@ model User {
 
 model Note {
   id                Int       @id @default(autoincrement())
-  text              String
+  title             String
   updatedTimestamp  DateTime  @default(now()) @map("updated_timestamp")
-  creatorId         Int       @map("creator_id")
   resolvedTimestamp DateTime? @map("resolved_timestamp")
   description       String?
   startTimestamp    DateTime? @default(now()) @map("start_timestamp")
   deadlineTimestamp DateTime? @map("deadline_timestamp")
+  creatorId         Int       @map("creator_id")
   user              User      @relation("notesToUsers", fields: [creatorId], references: [id])
 
   @@map("notes")

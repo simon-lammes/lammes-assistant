@@ -55,22 +55,22 @@ export class EditNoteModalPage implements OnInit {
     control.patchValue(control.value.trim());
   }
 
+  async dismissModal() {
+    await this.modalController.dismiss();
+  }
+
   private async setupForm() {
     // We fill the form with the current notes' value but we do not update the form when the
     // note changes for whatever reason. This would confuse the user. Therefore, we take only the first value of the observable.
     const note = await this.note$.pipe(take(1)).toPromise();
     this.noteForm = this.formBuilder.group({
       id: [note.id],
-      text: this.formBuilder.control(note.text, [Validators.required, Validators.min(1)]),
+      title: this.formBuilder.control(note.title, [Validators.required, Validators.min(1)]),
       description: [note.description ?? ''],
       includeStartTimestamp: this.formBuilder.control(!!note.startTimestamp),
       startTimestamp: this.formBuilder.control(note.startTimestamp),
       includeDeadlineTimestamp: this.formBuilder.control(!!note.deadlineTimestamp),
       deadlineTimestamp: this.formBuilder.control(note.deadlineTimestamp)
     });
-  }
-
-  async dismissModal() {
-    await this.modalController.dismiss();
   }
 }

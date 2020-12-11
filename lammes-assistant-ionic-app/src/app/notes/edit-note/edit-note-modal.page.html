@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title *ngIf="note$ | async as note">Edit Note: {{note.text}}</ion-title>
+    <ion-title>Edit Note</ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="dismissModal()">Close</ion-button>
     </ion-buttons>
@@ -11,7 +11,7 @@
   <form *ngIf="noteForm" [formGroup]="noteForm" (ngSubmit)="saveChanges()">
     <ion-item>
       <ion-label>Note Text</ion-label>
-      <ion-input type="text" formControlName="text" (ionBlur)="trim('text')"></ion-input>
+      <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Description</ion-label>
