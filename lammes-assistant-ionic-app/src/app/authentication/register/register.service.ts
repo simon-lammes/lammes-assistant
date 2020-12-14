@@ -26,7 +26,7 @@ export class RegisterService {
   ) { }
 
   public async register(firstName: string, lastName: string, username: string, password: string) {
-    const {data} = await this.apollo.mutate<{ registration: Registration }>({
+    const {data} = await this.apollo.mutate<{ register: Registration }>({
       mutation: registerMutation,
       variables: {
         firstName,
@@ -35,7 +35,7 @@ export class RegisterService {
         password
       }
     }).toPromise();
-    const {jwtToken} = data.registration;
+    const {jwtToken} = data.register;
     await this.authenticationService.storeJwtToken(jwtToken);
   }
 }
