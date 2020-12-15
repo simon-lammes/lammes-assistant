@@ -25,7 +25,7 @@
           Resolve
         </ion-item-option>
       </ion-item-options>
-      <ion-item button>
+      <ion-item button (click)="editNote(note)">
         <ion-label>
           <h2>{{note.title}}</h2>
           <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
@@ -72,7 +72,7 @@
           Reopen
         </ion-item-option>
       </ion-item-options>
-      <ion-item button>
+      <ion-item button (click)="editNote(note)">
         <ion-label>
           <h2>{{note.title}}</h2>
           <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
