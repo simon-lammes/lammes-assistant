@@ -1,16 +1,20 @@
-import {intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
+import {arg, intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
 import {
-  createNote, deleteNote,
+  createNote,
+  deleteNote,
   editNote,
   fetchMyDeferredNotes,
   fetchMyPendingNotes,
   fetchMyResolvedNotes,
-  fetchNote, reopenNote,
+  fetchNote,
+  reopenNote,
   resolveNote
 } from "./operations/note-operations";
+import {GraphQLUpload} from "graphql-upload";
+import {createExercise} from "./operations/exercise-operations";
 
 const User = objectType({
   name: 'User',
@@ -47,6 +51,28 @@ const Registration = objectType({
     t.field('user', {
       type: "User"
     });
+  }
+});
+
+const HydratedExercise = objectType({
+  name: 'HydratedExercise',
+  description: '"Hydrated" indicates that objects of this type contain information than their corresponding rows in ' +
+    'the relational database. Hydrated exercises contain all their necessary data, even binary files that are not stored ' +
+    'in a relational database but a file storage like DigitalOcean Spaces. I want to point out that you could store binary ' +
+    'data in a relational database but for cost reasons I decided against it. I also want to point out that I purposefully ' +
+    'accept the overhead of base64 encoding because it simplifies persistance of that data client-side (in the future).',
+  definition(t) {
+    t.field('title', {
+      type: 'String',
+    });
+    t.field('front', {
+      type: 'String',
+      description: 'Base encoded file that is used for the front (assignment) of the exercise.'
+    });
+    t.field('back', {
+      type: 'String',
+      description: 'Base encoded file that is used for the back (solution) of the exercise.'
+    })
   }
 });
 
@@ -167,11 +193,22 @@ const Mutation = objectType({
         return editNote(context, args);
       }
     })
+    t.field("createExercise", {
+      type: "HydratedExercise",
+      args: {
+        title: nonNull(stringArg()),
+        front: nonNull(arg({type: GraphQLUpload})),
+        back: nonNull(arg({type: GraphQLUpload})),
+      },
+      resolve: (root, args, context) => {
+        return createExercise(context, args);
+      }
+    })
   },
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User, Note, Registration],
+  types: [Query, Mutation, User, Note, Registration, HydratedExercise],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',

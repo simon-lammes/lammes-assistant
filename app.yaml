@@ -25,6 +25,14 @@ services:
   - key: DATABASE_URL
     scope: RUN_TIME
     value: ${app-36c1bd8a-2972-4e2e-843e-0f9f.DATABASE_URL}
+  - key: SPACES_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:yftFZtt7ajDPBceUYC4ZFXJMzIAStQM5:HdcXgqh8noEHCijpDnms2QAYQXiRz+tbx2VvYSelbkoWXqvr]
+  - key: SPACES_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:bhLwJ+8jgQALtDINAitP+obvDEDEOI86:inPr0co3g0B7ZDpLOg0z5vQ9yAFC49wfJIZ9hjKUVlxeU8A87bX+MLPQv1e+Rj5e2gfxksbONzNe/iw=]
   github:
     branch: master
     deploy_on_push: true

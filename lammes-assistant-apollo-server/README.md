@@ -24,3 +24,7 @@ This should update the file `schema.prisma`. There you should make final adjustm
 ```
 npx prisma generate
 ```
+
+### Environment Variables
+
+This project is configured with a .env file that is **not** checked into version control for security reasons. Therefore, when you as a developer check out this project, you need to add a `.env` file inside the folder `lammes-assistant-apollo-server` and configure some variables. You can find a list of all required variables in the `Environment` interface [here](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-apollo-server/src/environment.ts).

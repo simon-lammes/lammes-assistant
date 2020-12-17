@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Save Exercise</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismissModal()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form *ngIf="exerciseForm" [formGroup]="exerciseForm" (ngSubmit)="saveExercise()">
+    <ion-item>
+      <ion-label>Note Text</ion-label>
+      <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Front</ion-label>
+      <ion-input type="file" (change)="onFileChange($event, 'front')"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Back</ion-label>
+      <ion-input type="file" (change)="onFileChange($event, 'back')"></ion-input>
+    </ion-item>
+    <ion-button type="submit" [disabled]="!exerciseForm.valid" expand="block">
+      Save Changes
+    </ion-button>
+  </form>
+</ion-content>

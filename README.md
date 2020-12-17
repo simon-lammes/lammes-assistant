@@ -6,6 +6,10 @@ Lammes Assistant is an application that helps individuals with organisation and 
 
 Yes, but classical To Do apps do not remind you to refine your reminder. It might get lost amonst many other reminders. Instead, Lammes Assistant puts those simple, unrefined reminders in a category called *pending*. All notes that require action by you are gathered there. Thus, you have a focused view on exactly those notes that are important to you right now. Let's say you refine a note and provide the information that you cannot start with this task right now but next week. This note will be put into the *deferred* category which gathers all tasks that will matter to you soon but not right now.
 
+> Lammes Assistant offers more functionality than just notes. Why is various functionality integrated into this app instead of splitted across separate apps?
+
+Another important concept of Lammes Assistant is integrating functionality that can nicely be integrated. For example, when I create notes at university, I later want to convert those notes into exercises. When I don't have to switch apps, this process works seemlessly. This is why I am currently developing functionality for creating and doing exercises.
+
 ## User guide
 
 This guide is aimed at everyone who just wants to use this app. The simplest way is to just visit this link [link](https://lammes-assistant-5m7y3.ondigitalocean.app/). That link routes you to the application that I am hosting on [DigitalOcean App Plattform](https://www.digitalocean.com/products/app-platform/).
@@ -20,7 +24,7 @@ This guide is aimed at everyone who wants to test, develop or contribute to this
 
 This repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all projects that make up Lammes Assistant. Every project is put in its own folder.
 
-The whole application consists of the following projects. The *lammes-assistant-ionic-app* is the user interface. It uses *lammes-assistant-apollo-server* as its backend for CRUD operations. The *lammes-assistant-apollo-server* is stateless and uses a Postgres database for storing the data.
+The whole application consists of the following projects. The *lammes-assistant-ionic-app* is the user interface. It uses *lammes-assistant-apollo-server* as its backend for CRUD operations. The *lammes-assistant-apollo-server* is stateless and uses a Postgres database for storing structured data and [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces/) for unstructured data like binary files.
 
 For the documention of the single projects go into their corresponding folders. The Postgres database does not have any project folder because this would not seem to make sense. Instead the database schema is documented in the [prisma.schema file](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-apollo-server/prisma/schema.prisma). To understand this file, I recommend checking out the corresponding [Prisma documentation](https://www.prisma.io/docs/concepts/components/prisma-schema).
 
