@@ -10,6 +10,7 @@ import {CreateExerciseResult, ExercisesService} from '../exercises.service';
   styleUrls: ['./save-exercise-modal.page.scss'],
 })
 export class SaveExerciseModalPage implements OnInit {
+  readonly ALLOWED_FILE_TYPES = ['application/pdf'];
   exerciseForm: FormGroup;
 
   constructor(
@@ -49,12 +50,17 @@ export class SaveExerciseModalPage implements OnInit {
     this.customFormsService.trimAndRemoveNeighboringWhitespaces(this.exerciseForm, formControlName);
   }
 
-  onFileChange(event: any, fileFormControlName: string) {
+  async onFileChange(event: any, fileFormControlName: string) {
     // Short circuit when the user did not select any files.
     if (!event.target.files || !event.target.files.length) {
       return;
     }
-    const [file] = event.target.files;
+    const [file] = event.target.files as File[];
+    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
+      event.target.value = '';
+      await this.showHint(`File type ${file.type} is not supported. Currently we only support pdf.`);
+      return;
+    }
     this.exerciseForm.patchValue({
       [fileFormControlName]: file
     });
