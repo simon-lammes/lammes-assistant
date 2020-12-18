@@ -4,24 +4,16 @@
 
 scalar DateTime
 
-"""
-"Hydrated" indicates that objects of this type contain information than their corresponding rows in the relational database. Hydrated exercises contain all their necessary data, even binary files that are not stored in a relational database but a file storage like DigitalOcean Spaces. I want to point out that you could store binary data in a relational database but for cost reasons I decided against it. I also want to point out that I purposefully accept the overhead of base64 encoding because it simplifies persistance of that data client-side (in the future).
-"""
-type HydratedExercise {
-  """
-  Base encoded file that is used for the back (solution) of the exercise.
-  """
-  back: String
-
-  """
-  Base encoded file that is used for the front (assignment) of the exercise.
-  """
-  front: String
-  title: String
+type Exercise {
+  creator: User!
+  creatorId: Int!
+  id: Int!
+  title: String!
+  versionTimestamp: DateTime!
 }
 
 type Mutation {
-  createExercise(back: Upload!, front: Upload!, title: String!): HydratedExercise
+  createExercise(assignment: Upload!, solution: Upload!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -32,6 +24,7 @@ type Mutation {
 }
 
 type Note {
+  creator: User!
   creatorId: Int!
   deadlineTimestamp: DateTime
   description: String
@@ -40,7 +33,6 @@ type Note {
   startTimestamp: DateTime
   title: String!
   updatedTimestamp: DateTime!
-  user: User!
 }
 
 input NoteWhereUniqueInput {
@@ -49,6 +41,7 @@ input NoteWhereUniqueInput {
 
 type Query {
   myDeferredNotes: [Note]
+  myExercises: [Exercise]
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

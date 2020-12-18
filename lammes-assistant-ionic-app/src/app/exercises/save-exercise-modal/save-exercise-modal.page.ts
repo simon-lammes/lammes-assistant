@@ -23,8 +23,8 @@ export class SaveExerciseModalPage implements OnInit {
   ngOnInit(): void {
     this.exerciseForm = this.formBuilder.group({
       title: this.formBuilder.control('', [Validators.required, Validators.min(1)]),
-      front: this.formBuilder.control(undefined, [Validators.required]),
-      back: this.formBuilder.control(undefined, [Validators.required])
+      assignment: this.formBuilder.control(undefined, [Validators.required]),
+      solution: this.formBuilder.control(undefined, [Validators.required])
     });
   }
 

@@ -22,7 +22,7 @@ export async function createNote(context: Context, {title, description}: CreateN
     data: {
       title,
       description,
-      user: {
+      creator: {
         connect: {id: userId}
       }
     }

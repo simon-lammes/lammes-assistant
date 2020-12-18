@@ -14,7 +14,7 @@ import {
   resolveNote
 } from "./operations/note-operations";
 import {GraphQLUpload} from "graphql-upload";
-import {createExercise} from "./operations/exercise-operations";
+import {createExercise, fetchMyExercises} from "./operations/exercise-operations";
 
 const User = objectType({
   name: 'User',
@@ -38,7 +38,7 @@ const Note = objectType({
     t.model.deadlineTimestamp();
     t.model.resolvedTimestamp();
     t.model.creatorId();
-    t.model.user();
+    t.model.creator();
   },
 });
 
@@ -54,25 +54,14 @@ const Registration = objectType({
   }
 });
 
-const HydratedExercise = objectType({
-  name: 'HydratedExercise',
-  description: '"Hydrated" indicates that objects of this type contain information than their corresponding rows in ' +
-    'the relational database. Hydrated exercises contain all their necessary data, even binary files that are not stored ' +
-    'in a relational database but a file storage like DigitalOcean Spaces. I want to point out that you could store binary ' +
-    'data in a relational database but for cost reasons I decided against it. I also want to point out that I purposefully ' +
-    'accept the overhead of base64 encoding because it simplifies persistance of that data client-side (in the future).',
+const Exercise = objectType({
+  name: 'Exercise',
   definition(t) {
-    t.field('title', {
-      type: 'String',
-    });
-    t.field('front', {
-      type: 'String',
-      description: 'Base encoded file that is used for the front (assignment) of the exercise.'
-    });
-    t.field('back', {
-      type: 'String',
-      description: 'Base encoded file that is used for the back (solution) of the exercise.'
-    })
+    t.model.id();
+    t.model.title();
+    t.model.creatorId();
+    t.model.creator();
+    t.model.versionTimestamp();
   }
 });
 
@@ -104,6 +93,12 @@ const Query = objectType({
       type: "Note",
       resolve: (root, args, context) => {
         return fetchMyResolvedNotes(context);
+      }
+    });
+    t.list.field('myExercises', {
+      type: "Exercise",
+      resolve: (root, args, context) => {
+        return fetchMyExercises(context);
       }
     });
     t.field('note', {
@@ -194,11 +189,11 @@ const Mutation = objectType({
       }
     })
     t.field("createExercise", {
-      type: "HydratedExercise",
+      type: "Exercise",
       args: {
         title: nonNull(stringArg()),
-        front: nonNull(arg({type: GraphQLUpload})),
-        back: nonNull(arg({type: GraphQLUpload})),
+        assignment: nonNull(arg({type: GraphQLUpload})),
+        solution: nonNull(arg({type: GraphQLUpload})),
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);
@@ -208,7 +203,7 @@ const Mutation = objectType({
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User, Note, Registration, HydratedExercise],
+  types: [Query, Mutation, User, Note, Registration, Exercise],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',

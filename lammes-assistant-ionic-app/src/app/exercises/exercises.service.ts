@@ -1,25 +1,39 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
+import {map} from 'rxjs/operators';
+
+export interface Exercise {
+  id: number;
+  title: string;
+}
 
 /**
- * Specifies which data we want when querying or mutating hydrated exercises. We want to ask for the same fields in every query
+ * Specifies which data we want when querying or mutating exercises. We want to ask for the same fields in every query
  * so that our cache for all queries can be updated with all required fields.
  */
-const hydratedExerciseFragment = gql`
-  fragment HydratedExerciseFragment on HydratedExercise {
-    title,
-    front,
-    back
+const exerciseFragment = gql`
+  fragment ExerciseFragment on Exercise {
+    id,
+    title
   }
 `;
 
-const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $front: Upload!, $back: Upload!) {
-    createExercise(title: $title, front: $front, back: $back) {
-      ...HydratedExerciseFragment
+const usersExercisesQuery = gql`
+  query UsersExercisesQuery {
+    myExercises {
+      ...ExerciseFragment
     }
   },
-  ${hydratedExerciseFragment}
+  ${exerciseFragment}
+`;
+
+const createExerciseMutation = gql`
+  mutation CreateExercise($title: String!, $assignment: Upload!, $solution: Upload!) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution) {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
 `;
 
 @Injectable({
@@ -27,15 +41,25 @@ const createExerciseMutation = gql`
 })
 export class ExercisesService {
 
+  readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
+    map(({data}) => data.myExercises)
+  );
+
   constructor(
     private apollo: Apollo
   ) {
   }
 
   createExercise(exerciseData: any): Promise<any> {
-    return this.apollo.mutate({
+    return this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
       variables: exerciseData,
+      update: (cache, mutationResult) => {
+        const cachedExercises = (cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] }).myExercises;
+        const newExercise = mutationResult.data.createExercise;
+        const updatedCachedExercises = [...cachedExercises, newExercise];
+        cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedCachedExercises}});
+      },
       context: {
         // The following configuration is required for the multipart request to work.
         // Sadly, that property is not strongly typed and insufficiently documented in my opinion.

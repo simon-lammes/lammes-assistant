@@ -2,20 +2,27 @@ import {Context} from "../context";
 import {AuthenticationError} from "apollo-server";
 import {FileUpload} from "graphql-upload";
 import {ReadStream} from "fs";
+import {Exercise} from "@prisma/client";
 
 export interface CreateExerciseInput {
   title: string;
-  front: Promise<FileUpload>;
-  back: Promise<FileUpload>;
+  assignment: Promise<FileUpload>;
+  solution: Promise<FileUpload>;
 }
 
 /**
- * Documented on the GraphQL schema level.
+ * An exercise with all the information belonging to it. A regular "Exercise" only contains light metadata and it saved
+ * in the relational database while an "Hydrated Exercise" is a storage-intensive object saved in DigitalOcean Spaces.
  */
 interface HydratedExercise {
+
+  /**
+   * Should be usable to determine whether an exercise changed without looking into the "storage-intensive" parts of the exercise.
+   */
+  versionTimestamp: string;
   title: string;
-  front: string;
-  back: string;
+  encodedAssignment: string;
+  encodedSolution: string;
 }
 
 /**
@@ -44,43 +51,62 @@ function encodeStreamToBase64(stream: ReadStream): Promise<string> {
 }
 
 /**
- * Uploads a file to DigitalOcean Spaces and returns a base64 representation of that file.
- * @param context
- * @param exerciseKey A unique string for the exercise that is used for creating an exercise folder.
- * @param file A file that is part of the exercise.
+ * Takes a file upload, collects the data of that stream and converts that data to a base64 encoded string.
  */
-async function uploadExerciseFile(context: Context, exerciseKey: string, file: Promise<FileUpload>) {
+async function encodeFileUploadToBase64(file: Promise<FileUpload>) {
   const frontUpload = await file;
   const stream = frontUpload.createReadStream();
-  const encodedString = await encodeStreamToBase64(stream);
-  const upload = context.spacesClient.putObject({
-    Bucket: "lammes-assistant-space",
-    Key: `exercises/${exerciseKey}/${frontUpload.filename}`,
-    // A bit bad that we have encoded the file to base64 and now we decode it again.
-    // Feel free to find a better way in the future.
-    Body: Buffer.from(encodedString, 'base64'),
-  });
-  await upload.promise();
-  return encodedString;
+  return await encodeStreamToBase64(stream);
 }
 
 export async function createExercise(context: Context, {
   title,
-  front,
-  back
-}: CreateExerciseInput): Promise<HydratedExercise> {
+  assignment,
+  solution
+}: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only create exercises when you are authenticated.');
   }
   const exerciseKey = createKeyForExercise(title);
-  const [encodedFront, encodedBack] = await Promise.all([
-    uploadExerciseFile(context, exerciseKey, front),
-    uploadExerciseFile(context, exerciseKey, back)
+  const [encodedAssignment, encodedSolution] = await Promise.all([
+    encodeFileUploadToBase64(assignment),
+    encodeFileUploadToBase64(solution)
   ]);
-  return {
+  const versionTimestamp = new Date();
+  const hydratedExercise = {
+    versionTimestamp: versionTimestamp.toString(),
     title,
-    front: encodedFront,
-    back: encodedBack,
-  };
+    encodedAssignment,
+    encodedSolution
+  } as HydratedExercise;
+  const upload = context.spacesClient.putObject({
+    Bucket: "lammes-assistant-space",
+    Key: `exercises/${exerciseKey}.json`,
+    Body: JSON.stringify(hydratedExercise),
+    ContentType: "application/json",
+    ACL: "private"
+  });
+  await upload.promise();
+  return context.prisma.exercise.create({
+    data: {
+      title,
+      versionTimestamp,
+      creator: {
+        connect: {id: userId}
+      }
+    }
+  });
+}
+
+export async function fetchMyExercises(context: Context): Promise<Exercise[]> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
+  }
+  return context.prisma.exercise.findMany({
+    where: {
+      creatorId: userId
+    }
+  });
 }

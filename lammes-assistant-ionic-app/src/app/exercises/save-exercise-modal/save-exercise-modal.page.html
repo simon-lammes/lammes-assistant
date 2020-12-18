@@ -15,11 +15,11 @@
     </ion-item>
     <ion-item>
       <ion-label>Front</ion-label>
-      <ion-input type="file" (change)="onFileChange($event, 'front')"></ion-input>
+      <ion-input type="file" (change)="onFileChange($event, 'assignment')"></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Back</ion-label>
-      <ion-input type="file" (change)="onFileChange($event, 'back')"></ion-input>
+      <ion-input type="file" (change)="onFileChange($event, 'solution')"></ion-input>
     </ion-item>
     <ion-button type="submit" [disabled]="!exerciseForm.valid" expand="block">
       Save Changes

@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {ModalController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
+import {ExercisesService} from './exercises.service';
 
 @Component({
   selector: 'app-exercises',
@@ -9,8 +10,11 @@ import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.p
 })
 export class ExercisesPage {
 
+  exercises$ = this.exercisesService.usersExercises$;
+
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private exercisesService: ExercisesService
   ) {
   }
 

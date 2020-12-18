@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id             Int    @id @default(autoincrement())
-  firstName      String @map("first_name")
-  lastName       String @map("last_name")
-  username       String @unique
-  hashedPassword String @map("hashed_password")
-  notes          Note[] @relation("notesToUsers")
+  id             Int        @id @default(autoincrement())
+  firstName      String     @map("first_name")
+  lastName       String     @map("last_name")
+  hashedPassword String     @map("hashed_password")
+  username       String     @unique
+  exercises      Exercise[] @relation("exercisesToUsers")
+  notes          Note[]     @relation("notesToUsers")
 
   @@map("users")
 }
@@ -22,12 +23,22 @@ model Note {
   id                Int       @id @default(autoincrement())
   title             String
   updatedTimestamp  DateTime  @default(now()) @map("updated_timestamp")
+  creatorId         Int       @map("creator_id")
   resolvedTimestamp DateTime? @map("resolved_timestamp")
   description       String?
   startTimestamp    DateTime? @default(now()) @map("start_timestamp")
   deadlineTimestamp DateTime? @map("deadline_timestamp")
-  creatorId         Int       @map("creator_id")
-  user              User      @relation("notesToUsers", fields: [creatorId], references: [id])
+  creator           User      @relation("notesToUsers", fields: [creatorId], references: [id])
 
   @@map("notes")
+}
+
+model Exercise {
+  id               Int      @id @default(autoincrement())
+  versionTimestamp DateTime @map("version_timestamp")
+  title            String
+  creatorId        Int      @map("creator_id")
+  creator          User     @relation("exercisesToUsers", fields: [creatorId], references: [id])
+
+  @@map("exercises")
 }
