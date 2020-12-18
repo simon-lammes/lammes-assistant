@@ -111,6 +111,17 @@ export async function createExercise(context: Context, {
       versionTimestamp,
       creator: {
         connect: {id: userId}
+      },
+      // For every new exercise the user creates, we directly want to create an "Experience" object containing the information
+      // that the user has not yet started studying this exercise. We need this object for querying functionality.
+      experiences: {
+        create: {
+          correctStreak: 0,
+          lastStudiedTimestamp: null,
+          learner: {
+            connect: {id: userId}
+          }
+        }
       }
     }
   });

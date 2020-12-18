@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id             Int        @id @default(autoincrement())
-  firstName      String     @map("first_name")
-  lastName       String     @map("last_name")
-  hashedPassword String     @map("hashed_password")
-  username       String     @unique
-  exercises      Exercise[] @relation("exercisesToUsers")
-  notes          Note[]     @relation("notesToUsers")
+  id             Int          @id @default(autoincrement())
+  firstName      String       @map("first_name")
+  lastName       String       @map("last_name")
+  hashedPassword String       @map("hashed_password")
+  username       String       @unique
+  exercises      Exercise[]   @relation("exercisesToUsers")
+  experiences    Experience[] @relation("experiencesToUsers")
+  notes          Note[]       @relation("notesToUsers")
 
   @@map("users")
 }
@@ -34,12 +35,25 @@ model Note {
 }
 
 model Exercise {
-  id               Int      @id @default(autoincrement())
-  versionTimestamp DateTime @map("version_timestamp")
+  id               Int          @id @default(autoincrement())
+  versionTimestamp DateTime     @map("version_timestamp")
   title            String
-  creatorId        Int      @map("creator_id")
-  key              String   @unique
-  creator          User     @relation("exercisesToUsers", fields: [creatorId], references: [id])
+  creatorId        Int          @map("creator_id")
+  key              String       @unique
+  creator          User         @relation("exercisesToUsers", fields: [creatorId], references: [id])
+  experiences      Experience[] @relation("exercisesToExperiences")
 
   @@map("exercises")
+}
+
+model Experience {
+  exerciseId           Int       @map("exercise_id")
+  learnerId            Int       @map("learner_id")
+  correctStreak        Int       @default(0) @map("correct_streak")
+  lastStudiedTimestamp DateTime? @map("last_studied_timestamp")
+  exercises            Exercise  @relation("exercisesToExperiences", fields: [exerciseId], references: [id])
+  learner              User      @relation("experiencesToUsers", fields: [learnerId], references: [id])
+
+  @@id([exerciseId, learnerId])
+  @@map("experiences")
 }
