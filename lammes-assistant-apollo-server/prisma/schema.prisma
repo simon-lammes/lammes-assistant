@@ -38,6 +38,7 @@ model Exercise {
   versionTimestamp DateTime @map("version_timestamp")
   title            String
   creatorId        Int      @map("creator_id")
+  key              String   @unique
   creator          User     @relation("exercisesToUsers", fields: [creatorId], references: [id])
 
   @@map("exercises")

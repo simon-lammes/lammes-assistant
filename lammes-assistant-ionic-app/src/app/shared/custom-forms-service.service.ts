@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {FormGroup} from '@angular/forms';
 
 /**
@@ -10,10 +10,13 @@ import {FormGroup} from '@angular/forms';
 export class CustomFormsServiceService {
 
   /**
-   * Trims the input of the user.
+   * Trims the input of the user and makes sure that whitespaces are not next to each other: 'a   b' becomes 'a b'.
    */
-  trim(form: FormGroup, formControlName: string) {
+  trimAndRemoveNeighboringWhitespaces(form: FormGroup, formControlName: string) {
     const control = form.controls[formControlName];
-    control.patchValue(control.value.trim());
+    const value = control.value as string;
+    const trimmedValue = value.trim();
+    const trimmedValueWithoutNeighboringWhitespaces = trimmedValue.replace(/[\s]{2,}/g, ' ');
+    control.patchValue(trimmedValueWithoutNeighboringWhitespaces);
   }
 }

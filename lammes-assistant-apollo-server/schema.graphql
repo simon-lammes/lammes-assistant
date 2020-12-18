@@ -8,6 +8,7 @@ type Exercise {
   creator: User!
   creatorId: Int!
   id: Int!
+  key: String!
   title: String!
   versionTimestamp: DateTime!
 }

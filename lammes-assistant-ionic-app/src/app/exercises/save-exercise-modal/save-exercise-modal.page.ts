@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ModalController} from '@ionic/angular';
+import {ModalController, ToastController} from '@ionic/angular';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
-import {ExercisesService} from '../exercises.service';
+import {CreateExerciseResult, ExercisesService} from '../exercises.service';
 
 @Component({
   selector: 'app-save-exercise-modal',
@@ -16,7 +16,8 @@ export class SaveExerciseModalPage implements OnInit {
     private modalController: ModalController,
     private formBuilder: FormBuilder,
     private customFormsService: CustomFormsServiceService,
-    private exercisesService: ExercisesService
+    private exercisesService: ExercisesService,
+    private toastController: ToastController
   ) {
   }
 
@@ -33,12 +34,19 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async saveExercise() {
-    await this.exercisesService.createExercise(this.exerciseForm.value);
-    await this.dismissModal();
+    const result = await this.exercisesService.createExercise(this.exerciseForm.value);
+    switch (result) {
+      case CreateExerciseResult.Success:
+        await this.dismissModal();
+        break;
+      case CreateExerciseResult.Conflict:
+        await this.showHint('Please change your title because the current title conflicts with an already existing exercise.');
+        break;
+    }
   }
 
   trim(formControlName: string) {
-    this.customFormsService.trim(this.exerciseForm, formControlName);
+    this.customFormsService.trimAndRemoveNeighboringWhitespaces(this.exerciseForm, formControlName);
   }
 
   onFileChange(event: any, fileFormControlName: string) {
@@ -50,5 +58,20 @@ export class SaveExerciseModalPage implements OnInit {
     this.exerciseForm.patchValue({
       [fileFormControlName]: file
     });
+  }
+
+  private async showHint(message: string) {
+    const toast = await this.toastController.create({
+      header: message,
+      color: 'warning',
+      buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ],
+      position: 'top'
+    });
+    await toast.present();
   }
 }

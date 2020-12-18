@@ -35,6 +35,7 @@ export async function register(context: Context, {firstName, lastName, username,
   const userDao = context.prisma.user;
   const userWithSameUsername = await userDao.findFirst({where: {username}});
   if (userWithSameUsername) {
+    // TODO replace with CUSTOM collision error. Make sure that the client is adapted to that change.
     throw new ApolloError("A user with that username already exists", "USERNAME_COLLISION");
   }
   const salt = await bcrypt.genSalt(10);

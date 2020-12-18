@@ -1,8 +1,10 @@
 import {Context} from "../context";
-import {AuthenticationError} from "apollo-server";
+import {AuthenticationError, UserInputError} from "apollo-server";
 import {FileUpload} from "graphql-upload";
 import {ReadStream} from "fs";
 import {Exercise} from "@prisma/client";
+import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
+import {generateConflictError} from "../custom-errors/collision-error";
 
 export interface CreateExerciseInput {
   title: string;
@@ -68,7 +70,21 @@ export async function createExercise(context: Context, {
   if (!userId) {
     throw new AuthenticationError('You can only create exercises when you are authenticated.');
   }
+  if (title.length === 0) {
+    throw new UserInputError('Title cannot be empty.');
+  }
+  if (title.includes('  ') || title.startsWith(' ') || title.endsWith(' ')) {
+    throw generateUnnecessaryWhitespacesError('title');
+  }
   const exerciseKey = createKeyForExercise(title);
+  const doesConflictingExerciseExist = await context.prisma.exercise.count({
+    where: {
+      key: exerciseKey
+    }
+  }).then(count => count > 0);
+  if (doesConflictingExerciseExist) {
+    throw generateConflictError('For the given exercise title, we cannot create unique key that is not yet used for another exercise.');
+  }
   const [encodedAssignment, encodedSolution] = await Promise.all([
     encodeFileUploadToBase64(assignment),
     encodeFileUploadToBase64(solution)
@@ -91,6 +107,7 @@ export async function createExercise(context: Context, {
   return context.prisma.exercise.create({
     data: {
       title,
+      key: exerciseKey,
       versionTimestamp,
       creator: {
         connect: {id: userId}

@@ -1,6 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {map} from 'rxjs/operators';
+import {GraphQLError} from 'graphql';
+
+export enum CreateExerciseResult {
+  Success,
+  Conflict
+}
 
 export interface Exercise {
   id: number;
@@ -50,11 +56,15 @@ export class ExercisesService {
   ) {
   }
 
-  createExercise(exerciseData: any): Promise<any> {
-    return this.apollo.mutate<{ createExercise: Exercise }, any>({
+  async createExercise(exerciseData: any): Promise<CreateExerciseResult> {
+    const {data, errors} = await this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
       variables: exerciseData,
+      errorPolicy: 'all',
       update: (cache, mutationResult) => {
+        if (mutationResult.errors) {
+          return;
+        }
         const cachedExercises = (cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] }).myExercises;
         const newExercise = mutationResult.data.createExercise;
         const updatedCachedExercises = [...cachedExercises, newExercise];
@@ -68,5 +78,12 @@ export class ExercisesService {
         useMultipart: true
       }
     }).toPromise();
+    if (data.createExercise) {
+      return CreateExerciseResult.Success;
+    }
+    if (errors.some((e: GraphQLError) => e.extensions.code === 'CONFLICT')) {
+      return CreateExerciseResult.Conflict;
+    }
+    throw Error('Unhandled situation');
   }
 }

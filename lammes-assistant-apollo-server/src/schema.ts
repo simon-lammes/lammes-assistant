@@ -62,6 +62,7 @@ const Exercise = objectType({
     t.model.creatorId();
     t.model.creator();
     t.model.versionTimestamp();
+    t.model.key();
   }
 });
 

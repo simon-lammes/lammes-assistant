@@ -10,7 +10,7 @@
 <ion-content>
   <form *ngIf="noteForm" [formGroup]="noteForm" (ngSubmit)="saveChanges()">
     <ion-item>
-      <ion-label>Note Text</ion-label>
+      <ion-label>Note Title</ion-label>
       <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
     </ion-item>
     <ion-item>
