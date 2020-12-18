@@ -11,6 +11,12 @@ export enum CreateExerciseResult {
 export interface Exercise {
   id: number;
   title: string;
+  key: string;
+}
+
+export interface Experience {
+  correctStreak: number;
+  exercise: Exercise;
 }
 
 /**
@@ -20,8 +26,23 @@ export interface Exercise {
 const exerciseFragment = gql`
   fragment ExerciseFragment on Exercise {
     id,
-    title
+    title,
+    key
   }
+`;
+
+/**
+ * Specifies which data we want when querying or mutating experience. We want to ask for the same fields in every query
+ * so that our cache for all queries can be updated with all required fields.
+ */
+const experienceFragment = gql`
+  fragment ExperienceFragment on Experience {
+    correctStreak,
+    exercise {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
 `;
 
 const usersExercisesQuery = gql`
@@ -42,10 +63,24 @@ const createExerciseMutation = gql`
   ${exerciseFragment}
 `;
 
+const usersNextExperienceQuery = gql`
+  query MyNextExperience {
+    myNextExperience {
+      ...ExperienceFragment
+    }
+  },
+  ${experienceFragment}
+`;
+
 @Injectable({
   providedIn: 'root'
 })
 export class ExercisesService {
+
+  readonly usersNextExperience$ = this.apollo.watchQuery<{ myNextExperience: Experience }>({query: usersNextExperienceQuery})
+    .valueChanges.pipe(
+      map(({data}) => data.myNextExperience)
+    );
 
   readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
     map(({data}) => data.myExercises)

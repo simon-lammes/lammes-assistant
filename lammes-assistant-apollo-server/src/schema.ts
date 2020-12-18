@@ -14,7 +14,7 @@ import {
   resolveNote
 } from "./operations/note-operations";
 import {GraphQLUpload} from "graphql-upload";
-import {createExercise, fetchMyExercises} from "./operations/exercise-operations";
+import {createExercise, fetchMyExercises, fetchMyNextExperience} from "./operations/exercise-operations";
 
 const User = objectType({
   name: 'User',
@@ -66,6 +66,17 @@ const Exercise = objectType({
   }
 });
 
+const Experience = objectType({
+  name: 'Experience',
+  definition(t) {
+    t.model.exerciseId();
+    t.model.learnerId();
+    t.model.exercise();
+    t.model.lastStudiedTimestamp();
+    t.model.correctStreak();
+  }
+});
+
 const Query = objectType({
   name: 'Query',
   definition(t) {
@@ -100,6 +111,12 @@ const Query = objectType({
       type: "Exercise",
       resolve: (root, args, context) => {
         return fetchMyExercises(context);
+      }
+    });
+    t.field('myNextExperience', {
+      type: "Experience",
+      resolve: (root, args, context) => {
+        return fetchMyNextExperience(context);
       }
     });
     t.field('note', {
@@ -204,7 +221,7 @@ const Mutation = objectType({
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User, Note, Registration, Exercise],
+  types: [Query, Mutation, User, Note, Registration, Exercise, Experience],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',

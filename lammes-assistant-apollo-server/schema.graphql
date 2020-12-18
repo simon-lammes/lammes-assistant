@@ -13,6 +13,14 @@ type Exercise {
   versionTimestamp: DateTime!
 }
 
+type Experience {
+  correctStreak: Int!
+  exercise: Exercise!
+  exerciseId: Int!
+  lastStudiedTimestamp: DateTime
+  learnerId: Int!
+}
+
 type Mutation {
   createExercise(assignment: Upload!, solution: Upload!, title: String!): Exercise
   createNote(description: String, title: String!): Note
@@ -43,6 +51,7 @@ input NoteWhereUniqueInput {
 type Query {
   myDeferredNotes: [Note]
   myExercises: [Exercise]
+  myNextExperience: Experience
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

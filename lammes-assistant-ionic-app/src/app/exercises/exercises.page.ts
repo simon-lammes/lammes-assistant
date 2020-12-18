@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {ModalController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
 import {ExercisesService} from './exercises.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-exercises',
@@ -14,7 +15,8 @@ export class ExercisesPage {
 
   constructor(
     private modalController: ModalController,
-    private exercisesService: ExercisesService
+    private exercisesService: ExercisesService,
+    private router: Router
   ) {
   }
 
@@ -23,5 +25,9 @@ export class ExercisesPage {
       component: SaveExerciseModalPage
     });
     return await modal.present();
+  }
+
+  async startStudying() {
+    await this.router.navigateByUrl('/tabs/exercises/study');
   }
 }

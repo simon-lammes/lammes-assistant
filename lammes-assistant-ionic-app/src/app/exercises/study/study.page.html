@@ -1,0 +1,13 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Study</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+ <ng-container *ngIf="experience$ | async as experience">
+   <p>Correct streak: {{experience.correctStreak}}</p>
+   <p>Title: {{experience.exercise.title}}</p>
+   <p>Under construction: Exercise will be placed here!</p>
+ </ng-container>
+</ion-content>

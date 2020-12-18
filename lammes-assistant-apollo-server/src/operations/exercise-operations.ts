@@ -138,3 +138,19 @@ export async function fetchMyExercises(context: Context): Promise<Exercise[]> {
     }
   });
 }
+
+export async function fetchMyNextExperience(context: Context): Promise<any> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
+  }
+  return context.prisma.experience.findFirst({
+    where: {
+      learnerId: userId
+    },
+    orderBy: {
+      correctStreak: 'asc'
+    },
+  });
+}
+
