@@ -7,13 +7,15 @@ import {IonicModule} from '@ionic/angular';
 import {StudyPageRoutingModule} from './study-routing.module';
 
 import {StudyPage} from './study.page';
+import {PdfViewerModule} from 'ng2-pdf-viewer';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    StudyPageRoutingModule
+    StudyPageRoutingModule,
+    PdfViewerModule
   ],
   declarations: [StudyPage]
 })

@@ -1,4 +1,4 @@
-import {arg, intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
+import {arg, enumType, intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
@@ -14,7 +14,13 @@ import {
   resolveNote
 } from "./operations/note-operations";
 import {GraphQLUpload} from "graphql-upload";
-import {createExercise, fetchMyExercises, fetchMyNextExperience} from "./operations/exercise-operations";
+import {
+  createExercise,
+  fetchMyExercises,
+  fetchMyNextExperience,
+  getExerciseDownloadLink,
+  registerExerciseExperience
+} from "./operations/exercise-operations";
 
 const User = objectType({
   name: 'User',
@@ -77,6 +83,12 @@ const Experience = objectType({
   }
 });
 
+const ExerciseResult = enumType({
+  name: 'ExerciseResult',
+  members: ['FAILURE', 'SUCCESS'],
+  description: 'Results describing how a learner coped with an exercise. Through the use of an enum we make sure that further characteristics can easily added in the future.',
+})
+
 const Query = objectType({
   name: 'Query',
   definition(t) {
@@ -119,6 +131,15 @@ const Query = objectType({
         return fetchMyNextExperience(context);
       }
     });
+    t.field('getExerciseDownloadLink', {
+      type: "String",
+      args: {
+        exerciseKey: nonNull(stringArg())
+      },
+      resolve: (root, args, context) => {
+        return getExerciseDownloadLink(context, args.exerciseKey);
+      }
+    })
     t.field('note', {
       type: 'Note',
       args: {
@@ -205,7 +226,7 @@ const Mutation = objectType({
       resolve: (root, args, context) => {
         return editNote(context, args);
       }
-    })
+    });
     t.field("createExercise", {
       type: "Exercise",
       args: {
@@ -216,7 +237,17 @@ const Mutation = objectType({
       resolve: (root, args, context) => {
         return createExercise(context, args);
       }
-    })
+    });
+    t.field("registerExerciseExperience", {
+      type: "Experience",
+      args: {
+        exerciseKey: nonNull(stringArg()),
+        exerciseResult: nonNull(arg({type: ExerciseResult}))
+      },
+      resolve: (root, args, context) => {
+        return registerExerciseExperience(context, args.exerciseKey, args.exerciseResult);
+      }
+    });
   },
 })
 

@@ -5,9 +5,28 @@
 </ion-header>
 
 <ion-content>
- <ng-container *ngIf="experience$ | async as experience">
-   <p>Correct streak: {{experience.correctStreak}}</p>
-   <p>Title: {{experience.exercise.title}}</p>
-   <p>Under construction: Exercise will be placed here!</p>
- </ng-container>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Assignment</ion-card-subtitle>
+      <ion-card-title *ngIf="exercise$ | async as exercise">{{exercise.title}}</ion-card-title>
+    </ion-card-header>
+    <pdf-viewer *ngIf="exercise$ | async as exercise" [src]="'data:application/pdf;base64, ' + exercise.encodedAssignment"
+                [render-text]="true" [original-size]="false" [zoom-scale]="'page-width'"></pdf-viewer>
+  </ion-card>
+  <ion-button *ngIf="!isSolutionVisible" expand="block" color="primary" (click)="showSolution()">Show solution</ion-button>
+  <ion-card *ngIf="isSolutionVisible">
+    <ion-card-header>
+      <ion-card-subtitle>Solution</ion-card-subtitle>
+    </ion-card-header>
+    <pdf-viewer *ngIf="exercise$ | async as exercise" [src]="'data:application/pdf;base64, ' + exercise.encodedSolution"
+                [render-text]="true" [original-size]="false" [zoom-scale]="'page-width'"></pdf-viewer>
+  </ion-card>
+  <div style="display: flex" *ngIf="isSolutionVisible && experience$ | async as experience">
+    <ion-button color="danger" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'FAILURE')">
+      <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>
+    </ion-button>
+    <ion-button color="success" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'SUCCESS')">
+      <ion-icon slot="icon-only" name="thumbs-up-outline"></ion-icon>
+    </ion-button>
+  </div>
 </ion-content>

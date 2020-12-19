@@ -1,11 +1,26 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {map} from 'rxjs/operators';
+import {map, switchMap} from 'rxjs/operators';
 import {GraphQLError} from 'graphql';
+import {Observable} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 
 export enum CreateExerciseResult {
   Success,
   Conflict
+}
+
+export type ExerciseResult = 'FAILURE' | 'SUCCESS';
+
+/**
+ * A heavier type than a regular exercise. This type can consist binary files associated with the exercise and is therefore not
+ * saved in a relational database.
+ */
+export interface HydratedExercise {
+  title: string;
+  versionTimestamp: string;
+  encodedAssignment: string;
+  encodedSolution: string;
 }
 
 export interface Exercise {
@@ -72,6 +87,21 @@ const usersNextExperienceQuery = gql`
   ${experienceFragment}
 `;
 
+const getExerciseDownloadLinkQuery = gql`
+  query GetExerciseDownloadLink($exerciseKey: String!) {
+    getExerciseDownloadLink(exerciseKey: $exerciseKey)
+  }
+`;
+
+const registerExerciseExperienceMutation = gql`
+  mutation RegisterExerciseExperience($exerciseKey: String!, $exerciseResult: ExerciseResult!) {
+    registerExerciseExperience(exerciseKey: $exerciseKey, exerciseResult: $exerciseResult) {
+      ...ExperienceFragment
+    }
+  },
+  ${experienceFragment}
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -87,7 +117,8 @@ export class ExercisesService {
   );
 
   constructor(
-    private apollo: Apollo
+    private apollo: Apollo,
+    private http: HttpClient
   ) {
   }
 
@@ -120,5 +151,35 @@ export class ExercisesService {
       return CreateExerciseResult.Conflict;
     }
     throw Error('Unhandled situation');
+  }
+
+  getHydratedExercise(exercise: Exercise): Observable<HydratedExercise> {
+    return this.getExerciseDownloadLink(exercise).pipe(
+      switchMap(exerciseUrl => this.http.get<HydratedExercise>(exerciseUrl))
+    );
+  }
+
+  private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
+    return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
+      query: getExerciseDownloadLinkQuery,
+      variables: {
+        exerciseKey: exercise.key
+      }
+    }).valueChanges.pipe(
+      map(({data}) => data.getExerciseDownloadLink)
+    );
+  }
+
+  registerExerciseExperience(args: {exerciseKey: string, exerciseResult: ExerciseResult}) {
+    return this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
+      mutation: registerExerciseExperienceMutation,
+      variables: args,
+      refetchQueries: [
+        {
+          // When the user is finished with an exercise, he wants the next one.
+          query: usersNextExperienceQuery
+        }
+      ]
+    }).toPromise();
   }
 }

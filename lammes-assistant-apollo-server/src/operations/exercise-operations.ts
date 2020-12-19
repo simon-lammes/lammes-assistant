@@ -1,5 +1,5 @@
 import {Context} from "../context";
-import {AuthenticationError, UserInputError} from "apollo-server";
+import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
 import {FileUpload} from "graphql-upload";
 import {ReadStream} from "fs";
 import {Exercise} from "@prisma/client";
@@ -154,3 +154,46 @@ export async function fetchMyNextExperience(context: Context): Promise<any> {
   });
 }
 
+export async function getExerciseDownloadLink(context: Context, exerciseKey: string): Promise<any> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You must be authenticated.');
+  }
+  return context.spacesClient.getSignedUrl('getObject', {
+    Bucket: "lammes-assistant-space",
+    Key: `exercises/${exerciseKey}.json`,
+    Expires: 60
+  });
+}
+
+export async function registerExerciseExperience(context: Context, exerciseKey: string, exerciseResult: 'FAILURE' | 'SUCCESS'): Promise<any> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You must be authenticated.');
+  }
+  const experience = await context.prisma.experience.findFirst({
+    where: {
+      learnerId: userId,
+      exercise: {
+        key: exerciseKey
+      }
+    }
+  });
+  if (!experience) {
+    throw new ApolloError('Invalid request. For the given user and exerciseKey we could not find an experience to update.');
+  }
+  return context.prisma.experience.update({
+    where: {
+      exerciseId_learnerId: {
+        exerciseId: experience.exerciseId,
+        learnerId: userId
+      }
+    },
+    data: {
+      correctStreak: exerciseResult === "SUCCESS" ? {
+        increment: 1
+      } : 0,
+      lastStudiedTimestamp: new Date()
+    }
+  })
+}
