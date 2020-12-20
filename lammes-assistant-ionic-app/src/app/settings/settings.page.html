@@ -4,6 +4,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="settingsForm" [formGroup]="settingsForm">
+  <ion-list>
+    <ion-item button (click)="changeExerciseCooldown()">
+      <ion-label>Exercise Cooldown</ion-label>
+      <ion-text>{{ exerciseCooldownTextualRepresentation$ | async }}</ion-text>
+    </ion-item>
+  </ion-list>
   <ion-button expand="block" color="danger" (click)="logout()">Logout</ion-button>
 </ion-content>

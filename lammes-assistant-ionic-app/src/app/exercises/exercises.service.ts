@@ -148,13 +148,6 @@ export class ExercisesService {
         const newExercise = mutationResult.data.createExercise;
         const updatedCachedExercises = [...cachedExercises, newExercise];
         cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedCachedExercises}});
-      },
-      context: {
-        // The following configuration is required for the multipart request to work.
-        // Sadly, that property is not strongly typed and insufficiently documented in my opinion.
-        // Here is what I found: https://stackoverflow.com/a/57388334/12244272,
-        // https://github.com/jaydenseric/apollo-upload-client/issues/44#issuecomment-481536380
-        useMultipart: true
       }
     }).toPromise();
     if (data.createExercise) {

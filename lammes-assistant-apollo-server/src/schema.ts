@@ -31,6 +31,7 @@ import {
   getExerciseDownloadLink,
   registerExerciseExperience
 } from "./operations/exercise-operations";
+import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
 
 const User = objectType({
   name: 'User',
@@ -40,6 +41,7 @@ const User = objectType({
     t.model.lastName();
     t.model.username();
     t.model.notes();
+    t.model.settingsUpdatedTimestamp();
   },
 });
 
@@ -75,6 +77,15 @@ export const ExerciseFragment = inputObjectType({
   definition(t) {
     t.nonNull.string('value');
     t.nonNull.string('type');
+  },
+});
+
+export const ExerciseCooldown = inputObjectType({
+  name: 'ExerciseCooldown',
+  definition(t) {
+    t.nonNull.int('days');
+    t.nonNull.int('hours');
+    t.nonNull.int('minutes');
   },
 })
 
@@ -157,7 +168,13 @@ const Query = objectType({
       resolve: (root, args, context) => {
         return getExerciseDownloadLink(context, args.exerciseKey);
       }
-    })
+    });
+    t.field('getSettingsDownloadLink', {
+      type: "String",
+      resolve: (root, args, context) => {
+        return getSettingsDownloadLink(context);
+      }
+    });
     t.field('note', {
       type: 'Note',
       args: {
@@ -166,7 +183,14 @@ const Query = objectType({
       resolve: (root, args, context) => {
         return fetchNote(context, args.id);
       }
-    })
+    });
+    t.field('me', {
+      type: 'User',
+      description: 'Returns the user object that belongs to user making the request.',
+      resolve: (root, args, context) => {
+        return getCurrentUser(context);
+      }
+    });
   },
 })
 
@@ -266,6 +290,15 @@ const Mutation = objectType({
         return registerExerciseExperience(context, args.exerciseKey, args.exerciseResult);
       }
     });
+    t.field('saveSettings', {
+      type: "User",
+      args: {
+        exerciseCooldown: nonNull(arg({type: ExerciseCooldown}))
+      },
+      resolve: (root, args, context) => {
+        return saveSettings(context, args);
+      }
+    })
   },
 })
 

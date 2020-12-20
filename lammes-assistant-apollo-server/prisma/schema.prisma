@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  firstName      String       @map("first_name")
-  lastName       String       @map("last_name")
-  hashedPassword String       @map("hashed_password")
-  username       String       @unique
-  exercises      Exercise[]   @relation("exercisesToUsers")
-  experiences    Experience[] @relation("experiencesToUsers")
-  notes          Note[]       @relation("notesToUsers")
+  id                       Int          @id @default(autoincrement())
+  firstName                String       @map("first_name")
+  lastName                 String       @map("last_name")
+  hashedPassword           String       @map("hashed_password")
+  username                 String       @unique
+  settingsUpdatedTimestamp DateTime?    @map("settings_updated_timestamp")
+  exercises                Exercise[]   @relation("exercisesToUsers")
+  experiences              Experience[] @relation("experiencesToUsers")
+  notes                    Note[]       @relation("notesToUsers")
 
   @@map("users")
 }

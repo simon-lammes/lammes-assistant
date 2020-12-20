@@ -13,6 +13,12 @@ type Exercise {
   versionTimestamp: DateTime!
 }
 
+input ExerciseCooldown {
+  days: Int!
+  hours: Int!
+  minutes: Int!
+}
+
 input ExerciseFragment {
   type: String!
   value: String!
@@ -44,6 +50,7 @@ type Mutation {
   registerExerciseExperience(exerciseKey: String!, exerciseResult: ExerciseResult!): Experience
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
+  saveSettings(exerciseCooldown: ExerciseCooldown!): User
 }
 
 type Note {
@@ -64,6 +71,10 @@ input NoteWhereUniqueInput {
 
 type Query {
   getExerciseDownloadLink(exerciseKey: String!): String
+  getSettingsDownloadLink: String
+
+  """Returns the user object that belongs to user making the request."""
+  me: User
   myDeferredNotes: [Note]
   myExercises: [Exercise]
   myNextExperience: Experience
@@ -83,5 +94,6 @@ type User {
   id: Int!
   lastName: String!
   notes(after: NoteWhereUniqueInput, before: NoteWhereUniqueInput, first: Int, last: Int): [Note!]!
+  settingsUpdatedTimestamp: DateTime
   username: String!
 }
