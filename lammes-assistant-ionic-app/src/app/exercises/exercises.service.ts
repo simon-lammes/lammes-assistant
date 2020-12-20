@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {distinctUntilChanged, first, map, switchMap, tap} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {GraphQLError} from 'graphql';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
-import _ from 'lodash';
 
 export enum CreateExerciseResult {
   Success,
@@ -51,11 +50,8 @@ export interface Experience {
  * Tracks the current progress of the user study session.
  */
 export interface StudyProgress {
-
-  /**
-   * Stores the exercise results in chronological order.
-   */
-  exerciseResults: ExerciseResult[];
+  successCount: number;
+  failureCount: number;
 }
 
 /**
@@ -133,21 +129,17 @@ const registerExerciseExperienceMutation = gql`
 export class ExercisesService {
 
   // Study Progress
-  readonly studyProgressBehaviourSubject = new BehaviorSubject({exerciseResults: []} as StudyProgress);
+  readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
   readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
-  readonly exerciseResults$ = this.studyProgress$.pipe(
-    map(studyProgress => studyProgress.exerciseResults),
-    distinctUntilChanged((x, y) => _.isEqual(x, y))
-  );
 
   /**
    * The users experience that he should work on next while studying. Informally: the next exercise.
-   * This observable is "re-triggered" when the exercise results change (the user finished an exercise)
+   * This observable is "re-triggered" when the study progress changes (the user finished an exercise)
    * and when the user changed the exercise cooldown. The reasons for these triggers can be explained as follows:
    * When the user finishes an exercise, he must start working on the next one.
    * When the user changes the exercise time, the "algorithm" might pick a different (better suited?) exercise.
    */
-  readonly usersNextExperience$ = this.exerciseResults$.pipe(
+  readonly usersNextExperience$ = this.studyProgress$.pipe(
     switchMap(() => this.settingsService.exerciseCooldown$),
     switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
       // When we used the cache, we would be "stuck" with the same exercise.
@@ -225,8 +217,10 @@ export class ExercisesService {
       mutation: registerExerciseExperienceMutation,
       variables: args
     }).toPromise();
+    const {exerciseResult} = args;
     this.studyProgressBehaviourSubject.next({
-      exerciseResults: [...this.studyProgressBehaviourSubject.value.exerciseResults, args.exerciseResult]
+      successCount: this.studyProgressBehaviourSubject.value.successCount + (exerciseResult === 'SUCCESS' ? 1 : 0),
+      failureCount: this.studyProgressBehaviourSubject.value.failureCount + (exerciseResult === 'FAILURE' ? 1 : 0),
     });
   }
 

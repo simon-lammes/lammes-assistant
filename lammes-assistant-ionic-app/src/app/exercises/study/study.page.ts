@@ -14,12 +14,14 @@ export class StudyPage {
   exercise$ = this.experience$.pipe(
     switchMap(experience => this.exercisesService.getHydratedExercise(experience?.exercise))
   );
+  studyProgress$ = this.exercisesService.studyProgress$;
   isSolutionVisible = false;
 
   constructor(
     private exercisesService: ExercisesService,
     private toastController: ToastController
   ) {
+    this.studyProgress$.subscribe(console.log);
   }
 
   showSolution() {
