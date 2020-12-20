@@ -68,7 +68,7 @@ export async function createExercise(context: Context, {
   }
   const versionTimestamp = new Date();
   const hydratedExercise = {
-    versionTimestamp: versionTimestamp.toString(),
+    versionTimestamp: versionTimestamp.toISOString(),
     title,
     assignmentFragments,
     solutionFragments
@@ -85,7 +85,7 @@ export async function createExercise(context: Context, {
     data: {
       title,
       key: exerciseKey,
-      versionTimestamp,
+      versionTimestamp: versionTimestamp.toISOString(),
       creator: {
         connect: {id: userId}
       },

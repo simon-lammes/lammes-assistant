@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {map, switchMap} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {GraphQLError} from 'graphql';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
+import {Storage} from '@ionic/storage';
 
 export enum CreateExerciseResult {
   Success,
@@ -36,6 +37,7 @@ export interface Exercise {
   id: number;
   title: string;
   key: string;
+  versionTimestamp: string;
 }
 
 export interface Experience {
@@ -51,7 +53,8 @@ const exerciseFragment = gql`
   fragment ExerciseFragment on Exercise {
     id,
     title,
-    key
+    key,
+    versionTimestamp
   }
 `;
 
@@ -127,7 +130,8 @@ export class ExercisesService {
 
   constructor(
     private apollo: Apollo,
-    private http: HttpClient
+    private http: HttpClient,
+    private storage: Storage
   ) {
   }
 
@@ -162,10 +166,40 @@ export class ExercisesService {
     throw Error('Unhandled situation');
   }
 
-  getHydratedExercise(exercise: Exercise): Observable<HydratedExercise> {
-    return this.getExerciseDownloadLink(exercise).pipe(
-      switchMap(exerciseUrl => this.http.get<HydratedExercise>(exerciseUrl))
-    );
+  /**
+   * Takes a light Exercise object containing only the "metadata" about the exercise and then loads the corresponding HydratedExercise.
+   * For the HydratedExercise, we use our own, very-simple persistent cache because we do not want to fetch those big objects every time.
+   */
+  async getHydratedExercise(exercise: Exercise): Promise<HydratedExercise> {
+    const cacheKey = `hydrated-exercise.${exercise.key}`;
+    const cachedHydratedExercise = await this.storage.get(cacheKey) as HydratedExercise;
+    // When the version timestamp of our cached hydrated exercise matches the version timestamp of the provided exercise
+    // (coming from current query), we should be assured that the cache is fresh, meaning that it matches the value that is remotely stored.
+    const isCacheFresh = cachedHydratedExercise
+      && new Date(cachedHydratedExercise.versionTimestamp).getTime() === new Date(exercise.versionTimestamp).getTime();
+    if (isCacheFresh) {
+      return cachedHydratedExercise;
+    } else {
+      return this.getExerciseDownloadLink(exercise).pipe(
+        switchMap(exerciseUrl => this.http.get<HydratedExercise>(exerciseUrl)),
+        // Cache the result.
+        tap(hydratedExercise => this.storage.set(cacheKey, hydratedExercise)),
+        first()
+      ).toPromise();
+    }
+  }
+
+  registerExerciseExperience(args: { exerciseKey: string, exerciseResult: ExerciseResult }) {
+    return this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
+      mutation: registerExerciseExperienceMutation,
+      variables: args,
+      refetchQueries: [
+        {
+          // When the user is finished with an exercise, he wants the next one.
+          query: usersNextExperienceQuery
+        }
+      ]
+    }).toPromise();
   }
 
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
@@ -180,18 +214,5 @@ export class ExercisesService {
     }).valueChanges.pipe(
       map(({data}) => data.getExerciseDownloadLink)
     );
-  }
-
-  registerExerciseExperience(args: {exerciseKey: string, exerciseResult: ExerciseResult}) {
-    return this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
-      mutation: registerExerciseExperienceMutation,
-      variables: args,
-      refetchQueries: [
-        {
-          // When the user is finished with an exercise, he wants the next one.
-          query: usersNextExperienceQuery
-        }
-      ]
-    }).toPromise();
   }
 }
