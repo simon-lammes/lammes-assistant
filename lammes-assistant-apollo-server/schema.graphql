@@ -77,7 +77,7 @@ type Query {
   me: User
   myDeferredNotes: [Note]
   myExercises: [Exercise]
-  myNextExperience: Experience
+  myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

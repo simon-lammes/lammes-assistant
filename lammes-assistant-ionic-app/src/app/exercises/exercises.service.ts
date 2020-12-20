@@ -1,10 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {distinctUntilChanged, first, map, switchMap, tap} from 'rxjs/operators';
 import {GraphQLError} from 'graphql';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
+import {SettingsService} from '../settings/settings.service';
+import _ from 'lodash';
 
 export enum CreateExerciseResult {
   Success,
@@ -43,6 +45,17 @@ export interface Exercise {
 export interface Experience {
   correctStreak: number;
   exercise: Exercise;
+}
+
+/**
+ * Tracks the current progress of the user study session.
+ */
+export interface StudyProgress {
+
+  /**
+   * Stores the exercise results in chronological order.
+   */
+  exerciseResults: ExerciseResult[];
 }
 
 /**
@@ -91,8 +104,8 @@ const createExerciseMutation = gql`
 `;
 
 const usersNextExperienceQuery = gql`
-  query MyNextExperience {
-    myNextExperience {
+  query MyNextExperience($exerciseCooldown: ExerciseCooldown!) {
+    myNextExperience(exerciseCooldown: $exerciseCooldown) {
       ...ExperienceFragment
     }
   },
@@ -119,10 +132,31 @@ const registerExerciseExperienceMutation = gql`
 })
 export class ExercisesService {
 
-  readonly usersNextExperience$ = this.apollo.watchQuery<{ myNextExperience: Experience }>({query: usersNextExperienceQuery})
-    .valueChanges.pipe(
-      map(({data}) => data.myNextExperience)
-    );
+  // Study Progress
+  readonly studyProgressBehaviourSubject = new BehaviorSubject({exerciseResults: []} as StudyProgress);
+  readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
+  readonly exerciseResults$ = this.studyProgress$.pipe(
+    map(studyProgress => studyProgress.exerciseResults),
+    distinctUntilChanged((x, y) => _.isEqual(x, y))
+  );
+
+  /**
+   * The users experience that he should work on next while studying. Informally: the next exercise.
+   * This observable is "re-triggered" when the exercise results change (the user finished an exercise)
+   * and when the user changed the exercise cooldown. The reasons for these triggers can be explained as follows:
+   * When the user finishes an exercise, he must start working on the next one.
+   * When the user changes the exercise time, the "algorithm" might pick a different (better suited?) exercise.
+   */
+  readonly usersNextExperience$ = this.exerciseResults$.pipe(
+    switchMap(() => this.settingsService.exerciseCooldown$),
+    switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
+      // When we used the cache, we would be "stuck" with the same exercise.
+      fetchPolicy: 'no-cache',
+      query: usersNextExperienceQuery,
+      variables: {exerciseCooldown}
+    }).valueChanges),
+    map(({data}) => data.myNextExperience)
+  );
 
   readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
     map(({data}) => data.myExercises)
@@ -131,7 +165,8 @@ export class ExercisesService {
   constructor(
     private apollo: Apollo,
     private http: HttpClient,
-    private storage: Storage
+    private storage: Storage,
+    private settingsService: SettingsService
   ) {
   }
 
@@ -163,7 +198,10 @@ export class ExercisesService {
    * Takes a light Exercise object containing only the "metadata" about the exercise and then loads the corresponding HydratedExercise.
    * For the HydratedExercise, we use our own, very-simple persistent cache because we do not want to fetch those big objects every time.
    */
-  async getHydratedExercise(exercise: Exercise): Promise<HydratedExercise> {
+  async getHydratedExercise(exercise?: Exercise): Promise<HydratedExercise> {
+    if (!exercise) {
+      return undefined;
+    }
     const cacheKey = `hydrated-exercise.${exercise.key}`;
     const cachedHydratedExercise = await this.storage.get(cacheKey) as HydratedExercise;
     // When the version timestamp of our cached hydrated exercise matches the version timestamp of the provided exercise
@@ -182,17 +220,14 @@ export class ExercisesService {
     }
   }
 
-  registerExerciseExperience(args: { exerciseKey: string, exerciseResult: ExerciseResult }) {
-    return this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
+  async registerExerciseExperience(args: { exerciseKey: string, exerciseResult: ExerciseResult }) {
+    await this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
       mutation: registerExerciseExperienceMutation,
-      variables: args,
-      refetchQueries: [
-        {
-          // When the user is finished with an exercise, he wants the next one.
-          query: usersNextExperienceQuery
-        }
-      ]
+      variables: args
     }).toPromise();
+    this.studyProgressBehaviourSubject.next({
+      exerciseResults: [...this.studyProgressBehaviourSubject.value.exerciseResults, args.exerciseResult]
+    });
   }
 
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {

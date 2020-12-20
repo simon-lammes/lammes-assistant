@@ -4,33 +4,43 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="exercise$ | async as exercise">
-
-  <!-- Assignment -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-subtitle>Assignment</ion-card-subtitle>
-      <ion-card-title>{{exercise.title}}</ion-card-title>
-    </ion-card-header>
-    <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments" [fragment]="fragment"></app-exercise-fragment>
-  </ion-card>
-  <ion-button *ngIf="!isSolutionVisible" expand="block" color="primary" (click)="showSolution()">Show solution</ion-button>
-
-  <!-- Solution -->
-  <ion-card *ngIf="isSolutionVisible">
-    <ion-card-header>
-      <ion-card-subtitle>Solution</ion-card-subtitle>
-    </ion-card-header>
-    <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments" [fragment]="fragment"></app-exercise-fragment>
-  </ion-card>
-
-  <!-- Review -->
-  <div style="display: flex" *ngIf="isSolutionVisible && experience$ | async as experience">
-    <ion-button color="danger" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'FAILURE')">
-      <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>
+<ion-content>
+  <!-- Exercise -->
+  <ng-container *ngIf="exercise$ | async as exercise">
+    <!-- Assignment -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Assignment</ion-card-subtitle>
+        <ion-card-title>{{exercise.title}}</ion-card-title>
+      </ion-card-header>
+      <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments"
+                             [fragment]="fragment"></app-exercise-fragment>
+    </ion-card>
+    <ion-button *ngIf="!isSolutionVisible" expand="block" color="primary" (click)="showSolution()">Show solution
     </ion-button>
-    <ion-button color="success" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'SUCCESS')">
-      <ion-icon slot="icon-only" name="thumbs-up-outline"></ion-icon>
-    </ion-button>
-  </div>
+
+    <!-- Solution -->
+    <ion-card *ngIf="isSolutionVisible">
+      <ion-card-header>
+        <ion-card-subtitle>Solution</ion-card-subtitle>
+      </ion-card-header>
+      <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments"
+                             [fragment]="fragment"></app-exercise-fragment>
+    </ion-card>
+
+    <!-- Review -->
+    <div style="display: flex" *ngIf="isSolutionVisible && experience$ | async as experience">
+      <ion-button color="danger" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'FAILURE')">
+        <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>
+      </ion-button>
+      <ion-button color="success" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'SUCCESS')">
+        <ion-icon slot="icon-only" name="thumbs-up-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </ng-container>
+
+  <!-- No exercise to show -->
+  <ng-container *ngIf="!(exercise$ | async)">
+    No exercise to study.
+  </ng-container>
 </ion-content>

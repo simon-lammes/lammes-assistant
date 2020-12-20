@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
-import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
+import _ from 'lodash';
 
 export interface User {
   id: number;
@@ -74,6 +75,16 @@ export class SettingsService {
     }),
     // We do not need to check cache for every new subscription. (performance)
     shareReplay(1)
+  );
+
+  /**
+   * Exposes the property "exerciseCooldown" of the current user's settings. But the advantage of this observable,
+   * is that it only emits (again) when the user changes the exercise cooldown. If the user changes something other than
+   * the exercise cooldown, this observable does not emit a new value.
+   */
+  readonly exerciseCooldown$ = this.currentSettings$.pipe(
+    map(settings => settings.exerciseCooldown),
+    distinctUntilChanged((x, y) => _.isEqual(x, y))
   );
 
   constructor(

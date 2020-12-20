@@ -3,6 +3,8 @@ import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
 import {Exercise} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {generateConflictError} from "../custom-errors/collision-error";
+import { DateTime } from 'luxon';
+import {ExerciseCooldown} from "./settings-operations";
 
 interface ExerciseFragment {
   type: string;
@@ -116,14 +118,29 @@ export async function fetchMyExercises(context: Context): Promise<Exercise[]> {
   });
 }
 
-export async function fetchMyNextExperience(context: Context): Promise<any> {
+export async function fetchMyNextExperience(context: Context, exerciseCooldown: ExerciseCooldown): Promise<any> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
   }
+  const now = DateTime.fromJSDate(new Date());
   return context.prisma.experience.findFirst({
     where: {
-      learnerId: userId
+      learnerId: userId,
+      OR: [
+        {
+          lastStudiedTimestamp: {
+            lte: now.minus({
+              days: exerciseCooldown.days,
+              hours: exerciseCooldown.hours,
+              minutes: exerciseCooldown.minutes
+            }).toISO()
+          }
+        },
+        {
+          lastStudiedTimestamp: null
+        }
+      ]
     },
     orderBy: {
       correctStreak: 'asc'

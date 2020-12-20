@@ -12,7 +12,7 @@ export class StudyPage {
   @ViewChild(IonContent) ionContent: IonContent;
   experience$ = this.exercisesService.usersNextExperience$;
   exercise$ = this.experience$.pipe(
-    switchMap(experience => this.exercisesService.getHydratedExercise(experience.exercise))
+    switchMap(experience => this.exercisesService.getHydratedExercise(experience?.exercise))
   );
   isSolutionVisible = false;
 

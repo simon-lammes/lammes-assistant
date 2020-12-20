@@ -156,8 +156,11 @@ const Query = objectType({
     });
     t.field('myNextExperience', {
       type: "Experience",
+      args: {
+        exerciseCooldown: nonNull(arg({type: ExerciseCooldown}))
+      },
       resolve: (root, args, context) => {
-        return fetchMyNextExperience(context);
+        return fetchMyNextExperience(context, args.exerciseCooldown);
       }
     });
     t.field('getExerciseDownloadLink', {
