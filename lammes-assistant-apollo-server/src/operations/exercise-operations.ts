@@ -1,15 +1,18 @@
 import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
-import {FileUpload} from "graphql-upload";
-import {ReadStream} from "fs";
 import {Exercise} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {generateConflictError} from "../custom-errors/collision-error";
 
+interface ExerciseFragment {
+  type: string;
+  value: string;
+}
+
 export interface CreateExerciseInput {
   title: string;
-  assignment: Promise<FileUpload>;
-  solution: Promise<FileUpload>;
+  assignmentFragments: (ExerciseFragment | null)[];
+  solutionFragments: (ExerciseFragment | null)[];
 }
 
 /**
@@ -23,8 +26,8 @@ interface HydratedExercise {
    */
   versionTimestamp: string;
   title: string;
-  encodedAssignment: string;
-  encodedSolution: string;
+  assignmentFragments: ExerciseFragment[];
+  solutionFragments: ExerciseFragment[];
 }
 
 /**
@@ -36,35 +39,10 @@ function createKeyForExercise(exerciseTitle: string) {
   return 'c_' + exerciseTitle.toLowerCase().replace(' ', '_');
 }
 
-/**
- * Takes a stream and converts it to a base64 encoded string
- */
-function encodeStreamToBase64(stream: ReadStream): Promise<string> {
-  return new Promise(resolve => {
-    const chunks: Uint8Array[] = [];
-    stream.on('data', function (chunk) {
-      chunks.push(chunk);
-    });
-    stream.on('end', function () {
-      const result = Buffer.concat(chunks);
-      resolve(result.toString('base64'));
-    });
-  });
-}
-
-/**
- * Takes a file upload, collects the data of that stream and converts that data to a base64 encoded string.
- */
-async function encodeFileUploadToBase64(file: Promise<FileUpload>) {
-  const frontUpload = await file;
-  const stream = frontUpload.createReadStream();
-  return await encodeStreamToBase64(stream);
-}
-
 export async function createExercise(context: Context, {
   title,
-  assignment,
-  solution
+  assignmentFragments,
+  solutionFragments
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -76,6 +54,9 @@ export async function createExercise(context: Context, {
   if (title.includes('  ') || title.startsWith(' ') || title.endsWith(' ')) {
     throw generateUnnecessaryWhitespacesError('title');
   }
+  if (assignmentFragments.some(fragment => !fragment?.type || !fragment?.value) || solutionFragments.some(fragment => !fragment?.type || !fragment?.value)) {
+    throw new UserInputError('All fragments should have a not empty type and a not empty value.');
+  }
   const exerciseKey = createKeyForExercise(title);
   const doesConflictingExerciseExist = await context.prisma.exercise.count({
     where: {
@@ -85,16 +66,12 @@ export async function createExercise(context: Context, {
   if (doesConflictingExerciseExist) {
     throw generateConflictError('For the given exercise title, we cannot create unique key that is not yet used for another exercise.');
   }
-  const [encodedAssignment, encodedSolution] = await Promise.all([
-    encodeFileUploadToBase64(assignment),
-    encodeFileUploadToBase64(solution)
-  ]);
   const versionTimestamp = new Date();
   const hydratedExercise = {
     versionTimestamp: versionTimestamp.toString(),
     title,
-    encodedAssignment,
-    encodedSolution
+    assignmentFragments,
+    solutionFragments
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",

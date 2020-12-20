@@ -4,23 +4,27 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="exercise$ | async as exercise">
+
+  <!-- Assignment -->
   <ion-card>
     <ion-card-header>
       <ion-card-subtitle>Assignment</ion-card-subtitle>
-      <ion-card-title *ngIf="exercise$ | async as exercise">{{exercise.title}}</ion-card-title>
+      <ion-card-title>{{exercise.title}}</ion-card-title>
     </ion-card-header>
-    <pdf-viewer *ngIf="exercise$ | async as exercise" [src]="'data:application/pdf;base64, ' + exercise.encodedAssignment"
-                [render-text]="true" [original-size]="false" [zoom-scale]="'page-width'"></pdf-viewer>
+    <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments" [fragment]="fragment"></app-exercise-fragment>
   </ion-card>
   <ion-button *ngIf="!isSolutionVisible" expand="block" color="primary" (click)="showSolution()">Show solution</ion-button>
+
+  <!-- Solution -->
   <ion-card *ngIf="isSolutionVisible">
     <ion-card-header>
       <ion-card-subtitle>Solution</ion-card-subtitle>
     </ion-card-header>
-    <pdf-viewer *ngIf="exercise$ | async as exercise" [src]="'data:application/pdf;base64, ' + exercise.encodedSolution"
-                [render-text]="true" [original-size]="false" [zoom-scale]="'page-width'"></pdf-viewer>
+    <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments" [fragment]="fragment"></app-exercise-fragment>
   </ion-card>
+
+  <!-- Review -->
   <div style="display: flex" *ngIf="isSolutionVisible && experience$ | async as experience">
     <ion-button color="danger" style="flex: 1" (click)="registerExerciseResult(experience.exercise.key, 'FAILURE')">
       <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>

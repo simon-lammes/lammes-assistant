@@ -13,6 +13,11 @@ type Exercise {
   versionTimestamp: DateTime!
 }
 
+input ExerciseFragment {
+  type: String!
+  value: String!
+}
+
 """
 Results describing how a learner coped with an exercise. Through the use of an enum we make sure that further characteristics can easily added in the future.
 """
@@ -30,7 +35,7 @@ type Experience {
 }
 
 type Mutation {
-  createExercise(assignment: Upload!, solution: Upload!, title: String!): Exercise
+  createExercise(assignmentFragments: [ExerciseFragment]!, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -72,9 +77,6 @@ type Registration {
   jwtToken: String
   user: User
 }
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
 
 type User {
   firstName: String!

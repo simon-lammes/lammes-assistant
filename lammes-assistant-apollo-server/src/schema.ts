@@ -1,4 +1,15 @@
-import {arg, enumType, intArg, makeSchema, nonNull, nullable, objectType, stringArg} from '@nexus/schema'
+import {
+  arg,
+  enumType,
+  inputObjectType,
+  intArg,
+  list,
+  makeSchema,
+  nonNull,
+  nullable,
+  objectType,
+  stringArg
+} from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
 import {login, register, SignupInput} from "./operations/user-operations";
@@ -13,7 +24,6 @@ import {
   reopenNote,
   resolveNote
 } from "./operations/note-operations";
-import {GraphQLUpload} from "graphql-upload";
 import {
   createExercise,
   fetchMyExercises,
@@ -59,6 +69,14 @@ const Registration = objectType({
     });
   }
 });
+
+export const ExerciseFragment = inputObjectType({
+  name: 'ExerciseFragment',
+  definition(t) {
+    t.nonNull.string('value');
+    t.nonNull.string('type');
+  },
+})
 
 const Exercise = objectType({
   name: 'Exercise',
@@ -231,8 +249,8 @@ const Mutation = objectType({
       type: "Exercise",
       args: {
         title: nonNull(stringArg()),
-        assignment: nonNull(arg({type: GraphQLUpload})),
-        solution: nonNull(arg({type: GraphQLUpload})),
+        assignmentFragments: nonNull(list(ExerciseFragment)),
+        solutionFragments: nonNull(list(ExerciseFragment)),
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);

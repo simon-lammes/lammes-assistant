@@ -13,14 +13,23 @@ export enum CreateExerciseResult {
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
 /**
+ * The idea is that an parts of an exercise can consist of different "fragment". For example as an assignment, you could have
+ * a short assignment text followed by a little graphic in pdf format.
+ */
+export interface ExerciseFragment {
+  type: 'text' | 'file';
+  value: string;
+}
+
+/**
  * A heavier type than a regular exercise. This type can consist binary files associated with the exercise and is therefore not
  * saved in a relational database.
  */
 export interface HydratedExercise {
   title: string;
   versionTimestamp: string;
-  encodedAssignment: string;
-  encodedSolution: string;
+  assignmentFragments: ExerciseFragment[];
+  solutionFragments: ExerciseFragment[];
 }
 
 export interface Exercise {
@@ -70,8 +79,8 @@ const usersExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: Upload!, $solution: Upload!) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution) {
+  mutation CreateExercise($title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!) {
+    createExercise(title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments) {
       ...ExerciseFragment
     }
   },
@@ -161,6 +170,9 @@ export class ExercisesService {
 
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
     return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
+      // As the download link is only short-lived (meaning it expires), we should not use a cache.
+      // If we used a cache, we might end up using an expired download link.
+      fetchPolicy: 'no-cache',
       query: getExerciseDownloadLinkQuery,
       variables: {
         exerciseKey: exercise.key

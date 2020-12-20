@@ -1,8 +1,18 @@
 import {Component, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
 import {CreateExerciseResult, ExercisesService} from '../exercises.service';
+
+/**
+ * Exercises can have different types of fragments, for example: fragments for the assignment and fragments for the solution.
+ * Those types are described with this interface.
+ */
+interface FragmentArrayType {
+  title: string;
+  fragmentArrayName: string;
+  addButtonText: string;
+}
 
 @Component({
   selector: 'app-save-exercise-modal',
@@ -11,6 +21,18 @@ import {CreateExerciseResult, ExercisesService} from '../exercises.service';
 })
 export class SaveExerciseModalPage implements OnInit {
   readonly ALLOWED_FILE_TYPES = ['application/pdf'];
+  readonly allFragmentTypes: FragmentArrayType[] = [
+    {
+      title: 'Assignment Fragments',
+      fragmentArrayName: 'assignmentFragments',
+      addButtonText: 'Add assignment fragment'
+    },
+    {
+      title: 'Solution Fragments',
+      fragmentArrayName: 'solutionFragments',
+      addButtonText: 'Add solution fragment'
+    }
+  ];
   exerciseForm: FormGroup;
 
   constructor(
@@ -25,9 +47,17 @@ export class SaveExerciseModalPage implements OnInit {
   ngOnInit(): void {
     this.exerciseForm = this.formBuilder.group({
       title: this.formBuilder.control('', [Validators.required, Validators.min(1)]),
-      assignment: this.formBuilder.control(undefined, [Validators.required]),
-      solution: this.formBuilder.control(undefined, [Validators.required])
+      assignmentFragments: this.formBuilder.array([this.createFragmentFormGroup()]),
+      solutionFragments: this.formBuilder.array([this.createFragmentFormGroup()]),
     });
+  }
+
+  /**
+   * Can for example get all FormGroups that contain an assignment fragment.
+   */
+  getFragmentControls(fragmentArrayName: string): FormGroup[] {
+    const fragmentsArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
+    return fragmentsArray.controls as FormGroup[];
   }
 
   async dismissModal() {
@@ -50,7 +80,10 @@ export class SaveExerciseModalPage implements OnInit {
     this.customFormsService.trimAndRemoveNeighboringWhitespaces(this.exerciseForm, formControlName);
   }
 
-  async onFileChange(event: any, fileFormControlName: string) {
+  /**
+   * Whenever, the user selects a file, this method converts this file to base64 and integrates it into the form's value.
+   */
+  async onFileChange(event: any, fragmentArrayName: string, fragmentIndex: number) {
     // Short circuit when the user did not select any files.
     if (!event.target.files || !event.target.files.length) {
       return;
@@ -61,9 +94,67 @@ export class SaveExerciseModalPage implements OnInit {
       await this.showHint(`File type ${file.type} is not supported. Currently we only support pdf.`);
       return;
     }
-    this.exerciseForm.patchValue({
-      [fileFormControlName]: file
-    });
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControl = fragmentControls[fragmentIndex];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      fragmentControl.controls.value.patchValue(reader.result);
+    };
+  }
+
+  addFragment(fragmentArrayName: string) {
+    const fragmentsArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
+    fragmentsArray.push(this.createFragmentFormGroup());
+  }
+
+  /**
+   * The idea of fragments is that the user can add as much fragments as he needs. However, adding a fragment only makes sense when all
+   * existing fragments are used, or to be precise, filled with values.
+   */
+  canAddFragment(fragmentArrayName: string) {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    return fragmentControls.every(control => control.value.type && control.value.value);
+  }
+
+  /**
+   * When the user changes the type of a fragment, we want to reset value. Otherwise, we could end up with inconsistent state.
+   *
+   * @example
+   * {type: "file", value: "I am a text, but I should be a file."}
+   */
+  resetFragmentControlValue(fragmentArrayName: string, fragmentIndex: number) {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControl = fragmentControls[fragmentIndex];
+    fragmentControl.controls.value.patchValue('');
+  }
+
+  removeFragment(fragmentArrayName: string, fragmentIndex: number) {
+    const fragmentArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
+    fragmentArray.removeAt(fragmentIndex);
+  }
+
+  /**
+   * Reacts to the event of the user changing a fragments type.
+   */
+  onTypeChanged(fragmentArrayName: string, fragmentIndex: number) {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControl = fragmentControls[fragmentIndex];
+    const selectedType = fragmentControl.value.type;
+    if (selectedType === 'remove') {
+      this.removeFragment(fragmentArrayName, fragmentIndex);
+    } else {
+      this.resetFragmentControlValue(fragmentArrayName, fragmentIndex);
+    }
+  }
+
+  /**
+   * Removing fragments makes only sense when there multiple of them. If a fragment array had 0 elements,
+   * the state of the form would not make sense.
+   */
+  canRemoveFragment(fragmentArrayName: string) {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    return fragmentControls.length > 1;
   }
 
   private async showHint(message: string) {
@@ -79,5 +170,12 @@ export class SaveExerciseModalPage implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+
+  private createFragmentFormGroup() {
+    return this.formBuilder.group({
+      type: this.formBuilder.control('', [Validators.required]),
+      value: this.formBuilder.control('', [Validators.required, Validators.min(1)])
+    });
   }
 }

@@ -8,6 +8,7 @@ import {StudyPageRoutingModule} from './study-routing.module';
 
 import {StudyPage} from './study.page';
 import {PdfViewerModule} from 'ng2-pdf-viewer';
+import {ExerciseFragmentModule} from '../exercise-fragment/exercise-fragment.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import {PdfViewerModule} from 'ng2-pdf-viewer';
     FormsModule,
     IonicModule,
     StudyPageRoutingModule,
-    PdfViewerModule
+    PdfViewerModule,
+    ExerciseFragmentModule
   ],
   declarations: [StudyPage]
 })
