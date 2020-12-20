@@ -80,15 +80,6 @@ export class AuthenticationService {
   }
 
   /**
-   * Use the equivalent async method whenever possible. This sync method might return before this service has been asynchronously
-   * initialized. This method cannot await the services' initialization because it is purposely not async. It only exists for situations
-   * where you cannot work with promises/async/await.
-   */
-  getJwtTokenSync() {
-    return this.jwtTokenBehaviourSubject.value;
-  }
-
-  /**
    * This method makes sure that the user is logged out and automatically redirected to the login screen when his token is expired.
    */
   private setupAutomaticLogoutWhenTokenExpires() {

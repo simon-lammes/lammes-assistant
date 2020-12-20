@@ -7,12 +7,14 @@ import {AuthenticationService} from './authentication/authentication.service';
 import {setContext} from '@apollo/client/link/context';
 
 export function createApollo(httpLink: HttpLink, authenticationService: AuthenticationService): ApolloClientOptions<any> {
-  const auth = setContext(() => ({
-    headers: {
-      Authorization: authenticationService.getJwtTokenSync()
-        ? `Bearer ${authenticationService.getJwtTokenSync()}` : ''
-    },
-  }));
+  const auth = setContext(async () => {
+    const jwtToken = await authenticationService.getCurrentJwtToken();
+    return {
+      headers: {
+        Authorization: jwtToken ? `Bearer ${jwtToken}` : ''
+      },
+    };
+  });
   const link = ApolloLink.from([auth, httpLink.create({uri: environment.uriGraphQl})]);
   const cache = new InMemoryCache({
     typePolicies: {
