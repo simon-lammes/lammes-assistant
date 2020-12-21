@@ -39,6 +39,7 @@ export interface Exercise {
   title: string;
   key: string;
   versionTimestamp: string;
+  markedForDeletionTimestamp: string;
 }
 
 export interface Experience {
@@ -63,7 +64,8 @@ const exerciseFragment = gql`
     id,
     title,
     key,
-    versionTimestamp
+    versionTimestamp,
+    markedForDeletionTimestamp
   }
 `;
 
@@ -84,6 +86,15 @@ const experienceFragment = gql`
 const usersExercisesQuery = gql`
   query UsersExercisesQuery {
     myExercises {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
+`;
+
+const usersRemovedExercisesQuery = gql`
+  query UsersRemovedExercisesQuery {
+    myExercisesThatAreMarkedForDeletion {
       ...ExerciseFragment
     }
   },
@@ -123,6 +134,24 @@ const registerExerciseExperienceMutation = gql`
   ${experienceFragment}
 `;
 
+const removeExerciseMutation = gql`
+  mutation RemoveExercise($id: Int!) {
+    removeExercise(id: $id) {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
+`;
+
+const restoreExerciseMutation = gql`
+  mutation RestoreExercise($id: Int!) {
+    restoreExercise(id: $id) {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -152,6 +181,12 @@ export class ExercisesService {
 
   readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
     map(({data}) => data.myExercises)
+  );
+
+  readonly usersExercisesThatAreMarkedForDeletion$ = this.apollo.watchQuery<{ myExercisesThatAreMarkedForDeletion: Exercise[] }>({
+    query: usersRemovedExercisesQuery
+  }).valueChanges.pipe(
+    map(({data}) => data.myExercisesThatAreMarkedForDeletion)
   );
 
   constructor(
@@ -222,6 +257,63 @@ export class ExercisesService {
       successCount: this.studyProgressBehaviourSubject.value.successCount + (exerciseResult === 'SUCCESS' ? 1 : 0),
       failureCount: this.studyProgressBehaviourSubject.value.failureCount + (exerciseResult === 'FAILURE' ? 1 : 0),
     });
+  }
+
+  async removeExercise(args: { id: number }) {
+    await this.apollo.mutate<{ removeExercise: Exercise }, any>({
+      mutation: removeExerciseMutation,
+      variables: args,
+      update: (cache, mutationResult) => {
+        const removedExercise = mutationResult.data.removeExercise;
+        try {
+          const exercisesCache = cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] };
+          const exercises = exercisesCache.myExercises;
+          const updatedExercises = exercises.filter(e => e.id !== removedExercise.id);
+          cache.writeQuery({query: usersExercisesQuery, data: { myExercises: updatedExercises }});
+        } catch (e) {
+          // If query was yet not cached, we get an exception.
+        }
+        try {
+          const removedExercisesCache = cache.readQuery({
+            query: usersRemovedExercisesQuery
+          }) as { myExercisesThatAreMarkedForDeletion: Exercise[] };
+          const removedExercises = removedExercisesCache.myExercisesThatAreMarkedForDeletion;
+          const updatedRemovedExercises = [removedExercise, ...removedExercises];
+          cache.writeQuery({query: usersRemovedExercisesQuery, data: {myExercisesThatAreMarkedForDeletion: updatedRemovedExercises}});
+        } catch (e) {
+          // If query was yet not cached, we get an exception.
+        }
+      }
+    }).toPromise();
+  }
+
+  async restoreExercise(args: { id: number }) {
+    await this.apollo.mutate<{ restoreExercise: Exercise }, any>({
+      mutation: restoreExerciseMutation,
+      variables: args,
+      update: (cache, mutationResult) => {
+        const restoredExercise = mutationResult.data.restoreExercise;
+        try {
+          const exercisesCache = cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] };
+          const exercises = exercisesCache.myExercises;
+          const updatedExercises = [...exercises, restoredExercise];
+          updatedExercises.sort((a, b) => a.title.localeCompare(b.title));
+          cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedExercises}});
+        } catch (e) {
+          // If query was yet not cached, we get an exception.
+        }
+        try {
+          const removedExercisesCache = cache.readQuery({
+            query: usersRemovedExercisesQuery
+          }) as { myExercisesThatAreMarkedForDeletion: Exercise[] };
+          const removedExercises = removedExercisesCache.myExercisesThatAreMarkedForDeletion;
+          const updatedRemovedExercises = removedExercises.filter(e => e.id !== restoredExercise.id);
+          cache.writeQuery({query: usersRemovedExercisesQuery, data: {myExercisesThatAreMarkedForDeletion: updatedRemovedExercises}});
+        } catch (e) {
+          // If query was yet not cached, we get an exception.
+        }
+      }
+    }).toPromise();
   }
 
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {

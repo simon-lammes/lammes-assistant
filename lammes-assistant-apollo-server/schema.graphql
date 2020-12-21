@@ -9,6 +9,7 @@ type Exercise {
   creatorId: Int!
   id: Int!
   key: String!
+  markedForDeletionTimestamp: DateTime
   title: String!
   versionTimestamp: DateTime!
 }
@@ -48,8 +49,14 @@ type Mutation {
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
   registerExerciseExperience(exerciseKey: String!, exerciseResult: ExerciseResult!): Experience
+
+  """
+  Removes an exercise and thereby marks it for deletion. It will be deleted when this action is not reverted within a certain amount of time.
+  """
+  removeExercise(id: Int!): Exercise
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
+  restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
 }
 
@@ -77,6 +84,7 @@ type Query {
   me: User
   myDeferredNotes: [Note]
   myExercises: [Exercise]
+  myExercisesThatAreMarkedForDeletion: [Exercise]
   myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
   myPendingNotes: [Note]
   myResolvedNotes: [Note]

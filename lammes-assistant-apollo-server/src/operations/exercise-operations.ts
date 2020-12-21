@@ -113,7 +113,12 @@ export async function fetchMyExercises(context: Context): Promise<Exercise[]> {
   }
   return context.prisma.exercise.findMany({
     where: {
-      creatorId: userId
+      creatorId: userId,
+      // We want the displayed exercises not to contain exercises that are marked for deletion.
+      markedForDeletionTimestamp: null
+    },
+    orderBy: {
+      title: 'asc'
     }
   });
 }
@@ -127,6 +132,10 @@ export async function fetchMyNextExperience(context: Context, exerciseCooldown: 
   return context.prisma.experience.findFirst({
     where: {
       learnerId: userId,
+      exercise: {
+        // We want the displayed exercises not to contain exercises that are marked for deletion.
+        markedForDeletionTimestamp: null
+      },
       OR: [
         {
           lastStudiedTimestamp: {
@@ -190,4 +199,80 @@ export async function registerExerciseExperience(context: Context, exerciseKey: 
       lastStudiedTimestamp: new Date()
     }
   })
+}
+
+export async function removeExercise(context: Context, exerciseId: number): Promise<any> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only delete exercises when you are authenticated.');
+  }
+  const exercise = await context.prisma.exercise.findFirst({
+    where: {
+      id: exerciseId
+    },
+    select: {
+      creatorId: true
+    }
+  });
+  if (!exercise) {
+    throw new ApolloError(`Exercise with id ${exerciseId} does not exist`);
+  }
+  if (exercise.creatorId !== userId) {
+    throw new ApolloError(`Exercise does not belong to user.`);
+  }
+  return context.prisma.exercise.update({
+    where: {
+      id: exerciseId
+    },
+    data: {
+      markedForDeletionTimestamp: new Date()
+    }
+  });
+}
+
+export async function restoreExercise(context: Context, exerciseId: number): Promise<any> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only restore exercises when you are authenticated.');
+  }
+  const exercise = await context.prisma.exercise.findFirst({
+    where: {
+      id: exerciseId
+    },
+    select: {
+      creatorId: true
+    }
+  });
+  if (!exercise) {
+    throw new ApolloError(`Exercise with id ${exerciseId} does not exist`);
+  }
+  if (exercise.creatorId !== userId) {
+    throw new ApolloError(`Exercise does not belong to user.`);
+  }
+  return context.prisma.exercise.update({
+    where: {
+      id: exerciseId
+    },
+    data: {
+      markedForDeletionTimestamp: null
+    }
+  });
+}
+
+export async function fetchMyExercisesThatAreMarkedForDeletion(context: Context): Promise<Exercise[]> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
+  }
+  return context.prisma.exercise.findMany({
+    where: {
+      creatorId: userId,
+      markedForDeletionTimestamp: {
+        not: null
+      }
+    },
+    orderBy: {
+      markedForDeletionTimestamp: 'desc'
+    }
+  });
 }

@@ -8,6 +8,7 @@ import {ExercisesPageRoutingModule} from './exercises-routing.module';
 
 import {ExercisesPage} from './exercises.page';
 import {SaveExerciseModalPageModule} from './save-exercise-modal/save-exercise-modal.module';
+import {ExerciseBinModalModule} from './exercise-bin-modal/exercise-bin-modal.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import {SaveExerciseModalPageModule} from './save-exercise-modal/save-exercise-m
     FormsModule,
     IonicModule,
     ExercisesPageRoutingModule,
-    SaveExerciseModalPageModule
+    SaveExerciseModalPageModule,
+    ExerciseBinModalModule
   ],
   declarations: [ExercisesPage]
 })

@@ -26,10 +26,10 @@ import {
 } from "./operations/note-operations";
 import {
   createExercise,
-  fetchMyExercises,
+  fetchMyExercises, fetchMyExercisesThatAreMarkedForDeletion,
   fetchMyNextExperience,
   getExerciseDownloadLink,
-  registerExerciseExperience
+  registerExerciseExperience, removeExercise, restoreExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
 
@@ -98,6 +98,7 @@ const Exercise = objectType({
     t.model.creator();
     t.model.versionTimestamp();
     t.model.key();
+    t.model.markedForDeletionTimestamp();
   }
 });
 
@@ -152,6 +153,12 @@ const Query = objectType({
       type: "Exercise",
       resolve: (root, args, context) => {
         return fetchMyExercises(context);
+      }
+    });
+    t.list.field('myExercisesThatAreMarkedForDeletion', {
+      type: "Exercise",
+      resolve: (root, args, context) => {
+        return fetchMyExercisesThatAreMarkedForDeletion(context);
       }
     });
     t.field('myNextExperience', {
@@ -281,6 +288,25 @@ const Mutation = objectType({
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);
+      }
+    });
+    t.field("removeExercise", {
+      type: "Exercise",
+      description: "Removes an exercise and thereby marks it for deletion. It will be deleted when this action is not reverted within a certain amount of time.",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve: (root, args, context) => {
+        return removeExercise(context, args.id);
+      }
+    });
+    t.field("restoreExercise", {
+      type: "Exercise",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve: (root, args, context) => {
+        return restoreExercise(context, args.id);
       }
     });
     t.field("registerExerciseExperience", {

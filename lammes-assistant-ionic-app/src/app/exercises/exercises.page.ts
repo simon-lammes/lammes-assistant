@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
-import {ModalController} from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
-import {ExercisesService} from './exercises.service';
+import {Exercise, ExercisesService} from './exercises.service';
 import {Router} from '@angular/router';
+import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
 
 @Component({
   selector: 'app-exercises',
@@ -16,7 +17,8 @@ export class ExercisesPage {
   constructor(
     private modalController: ModalController,
     private exercisesService: ExercisesService,
-    private router: Router
+    private router: Router,
+    private popoverController: PopoverController
   ) {
   }
 
@@ -29,5 +31,18 @@ export class ExercisesPage {
 
   async startStudying() {
     await this.router.navigateByUrl('/tabs/exercises/study');
+  }
+
+  async removeExercise(exercise: Exercise) {
+    await this.exercisesService.removeExercise({id: exercise.id});
+  }
+
+  async showPopover(event: any) {
+    const popover = await this.popoverController.create({
+      component: ExercisesPopoverComponent,
+      event,
+      translucent: true
+    });
+    return await popover.present();
   }
 }
