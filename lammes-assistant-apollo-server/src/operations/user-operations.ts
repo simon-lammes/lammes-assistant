@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import {Context} from "../context";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
+import { generateConflictError } from "../custom-errors/collision-error";
 
 /**
  * The required input for creating a new user.
@@ -35,8 +36,7 @@ export async function register(context: Context, {firstName, lastName, username,
   const userDao = context.prisma.user;
   const userWithSameUsername = await userDao.findFirst({where: {username}});
   if (userWithSameUsername) {
-    // TODO replace with CUSTOM collision error. Make sure that the client is adapted to that change.
-    throw new ApolloError("A user with that username already exists", "USERNAME_COLLISION");
+    throw generateConflictError("A user with that username already exists");
   }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);

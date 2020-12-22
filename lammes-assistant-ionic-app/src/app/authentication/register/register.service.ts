@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {AuthenticationService} from '../authentication.service';
+import {GraphQLError} from 'graphql';
 
 const registerMutation = gql`
     mutation registration($firstName: String!, $lastName: String!, $username: String!, $password: String!) {
@@ -15,6 +16,13 @@ interface Registration {
   user?: any;
 }
 
+export enum RegistrationResult {
+  Success,
+  UsernameAlreadyUsed,
+  UnknownError
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,9 +33,10 @@ export class RegisterService {
     private authenticationService: AuthenticationService
   ) { }
 
-  public async register(firstName: string, lastName: string, username: string, password: string) {
-    const {data} = await this.apollo.mutate<{ register: Registration }>({
+  public async register(firstName: string, lastName: string, username: string, password: string): Promise<RegistrationResult> {
+    const {data, errors} = await this.apollo.mutate<{ register: Registration }>({
       mutation: registerMutation,
+      errorPolicy: 'all',
       variables: {
         firstName,
         lastName,
@@ -35,7 +44,15 @@ export class RegisterService {
         password
       }
     }).toPromise();
-    const {jwtToken} = data.register;
-    await this.authenticationService.storeJwtToken(jwtToken);
+    if (data.register) {
+      const {jwtToken} = data.register;
+      await this.authenticationService.storeJwtToken(jwtToken);
+      return RegistrationResult.Success;
+    }
+    if (errors.some((e: GraphQLError) => e.extensions.code === 'CONFLICT')) {
+      return RegistrationResult.UsernameAlreadyUsed;
+    }
+    console.error(`Unknown error occurred during registration.`, errors);
+    return RegistrationResult.UnknownError;
   }
 }
