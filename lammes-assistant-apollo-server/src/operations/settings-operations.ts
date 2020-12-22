@@ -68,9 +68,22 @@ export async function getSettingsDownloadLink(context: Context): Promise<any> {
   if (!userId) {
     throw new AuthenticationError('You must be authenticated.');
   }
+  const usersSettingsUrl = getSettingsUrl(userId);
+  const doUserSettingsExist = await new Promise(resolve => {
+    context.spacesClient.headObject({
+      Bucket: "lammes-assistant-space",
+      Key: usersSettingsUrl,
+    }, (err) => {
+      // When the error is undefined, we were able to find the users settings.
+      resolve(!err);
+    });
+  });
+  if (!doUserSettingsExist) {
+    return null;
+  }
   return context.spacesClient.getSignedUrl('getObject', {
     Bucket: "lammes-assistant-space",
-    Key: getSettingsUrl(userId),
+    Key: usersSettingsUrl,
     Expires: 60
   });
 }

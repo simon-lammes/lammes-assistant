@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import _ from 'lodash';
+import {environment} from '../../environments/environment';
 
 export interface User {
   id: number;
@@ -68,6 +69,11 @@ export class SettingsService {
         return cachedSettings;
       } else {
         const downloadLink = await this.getSettingsDownloadLink();
+        // If the user has not yet created his own settings, we use the default settings.
+        // Those should not be cached.
+        if (!downloadLink) {
+          return environment.defaultSettings;
+        }
         const settings = await this.http.get<Settings>(downloadLink).toPromise();
         await this.cacheSettings(user, settings);
         return settings;

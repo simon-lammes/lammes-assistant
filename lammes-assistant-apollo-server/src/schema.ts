@@ -26,10 +26,13 @@ import {
 } from "./operations/note-operations";
 import {
   createExercise,
-  fetchMyExercises, fetchMyExercisesThatAreMarkedForDeletion,
+  fetchMyExercises,
+  fetchMyExercisesThatAreMarkedForDeletion,
   fetchMyNextExperience,
   getExerciseDownloadLink,
-  registerExerciseExperience, removeExercise, restoreExercise
+  registerExerciseExperience,
+  removeExercise,
+  restoreExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
 
@@ -181,6 +184,8 @@ const Query = objectType({
     });
     t.field('getSettingsDownloadLink', {
       type: "String",
+      description: "Will be null if the user has no settings yet.",
+      nullable: true,
       resolve: (root, args, context) => {
         return getSettingsDownloadLink(context);
       }

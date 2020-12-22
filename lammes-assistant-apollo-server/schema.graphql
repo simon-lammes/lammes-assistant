@@ -78,6 +78,8 @@ input NoteWhereUniqueInput {
 
 type Query {
   getExerciseDownloadLink(exerciseKey: String!): String
+
+  """Will be null if the user has no settings yet."""
   getSettingsDownloadLink: String
 
   """Returns the user object that belongs to user making the request."""
