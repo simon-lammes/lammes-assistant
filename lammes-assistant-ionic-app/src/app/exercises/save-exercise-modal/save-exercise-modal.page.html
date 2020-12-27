@@ -34,7 +34,7 @@
           </ion-item>
           <ion-item *ngIf="item.value.type === 'text'">
             <ion-label>Value</ion-label>
-            <ion-input type="text" formControlName="value"></ion-input>
+            <ion-textarea type="text" formControlName="value" rows="4"></ion-textarea>
           </ion-item>
           <ion-item *ngIf="item.value.type === 'file'">
             <ion-label>Value</ion-label>
