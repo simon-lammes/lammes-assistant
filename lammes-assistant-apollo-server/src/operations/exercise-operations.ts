@@ -37,9 +37,12 @@ interface HydratedExercise {
  * This key can be used to create a folder that contains all of the exercises files.
  */
 function createKeyForExercise(exerciseTitle: string) {
-  const matchAllWhitespaces = /\s/g;
+  const matchAllWhitespaces = /\s+/g;
+  const matchAllIgnoredCharacters = /[^a-zA-Z0-9-\s]/g;
   // Prefix 'c_' stands for custom because the exercise is tied to one user.
-  return 'c-' + exerciseTitle.toLowerCase().replace(matchAllWhitespaces, '-');
+  return 'c-' + exerciseTitle.toLowerCase()
+    .replace(matchAllIgnoredCharacters, '')
+    .replace(matchAllWhitespaces, '-');
 }
 
 export async function createExercise(context: Context, {
