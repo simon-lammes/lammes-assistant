@@ -40,7 +40,11 @@
                 "input": "src/global.scss"
               }
             ],
-            "scripts": []
+            "scripts": [
+              {
+                "input": "node_modules/marked/lib/marked.js"
+              }
+            ]
           },
           "configurations": {
             "production": {

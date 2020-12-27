@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {NgModule, SecurityContext} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {RouteReuseStrategy} from '@angular/router';
 
@@ -13,6 +13,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {IonicStorageModule} from '@ionic/storage';
+import {MarkdownModule} from 'ngx-markdown';
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,6 +22,10 @@ import {IonicStorageModule} from '@ionic/storage';
     BrowserModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
+    MarkdownModule.forRoot({
+      // This is the default, but I write it explicitly to show that this setting is important for security against XXS attacks.
+      sanitize: SecurityContext.HTML
+    }),
     AppRoutingModule,
     GraphQLModule,
     HttpClientModule,

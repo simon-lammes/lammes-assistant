@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {ExerciseFragmentComponent} from './exercise-fragment.component';
 import {PdfViewerModule} from 'ng2-pdf-viewer';
 import {IonicModule} from '@ionic/angular';
+import {MarkdownModule} from 'ngx-markdown';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import {IonicModule} from '@ionic/angular';
   imports: [
     CommonModule,
     PdfViewerModule,
-    IonicModule
+    IonicModule,
+    MarkdownModule
   ]
 })
 export class ExerciseFragmentModule { }

@@ -1,3 +1,5 @@
-<ion-card-content *ngIf="fragment.type === 'text'">{{fragment.value}}</ion-card-content>
+<ion-card-content *ngIf="fragment.type === 'text'">
+  <markdown [data]="fragment.value"></markdown>
+</ion-card-content>
 <pdf-viewer *ngIf="fragment.type === 'file'" [src]="fragment.value"
             [render-text]="true" [original-size]="false" [zoom-scale]="'page-width'"></pdf-viewer>
