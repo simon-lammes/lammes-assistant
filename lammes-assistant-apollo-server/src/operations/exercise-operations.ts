@@ -3,7 +3,7 @@ import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
 import {Exercise} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {generateConflictError} from "../custom-errors/collision-error";
-import { DateTime } from 'luxon';
+import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
 
 interface ExerciseFragment {
@@ -37,8 +37,9 @@ interface HydratedExercise {
  * This key can be used to create a folder that contains all of the exercises files.
  */
 function createKeyForExercise(exerciseTitle: string) {
+  const matchAllWhitespaces = /\s/g;
   // Prefix 'c_' stands for custom because the exercise is tied to one user.
-  return 'c_' + exerciseTitle.toLowerCase().replace(' ', '_');
+  return 'c-' + exerciseTitle.toLowerCase().replace(matchAllWhitespaces, '-');
 }
 
 export async function createExercise(context: Context, {
