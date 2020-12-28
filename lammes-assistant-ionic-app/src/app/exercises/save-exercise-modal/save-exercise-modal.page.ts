@@ -35,7 +35,7 @@ interface OptionalControl {
   styleUrls: ['./save-exercise-modal.page.scss'],
 })
 export class SaveExerciseModalPage implements OnInit {
-  readonly ALLOWED_FILE_TYPES = ['application/pdf'];
+  readonly ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/svg+xml'];
   readonly allFragmentTypes: FragmentArrayType[] = [
     {
       title: 'Assignment Fragments',
@@ -115,7 +115,7 @@ export class SaveExerciseModalPage implements OnInit {
     const [file] = event.target.files as File[];
     if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
       event.target.value = '';
-      await this.showHint(`File type ${file.type} is not supported. Currently we only support pdf.`);
+      await this.showHint(`File type ${file.type} is not supported. If you feel like this file type should be supported, you can create a unique issue in GitHub repository for this project.`);
       return;
     }
     const fragmentControls = this.getFragmentControls(fragmentArrayName);
