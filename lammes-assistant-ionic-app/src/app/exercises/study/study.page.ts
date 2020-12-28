@@ -1,7 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
-import {ExerciseResult, ExercisesService} from '../exercises.service';
+import {ExerciseResult, ExercisesService, Experience, HydratedExercise} from '../exercises.service';
 import {switchMap} from 'rxjs/operators';
 import {IonContent, ToastController} from '@ionic/angular';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-study',
@@ -10,33 +11,58 @@ import {IonContent, ToastController} from '@ionic/angular';
 })
 export class StudyPage {
   @ViewChild(IonContent) ionContent: IonContent;
-  experience$ = this.exercisesService.usersNextExperience$;
-  exercise$ = this.experience$.pipe(
+
+  /**
+   * The current experience that the user is "working on". Contains the current exercise.
+   */
+  experience$: Observable<Experience> = this.exercisesService.usersNextExperience$;
+  hydratedExercise$ = this.experience$.pipe(
     switchMap(experience => this.exercisesService.getHydratedExercise(experience?.exercise))
   );
   studyProgress$ = this.exercisesService.studyProgress$;
-  isSolutionVisible = false;
+
+  isSolutionVisible: boolean;
+  currentExerciseResult?: ExerciseResult = undefined;
+
+  /**
+   * In a "trueOrFalse" exercise, the user either said that a statement was true or that it was false.
+   */
+  trueOrFalseSelection?: boolean;
 
   constructor(
     private exercisesService: ExercisesService,
     private toastController: ToastController
   ) {
-    this.studyProgress$.subscribe(console.log);
   }
 
   showSolution() {
     this.isSolutionVisible = true;
   }
 
-  async registerExerciseResult(exerciseKey: string, exerciseResult: ExerciseResult) {
-    this.isSolutionVisible = false;
-    const scrollingPromise = this.ionContent.scrollToTop(600);
-    const writePromise = this.exercisesService.registerExerciseExperience({
+  private async registerExerciseResult(exerciseKey: string, exerciseResult: ExerciseResult) {
+    this.currentExerciseResult = exerciseResult;
+    await this.exercisesService.registerExerciseExperience({
       exerciseKey,
       exerciseResult
     });
-    const toastPromise = this.showToastForExerciseResult(exerciseResult);
-    await Promise.all([scrollingPromise, writePromise, toastPromise]);
+  }
+
+  async requestNextExercise() {
+    this.exercisesService.requestNextExercise();
+    this.isSolutionVisible = false;
+    this.currentExerciseResult = undefined;
+    this.trueOrFalseSelection = undefined;
+    await this.ionContent.scrollToTop(600);
+  }
+
+  async onUserEvaluatedStatementOfTrueOrFalseExercise(exerciseKey: string, exercise: HydratedExercise, evaluation: boolean) {
+    const isUserRight = exercise.isStatementCorrect === evaluation;
+    this.isSolutionVisible = true;
+    this.currentExerciseResult = isUserRight ? 'SUCCESS' : 'FAILURE';
+    this.trueOrFalseSelection = evaluation;
+    const toastPromise = this.showToastForExerciseResult(this.currentExerciseResult);
+    const registerPromise = this.registerExerciseResult(exerciseKey, this.currentExerciseResult);
+    await Promise.all([toastPromise, registerPromise]);
   }
 
   private async showToastForExerciseResult(exerciseResult: ExerciseResult) {
@@ -53,5 +79,19 @@ export class StudyPage {
       position: 'top'
     });
     await toast.present();
+  }
+
+  async onUserReview(experience: Experience, reviewResult: ExerciseResult) {
+    const toastPromise = this.showToastForExerciseResult(reviewResult);
+    const registerPromise = this.registerExerciseResult(experience.exercise.key, reviewResult);
+    await Promise.all([toastPromise, registerPromise]);
+    await this.requestNextExercise();
+  }
+
+  getRightOrWrongButtonColor(isRightButton: boolean) {
+    if (this.trueOrFalseSelection === isRightButton) {
+      return this.currentExerciseResult === 'SUCCESS' ? 'success' : 'danger';
+    }
+    return 'medium';
   }
 }

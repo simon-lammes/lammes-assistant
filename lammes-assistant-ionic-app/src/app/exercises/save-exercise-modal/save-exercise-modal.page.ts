@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
 import {CreateExerciseResult, ExercisesService} from '../exercises.service';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
 /**
  * Exercises can have different types of fragments, for example: fragments for the assignment and fragments for the solution.
@@ -14,6 +15,20 @@ interface FragmentArrayType {
   addButtonText: string;
 }
 
+/**
+ * A control that is only needed if the exercise has a specific type.
+ */
+interface OptionalControl {
+
+  /**
+   * The exercise types for which this control is needed.
+   */
+  exerciseTypes: string[];
+  controlName: string;
+  control: FormControl;
+}
+
+@UntilDestroy()
 @Component({
   selector: 'app-save-exercise-modal',
   templateUrl: './save-exercise-modal.page.html',
@@ -33,6 +48,13 @@ export class SaveExerciseModalPage implements OnInit {
       addButtonText: 'Add solution fragment'
     }
   ];
+  readonly optionalControls: OptionalControl[] = [
+    {
+      controlName: 'isStatementCorrect',
+      exerciseTypes: ['trueOrFalse'],
+      control: this.formBuilder.control(false, [Validators.required])
+    }
+  ];
   exerciseForm: FormGroup;
 
   constructor(
@@ -47,9 +69,11 @@ export class SaveExerciseModalPage implements OnInit {
   ngOnInit(): void {
     this.exerciseForm = this.formBuilder.group({
       title: this.formBuilder.control('', [Validators.required, Validators.min(1)]),
+      exerciseType: this.formBuilder.control('standard', [Validators.required]),
       assignmentFragments: this.formBuilder.array([this.createFragmentFormGroup()]),
-      solutionFragments: this.formBuilder.array([this.createFragmentFormGroup()]),
+      solutionFragments: this.formBuilder.array([this.createFragmentFormGroup()])
     });
+    this.setupOptionalControls();
   }
 
   /**
@@ -155,6 +179,24 @@ export class SaveExerciseModalPage implements OnInit {
   canRemoveFragment(fragmentArrayName: string) {
     const fragmentControls = this.getFragmentControls(fragmentArrayName);
     return fragmentControls.length > 1;
+  }
+
+  /**
+   * This method makes sure that optional controls are added or removed automatically when the exercist type changes.
+   * It should guarantee that at any point in time only the needed optional controls are present.
+   */
+  private setupOptionalControls() {
+    this.exerciseForm.controls.exerciseType.valueChanges.pipe(untilDestroyed(this)).subscribe(exerciseType => {
+      this.optionalControls.forEach(optionalControl => {
+        const isOptionalControlNeededForExerciseType = optionalControl.exerciseTypes.includes(exerciseType);
+        const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
+        if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
+          this.exerciseForm.addControl(optionalControl.controlName, this.formBuilder.control(false, [Validators.required]));
+        } else {
+          this.exerciseForm.removeControl(optionalControl.controlName);
+        }
+      });
+    });
   }
 
   private async showHint(message: string) {

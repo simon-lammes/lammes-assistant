@@ -13,6 +13,8 @@
       <ion-label>Title</ion-label>
       <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
     </ion-item>
+
+    <!-- All exercise fragments -->
     <ion-list *ngFor="let fragmentType of allFragmentTypes">
       <ion-list-header>
         <ion-label>{{fragmentType.title}}</ion-label>
@@ -44,6 +46,24 @@
       </div>
       <ion-button type="button" expand="block" [disabled]="!canAddFragment(fragmentType.fragmentArrayName)"
                   (click)="addFragment(fragmentType.fragmentArrayName)">{{fragmentType.addButtonText}}</ion-button>
+    </ion-list>
+
+    <!-- Extra information for special exercise types -->
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Extra information</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-label>Exercise type</ion-label>
+        <ion-select interface="popover" formControlName="exerciseType">
+          <ion-select-option value="standard">Standard</ion-select-option>
+          <ion-select-option value="trueOrFalse">True or False</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item *ngIf="exerciseForm.controls.isStatementCorrect">
+        <ion-label>Is Statement Correct</ion-label>
+        <ion-checkbox slot="end" formControlName="isStatementCorrect"></ion-checkbox>
+      </ion-item>
     </ion-list>
     <ion-button type="submit" [disabled]="!exerciseForm.valid" expand="block">
       Save Changes

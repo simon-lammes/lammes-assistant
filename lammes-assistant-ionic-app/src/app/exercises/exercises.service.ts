@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {GraphQLError} from 'graphql';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
@@ -11,6 +11,8 @@ export enum CreateExerciseResult {
   Success,
   Conflict
 }
+
+export type ExerciseType = 'standard' | 'trueOrFalse';
 
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
@@ -32,6 +34,8 @@ export interface HydratedExercise {
   versionTimestamp: string;
   assignmentFragments: ExerciseFragment[];
   solutionFragments: ExerciseFragment[];
+  exerciseType: ExerciseType;
+  isStatementCorrect?: boolean;
 }
 
 export interface Exercise {
@@ -102,8 +106,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!) {
-    createExercise(title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments) {
+  mutation CreateExercise($title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    createExercise(title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },
@@ -152,14 +156,40 @@ const restoreExerciseMutation = gql`
   ${exerciseFragment}
 `;
 
+/**
+ * RxJS operator for filling hydrated exercises with default values. This method exists for backwards compatibility reasons.
+ * When I added the field "exerciseType", all my existing exercises did not have this field. They implicitly had
+ * the exerciseType 'standard'. In order for this application to work with old exercises, those old exercises
+ * need to be filled standard values for the new properties.
+ */
+function complementHydratedExerciseWithDefaultValues() {
+  const hydratedExerciseDefaultValues = {
+    exerciseType: 'standard'
+  } as Partial<HydratedExercise>;
+  return <T extends HydratedExercise>(source: Observable<T>) => {
+    return source.pipe(
+      map(hydratedExercise => {
+        return {
+          ...hydratedExerciseDefaultValues,
+          ...hydratedExercise
+        } as HydratedExercise;
+      })
+    );
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ExercisesService {
 
   // Study Progress
-  readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
+  private readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
   readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
+
+  // Request next exercise
+  private readonly requestNextExerciseBehaviourSubject = new BehaviorSubject(true);
+  private readonly requestNextExercise$ = this.requestNextExerciseBehaviourSubject.asObservable();
 
   /**
    * The users experience that he should work on next while studying. Informally: the next exercise.
@@ -168,7 +198,7 @@ export class ExercisesService {
    * When the user finishes an exercise, he must start working on the next one.
    * When the user changes the exercise time, the "algorithm" might pick a different (better suited?) exercise.
    */
-  readonly usersNextExperience$ = this.studyProgress$.pipe(
+  readonly usersNextExperience$: Observable<Experience> = this.requestNextExercise$.pipe(
     switchMap(() => this.settingsService.exerciseCooldown$),
     switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
       // When we used the cache, we would be "stuck" with the same exercise.
@@ -230,7 +260,8 @@ export class ExercisesService {
       return undefined;
     }
     const cacheKey = `hydrated-exercise.${exercise.key}`;
-    const cachedHydratedExercise = await this.storage.get(cacheKey) as HydratedExercise;
+    const cachedHydratedExercise = await from(this.storage.get(cacheKey))
+      .pipe(complementHydratedExerciseWithDefaultValues()).toPromise() as HydratedExercise;
     // When the version timestamp of our cached hydrated exercise matches the version timestamp of the provided exercise
     // (coming from current query), we should be assured that the cache is fresh, meaning that it matches the value that is remotely stored.
     const isCacheFresh = cachedHydratedExercise
@@ -240,6 +271,7 @@ export class ExercisesService {
     } else {
       return this.getExerciseDownloadLink(exercise).pipe(
         switchMap(exerciseUrl => this.http.get<HydratedExercise>(exerciseUrl)),
+        complementHydratedExerciseWithDefaultValues(),
         // Cache the result.
         tap(hydratedExercise => this.storage.set(cacheKey, hydratedExercise)),
         first()
@@ -269,7 +301,7 @@ export class ExercisesService {
           const exercisesCache = cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] };
           const exercises = exercisesCache.myExercises;
           const updatedExercises = exercises.filter(e => e.id !== removedExercise.id);
-          cache.writeQuery({query: usersExercisesQuery, data: { myExercises: updatedExercises }});
+          cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedExercises}});
         } catch (e) {
           // If query was yet not cached, we get an exception.
         }
@@ -328,5 +360,9 @@ export class ExercisesService {
     }).valueChanges.pipe(
       map(({data}) => data.getExerciseDownloadLink)
     );
+  }
+
+  requestNextExercise() {
+    this.requestNextExerciseBehaviourSubject.next(true);
   }
 }

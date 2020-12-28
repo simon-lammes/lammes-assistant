@@ -33,6 +33,11 @@ enum ExerciseResult {
   SUCCESS
 }
 
+enum ExerciseType {
+  standard
+  trueOrFalse
+}
+
 type Experience {
   correctStreak: Int!
   exercise: Exercise!
@@ -42,7 +47,7 @@ type Experience {
 }
 
 type Mutation {
-  createExercise(assignmentFragments: [ExerciseFragment]!, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
+  createExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note

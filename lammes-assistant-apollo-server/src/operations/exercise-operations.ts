@@ -15,6 +15,8 @@ export interface CreateExerciseInput {
   title: string;
   assignmentFragments: (ExerciseFragment | null)[];
   solutionFragments: (ExerciseFragment | null)[];
+  exerciseType: 'standard' | 'trueOrFalse';
+  isStatementCorrect?: boolean | null;
 }
 
 /**
@@ -30,6 +32,8 @@ interface HydratedExercise {
   title: string;
   assignmentFragments: ExerciseFragment[];
   solutionFragments: ExerciseFragment[];
+  exerciseType: 'standard' | 'trueOrFalse';
+  isStatementCorrect?: boolean;
 }
 
 /**
@@ -48,7 +52,9 @@ function createKeyForExercise(exerciseTitle: string) {
 export async function createExercise(context: Context, {
   title,
   assignmentFragments,
-  solutionFragments
+  solutionFragments,
+  exerciseType,
+  isStatementCorrect
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -77,7 +83,9 @@ export async function createExercise(context: Context, {
     versionTimestamp: versionTimestamp.toISOString(),
     title,
     assignmentFragments,
-    solutionFragments
+    solutionFragments,
+    exerciseType,
+    isStatementCorrect
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
