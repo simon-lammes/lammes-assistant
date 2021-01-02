@@ -1,8 +1,10 @@
+# We use this file to track changes to App Platform configuration.
 # This file is easier to manage when you just copy the current value from the DigitalOcean App Platform console.
-# You might ask why this file exists then. We use it to track changes to our App Platform instnace configuration.
+# You might ask why this file exists then. 
+# With a history of our App Plattform configuration, we can revert changes easier when they turned out to break the application.
 # Furthermore, there are some aspects of app platform that cannot yet be managed in the UI but only with this file.
 # An example is support for monorepos. This project is a monorepo so we needed to configure our App Plattform via 
-# this file. Whenever you use this file to update the configuration, make sure this file contains the latest changes you made in
+# this file. Whenever you update the configuration, make sure this file contains the latest changes you made in
 # the DigitalOcean UI. BTW, it is save to store encryped variables in this file. Those are prefixed with "EV[". Reference:
 # https://www.digitalocean.com/community/questions/how-to-use-environment-values-of-type-secret-on-following-submissions
 databases:
