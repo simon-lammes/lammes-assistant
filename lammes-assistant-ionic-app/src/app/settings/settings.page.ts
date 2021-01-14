@@ -100,8 +100,8 @@ export class SettingsPage implements OnInit {
     };
     const picker = await this.pickerController.create({
       columns: [
-        createPickerOption('days', 59),
-        createPickerOption('hours', 60),
+        createPickerOption('days', 100),
+        createPickerOption('hours', 24),
         createPickerOption('minutes', 60)
       ],
       buttons: [
