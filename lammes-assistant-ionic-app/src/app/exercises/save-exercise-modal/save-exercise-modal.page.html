@@ -27,8 +27,8 @@
             <ion-select interface="popover" formControlName="type"
                         (ionChange)="onTypeChanged(fragmentType.fragmentArrayName, i)">
               <ion-select-option value="remove" [disabled]="!canRemoveFragment(fragmentType.fragmentArrayName)"
-                                 (selectionchange)="removeFragment(fragmentType.fragmentArrayName, i)">Remove this
-                fragment
+                                 (selectionchange)="removeFragment(fragmentType.fragmentArrayName, i)">
+                Remove this fragment
               </ion-select-option>
               <ion-select-option value="text">Text</ion-select-option>
               <ion-select-option value="file">File</ion-select-option>
@@ -39,9 +39,10 @@
             <ion-textarea type="text" formControlName="value" rows="4"></ion-textarea>
           </ion-item>
           <ion-item *ngIf="item.value.type === 'file'">
-            <ion-label>Value</ion-label>
-            <ion-input type="file" (change)="onFileChange($event, fragmentType.fragmentArrayName, i)"></ion-input>
+            <ion-label>Value {{isFileSelected(fragmentType.fragmentArrayName, i) ? '(File selected)' : '(No file chosen)'}}</ion-label>
+            <ion-button type="button" ngxFilePicker (filePick)="onFileChange($event, fragmentType.fragmentArrayName, i)">Browse</ion-button>
           </ion-item>
+
         </div>
       </div>
       <ion-button type="button" expand="block" [disabled]="!canAddFragment(fragmentType.fragmentArrayName)"

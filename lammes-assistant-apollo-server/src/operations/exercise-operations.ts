@@ -5,6 +5,8 @@ import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-
 import {generateConflictError} from "../custom-errors/collision-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
+import {generateAuthorizationError} from "../custom-errors/authorization-error";
+import {generateNotFoundError} from "../custom-errors/not-found-error";
 
 interface ExerciseFragment {
   type: string;
@@ -13,6 +15,14 @@ interface ExerciseFragment {
 
 export interface CreateExerciseInput {
   title: string;
+  assignmentFragments: (ExerciseFragment | null)[];
+  solutionFragments: (ExerciseFragment | null)[];
+  exerciseType: 'standard' | 'trueOrFalse';
+  isStatementCorrect?: boolean | null;
+}
+
+export interface UpdateExerciseInput {
+  id: number;
   assignmentFragments: (ExerciseFragment | null)[];
   solutionFragments: (ExerciseFragment | null)[];
   exerciseType: 'standard' | 'trueOrFalse';
@@ -114,6 +124,54 @@ export async function createExercise(context: Context, {
           }
         }
       }
+    }
+  });
+}
+
+export async function updateExercise(context: Context, {
+  id,
+  assignmentFragments,
+  solutionFragments,
+  exerciseType,
+  isStatementCorrect
+}: UpdateExerciseInput): Promise<Exercise> {
+  const userId = context.jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You need to be authenticated.');
+  }
+  if (assignmentFragments.some(fragment => !fragment?.type || !fragment?.value) || solutionFragments.some(fragment => !fragment?.type || !fragment?.value)) {
+    throw new UserInputError('All fragments should have a not empty type and a not empty value.');
+  }
+  const exercise = await context.prisma.exercise.findFirst({where: {id}});
+  if (!exercise) {
+    throw generateNotFoundError(`No exercise with id ${exercise}.`);
+  }
+  if (exercise.creatorId !== userId) {
+    throw generateAuthorizationError("You do not own the requested resource.");
+  }
+  const versionTimestamp = new Date();
+  const hydratedExercise = {
+    versionTimestamp: versionTimestamp.toISOString(),
+    title: exercise.title,
+    assignmentFragments,
+    solutionFragments,
+    exerciseType,
+    isStatementCorrect
+  } as HydratedExercise;
+  const upload = context.spacesClient.putObject({
+    Bucket: "lammes-assistant-space",
+    Key: `exercises/${exercise.key}.json`,
+    Body: JSON.stringify(hydratedExercise),
+    ContentType: "application/json",
+    ACL: "private"
+  });
+  await upload.promise();
+  return context.prisma.exercise.update({
+    where: {
+      id
+    },
+    data: {
+      versionTimestamp: versionTimestamp.toISOString(),
     }
   });
 }

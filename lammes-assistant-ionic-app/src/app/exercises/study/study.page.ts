@@ -1,8 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {ExerciseResult, ExercisesService, Experience, HydratedExercise} from '../exercises.service';
+import {Exercise, ExerciseResult, ExercisesService, Experience, HydratedExercise} from '../exercises.service';
 import {switchMap} from 'rxjs/operators';
-import {IonContent, ToastController} from '@ionic/angular';
+import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {Observable} from 'rxjs';
+import {StudyPopoverComponent} from './study-popover/study-popover.component';
 
 @Component({
   selector: 'app-study',
@@ -31,7 +32,8 @@ export class StudyPage {
 
   constructor(
     private exercisesService: ExercisesService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private popoverController: PopoverController
   ) {
   }
 
@@ -93,5 +95,17 @@ export class StudyPage {
       return this.currentExerciseResult === 'SUCCESS' ? 'success' : 'danger';
     }
     return 'medium';
+  }
+
+  async showPopover(event: MouseEvent, exercise: Exercise) {
+    const popover = await this.popoverController.create({
+      component: StudyPopoverComponent,
+      componentProps: {
+        exercise
+      },
+      event,
+      translucent: true
+    });
+    return await popover.present();
   }
 }

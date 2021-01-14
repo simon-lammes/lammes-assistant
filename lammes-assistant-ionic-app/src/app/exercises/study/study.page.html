@@ -3,6 +3,11 @@
     <ion-title *ngIf="studyProgress$ | async as studyProgress">
       Study (Completed: {{studyProgress.successCount + studyProgress.failureCount}})
     </ion-title>
+    <ion-buttons slot="end" *ngIf="experience$ | async as experience">
+      <ion-button (click)="showPopover($event, experience.exercise)">
+        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

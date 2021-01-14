@@ -9,6 +9,7 @@ import {StudyPageRoutingModule} from './study-routing.module';
 import {StudyPage} from './study.page';
 import {PdfViewerModule} from 'ng2-pdf-viewer';
 import {ExerciseFragmentModule} from '../exercise-fragment/exercise-fragment.module';
+import {StudyPopoverModule} from './study-popover/study-popover.module';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import {ExerciseFragmentModule} from '../exercise-fragment/exercise-fragment.mod
     IonicModule,
     StudyPageRoutingModule,
     PdfViewerModule,
-    ExerciseFragmentModule
+    ExerciseFragmentModule,
+    StudyPopoverModule
   ],
   declarations: [StudyPage]
 })

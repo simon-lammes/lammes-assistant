@@ -114,6 +114,15 @@ const createExerciseMutation = gql`
   ${exerciseFragment}
 `;
 
+const updateExerciseMutation = gql`
+  mutation UpdateExercise($id: Int!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    updateExercise(id: $id, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+      ...ExerciseFragment
+    }
+  },
+  ${exerciseFragment}
+`;
+
 const usersNextExperienceQuery = gql`
   query MyNextExperience($exerciseCooldown: ExerciseCooldown!) {
     myNextExperience(exerciseCooldown: $exerciseCooldown) {
@@ -201,8 +210,6 @@ export class ExercisesService {
   readonly usersNextExperience$: Observable<Experience> = this.requestNextExercise$.pipe(
     switchMap(() => this.settingsService.exerciseCooldown$),
     switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
-      // When we used the cache, we would be "stuck" with the same exercise.
-      fetchPolicy: 'no-cache',
       query: usersNextExperienceQuery,
       variables: {exerciseCooldown}
     }).valueChanges),
@@ -249,6 +256,13 @@ export class ExercisesService {
       return CreateExerciseResult.Conflict;
     }
     throw Error('Unhandled situation');
+  }
+
+  async updateExercise(exerciseData: any): Promise<any> {
+    return this.apollo.mutate<{ updateExercise: Exercise }, any>({
+      mutation: updateExerciseMutation,
+      variables: exerciseData
+    }).toPromise();
   }
 
   /**

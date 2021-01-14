@@ -1,9 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
-import {CreateExerciseResult, ExercisesService} from '../exercises.service';
+import {CreateExerciseResult, Exercise, ExercisesService} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {ReadFile} from 'ngx-file-helpers';
 
 /**
  * Exercises can have different types of fragments, for example: fragments for the assignment and fragments for the solution.
@@ -28,6 +29,9 @@ interface OptionalControl {
   control: FormControl;
 }
 
+/**
+ * Responsible for creating and editing of exercises.
+ */
 @UntilDestroy()
 @Component({
   selector: 'app-save-exercise-modal',
@@ -57,6 +61,12 @@ export class SaveExerciseModalPage implements OnInit {
   ];
   exerciseForm: FormGroup;
 
+  /**
+   * The exercise that is being edited by the user. Undefined if a new exercise is created.
+   */
+  @Input()
+  private editedExercise: Exercise;
+
   constructor(
     private modalController: ModalController,
     private formBuilder: FormBuilder,
@@ -66,13 +76,23 @@ export class SaveExerciseModalPage implements OnInit {
   ) {
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<any> {
+    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
     this.exerciseForm = this.formBuilder.group({
-      title: this.formBuilder.control('', [Validators.required, Validators.min(1)]),
-      exerciseType: this.formBuilder.control('standard', [Validators.required]),
-      assignmentFragments: this.formBuilder.array([this.createFragmentFormGroup()]),
-      solutionFragments: this.formBuilder.array([this.createFragmentFormGroup()])
+      title: this.formBuilder.control(editedHydratedExercise?.title ?? '', [Validators.required, Validators.min(1)]),
+      exerciseType: this.formBuilder.control(editedHydratedExercise?.exerciseType ?? 'standard', [Validators.required]),
+      assignmentFragments: this.formBuilder.array(editedHydratedExercise?.assignmentFragments.length > 0
+        ? editedHydratedExercise.assignmentFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
+        : [this.createFragmentFormGroup()]),
+      solutionFragments: this.formBuilder.array(editedHydratedExercise?.solutionFragments.length > 0
+        ? editedHydratedExercise.solutionFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
+        : [this.createFragmentFormGroup()])
     });
+    // Changing the title of an already created exercise would require us to change its key everywhere.
+    // As this is complicated, it is not allowed yet.
+    if (this.editedExercise) {
+      this.exerciseForm.controls.title.disable();
+    }
     this.setupOptionalControls();
   }
 
@@ -89,14 +109,22 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async saveExercise() {
-    const result = await this.exercisesService.createExercise(this.exerciseForm.value);
-    switch (result) {
-      case CreateExerciseResult.Success:
-        await this.dismissModal();
-        break;
-      case CreateExerciseResult.Conflict:
-        await this.showHint('Please change your title because the current title conflicts with an already existing exercise.');
-        break;
+    if (this.editedExercise) {
+      await this.exercisesService.updateExercise({
+        ...this.editedExercise,
+        ...this.exerciseForm.value
+      });
+      await this.dismissModal();
+    } else {
+      const result = await this.exercisesService.createExercise(this.exerciseForm.value);
+      switch (result) {
+        case CreateExerciseResult.Success:
+          await this.dismissModal();
+          break;
+        case CreateExerciseResult.Conflict:
+          await this.showHint('Please change your title because the current title conflicts with an already existing exercise.');
+          break;
+      }
     }
   }
 
@@ -107,24 +135,20 @@ export class SaveExerciseModalPage implements OnInit {
   /**
    * Whenever, the user selects a file, this method converts this file to base64 and integrates it into the form's value.
    */
-  async onFileChange(event: any, fragmentArrayName: string, fragmentIndex: number) {
+  async onFileChange(event: ReadFile, fragmentArrayName: string, fragmentIndex: number) {
+    const type = event.type;
+    const fileAsBase64 = event.content;
     // Short circuit when the user did not select any files.
-    if (!event.target.files || !event.target.files.length) {
+    if (!fileAsBase64) {
       return;
     }
-    const [file] = event.target.files as File[];
-    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
-      event.target.value = '';
-      await this.showHint(`File type ${file.type} is not supported. If you feel like this file type should be supported, you can create a unique issue in GitHub repository for this project.`);
+    if (!this.ALLOWED_FILE_TYPES.includes(type)) {
+      await this.showHint(`File type ${type} is not supported. If you feel like this file type should be supported, you can create a unique issue in GitHub repository for this project.`);
       return;
     }
     const fragmentControls = this.getFragmentControls(fragmentArrayName);
     const fragmentControl = fragmentControls[fragmentIndex];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      fragmentControl.controls.value.patchValue(reader.result);
-    };
+    fragmentControl.controls.value.patchValue(fileAsBase64);
   }
 
   addFragment(fragmentArrayName: string) {
@@ -214,10 +238,17 @@ export class SaveExerciseModalPage implements OnInit {
     await toast.present();
   }
 
-  private createFragmentFormGroup() {
+  private createFragmentFormGroup(type?: string, value?: string) {
     return this.formBuilder.group({
-      type: this.formBuilder.control('', [Validators.required]),
-      value: this.formBuilder.control('', [Validators.required, Validators.min(1)])
+      type: this.formBuilder.control(type ?? '', [Validators.required]),
+      value: this.formBuilder.control(value ?? '', [Validators.required, Validators.min(1)])
     });
+  }
+
+  isFileSelected(fragmentArrayName: string, fragmentIndex: number): boolean {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControl = fragmentControls[fragmentIndex];
+    const {type, value} = fragmentControl.value;
+    return type === 'file' && value;
   }
 }

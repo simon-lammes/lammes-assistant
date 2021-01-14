@@ -32,7 +32,7 @@ import {
   getExerciseDownloadLink,
   registerExerciseExperience,
   removeExercise,
-  restoreExercise
+  restoreExercise, updateExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
 
@@ -300,6 +300,19 @@ const Mutation = objectType({
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);
+      }
+    });
+    t.field("updateExercise", {
+      type: "Exercise",
+      args: {
+        id: nonNull(intArg()),
+        assignmentFragments: nonNull(list(ExerciseFragment)),
+        solutionFragments: nonNull(list(ExerciseFragment)),
+        exerciseType: nonNull(arg({type: ExerciseType})),
+        isStatementCorrect: nullable(booleanArg())
+      },
+      resolve: (root, args, context) => {
+        return updateExercise(context, args);
       }
     });
     t.field("removeExercise", {

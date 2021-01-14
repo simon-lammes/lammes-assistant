@@ -20,6 +20,10 @@
 
       <!-- Sliding options right side -->
       <ion-item-options side="end" (ionSwipe)="removeExercise(exercise)">
+        <ion-item-option expandable="true" color="warning" (click)="editExercise(exercise)">
+          <ion-icon name="create"></ion-icon>
+          Edit
+        </ion-item-option>
         <ion-item-option expandable="true" color="danger" (click)="removeExercise(exercise)">
           <ion-icon name="trash-outline"></ion-icon>
           Remove

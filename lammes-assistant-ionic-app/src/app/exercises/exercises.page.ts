@@ -45,4 +45,14 @@ export class ExercisesPage {
     });
     return await popover.present();
   }
+
+  async editExercise(exercise: Exercise) {
+    const modal = await this.modalController.create({
+      component: SaveExerciseModalPage,
+      componentProps: {
+        editedExercise: exercise
+      }
+    });
+    return await modal.present();
+  }
 }

@@ -63,6 +63,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
+  updateExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!): Exercise
 }
 
 type Note {
