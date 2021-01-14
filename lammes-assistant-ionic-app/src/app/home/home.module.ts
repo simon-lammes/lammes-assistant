@@ -8,6 +8,7 @@ import {HomePageRoutingModule} from './home-routing.module';
 
 import {HomePage} from './home.page';
 import {EditNoteModalPageModule} from '../notes/edit-note/edit-note-modal.module';
+import {MarkdownModule} from 'ngx-markdown';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import {EditNoteModalPageModule} from '../notes/edit-note/edit-note-modal.module
     FormsModule,
     IonicModule,
     HomePageRoutingModule,
-    EditNoteModalPageModule
+    EditNoteModalPageModule,
+    MarkdownModule
   ],
   declarations: [HomePage]
 })

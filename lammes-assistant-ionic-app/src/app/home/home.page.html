@@ -12,9 +12,7 @@
     </ion-card-header>
 
     <ion-card-content>
-      <ng-container>
-        {{note.description}}
-      </ng-container>
+      <markdown [data]="note.description"></markdown>
       <ion-button fill="solid" expand="block" color="success" (click)="resolveNote(note)">Resolve</ion-button>
       <ion-button fill="outline" expand="block" (click)="delayForADay(note)">Delay for a day</ion-button>
       <ion-button fill="outline" expand="block" (click)="delay(note)">Delay for ...</ion-button>
