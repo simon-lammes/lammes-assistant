@@ -1,3 +1,4 @@
+# Build the the application in a node.js environment
 FROM node:12 AS builder
 
 WORKDIR /src
@@ -14,10 +15,9 @@ COPY . .
 
 RUN npm run build
 
-# Now take the build angular application and copy it to the next stage: An nginx server hosting the generated content.
+# Now take the built application and run it inside the node.js runtime.
 FROM node:12
 
-# Copy the build application from stage "builder" into a directory that is hosted by nginx.
 COPY --from=builder /src/dist /dist
 COPY --from=builder /src/node_modules node_modules
 
