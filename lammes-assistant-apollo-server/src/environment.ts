@@ -19,6 +19,11 @@ export interface Environment extends DotenvParseOptions {
   SECRET: string;
 
   /**
+   * The url to the s3 compatible object storage.
+   */
+  SPACES_ENDPOINT: string;
+
+  /**
    * Documented [here](https://www.digitalocean.com/docs/spaces/resources/s3-sdk-examples/).
    */
   SPACES_KEY: string;

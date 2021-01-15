@@ -7,9 +7,10 @@ import {environment} from "./environment";
 const prisma = new PrismaClient();
 
 const spacesClient = new AWS.S3({
-  endpoint: new AWS.Endpoint('fra1.digitaloceanspaces.com'),
+  endpoint: new AWS.Endpoint(environment.SPACES_ENDPOINT),
   accessKeyId: environment.SPACES_KEY,
-  secretAccessKey: environment.SPACES_SECRET
+  secretAccessKey: environment.SPACES_SECRET,
+  s3ForcePathStyle: true
 });
 
 /**

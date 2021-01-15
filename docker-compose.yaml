@@ -7,3 +7,16 @@ services:
       context: ./lammes-assistant-apollo-server
     ports:
      - "4000:4000"
+  lammes-assistant-s3-storage:
+    image: minio/minio
+    command: server /data
+    volumes:
+      - lammes-assistant-s3-data:/data
+    environment:
+      - MINIO_ROOT_USER=test
+      - MINIO_ROOT_PASSWORD=testing123
+    ports:
+      - "9000:9000"
+      
+volumes:
+  lammes-assistant-s3-data:
