@@ -211,7 +211,9 @@ export class ExercisesService {
     switchMap(() => this.settingsService.exerciseCooldown$),
     switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
       query: usersNextExperienceQuery,
-      variables: {exerciseCooldown}
+      variables: {exerciseCooldown},
+      // When we used the cache, we would be "stuck" with the same exercise.
+      fetchPolicy: 'no-cache'
     }).valueChanges),
     map(({data}) => data.myNextExperience)
   );

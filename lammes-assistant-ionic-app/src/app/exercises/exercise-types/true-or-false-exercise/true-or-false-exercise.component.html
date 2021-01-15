@@ -1,0 +1,37 @@
+<!-- Assignment -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-title>{{exercise.title}}</ion-card-title>
+  </ion-card-header>
+  <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments"
+                         [fragment]="fragment"></app-exercise-fragment>
+</ion-card>
+
+<!-- TrueOrFalse (only shown for this type of exercise) -->
+<div style="display: flex">
+  <ion-button color="{{getRightOrWrongButtonColor(false)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
+              (click)="onEvaluatedStatement(false)">
+    Wrong
+  </ion-button>
+  <ion-button color="{{getRightOrWrongButtonColor(true)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
+              (click)="onEvaluatedStatement(true)">
+    Right
+  </ion-button>
+</div>
+
+<!-- Solution -->
+<ion-card *ngIf="trueOrFalseSelection !== undefined">
+  <ion-card-header>
+    <ion-card-subtitle>Solution</ion-card-subtitle>
+  </ion-card-header>
+  <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments"
+                         [fragment]="fragment"></app-exercise-fragment>
+</ion-card>
+
+<!-- Review and request next exercise -->
+<div style="display: flex" *ngIf="trueOrFalseSelection !== undefined">
+  <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()">
+    Next Exercise
+  </ion-button>
+</div>

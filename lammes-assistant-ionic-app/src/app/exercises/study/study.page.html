@@ -12,61 +12,13 @@
 </ion-header>
 
 <ion-content>
-  <!-- Exercise -->
-  <ng-container *ngIf="hydratedExercise$ | async as exercise">
-    <!-- Assignment -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>Assignment</ion-card-subtitle>
-        <ion-card-title>{{exercise.title}}</ion-card-title>
-      </ion-card-header>
-      <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments"
-                             [fragment]="fragment"></app-exercise-fragment>
-    </ion-card>
-    <ion-button *ngIf="!isSolutionVisible && exercise.exerciseType === 'standard'"
-                expand="block" color="primary" (click)="showSolution()">
-      Show solution
-    </ion-button>
-
-    <!-- TrueOrFalse (only shown for this type of exercise) -->
-    <div style="display: flex" *ngIf="exercise.exerciseType === 'trueOrFalse' && experience$ | async as experience">
-      <ion-button color="{{getRightOrWrongButtonColor(false)}}" style="flex: 1" [disabled]="isSolutionVisible"
-                  (click)="onUserEvaluatedStatementOfTrueOrFalseExercise(experience.exercise.key, exercise, false)">
-        Wrong
-      </ion-button>
-      <ion-button color="{{getRightOrWrongButtonColor(true)}}" style="flex: 1" [disabled]="isSolutionVisible"
-                  (click)="onUserEvaluatedStatementOfTrueOrFalseExercise(experience.exercise.key, exercise, true)">
-        Right
-      </ion-button>
-    </div>
-
-    <!-- Solution -->
-    <ion-card *ngIf="isSolutionVisible">
-      <ion-card-header>
-        <ion-card-subtitle>Solution</ion-card-subtitle>
-      </ion-card-header>
-      <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments"
-                             [fragment]="fragment"></app-exercise-fragment>
-    </ion-card>
-
-    <!-- Review -->
-    <ng-container *ngIf="isSolutionVisible && experience$ | async as experience">
-      <!-- Review for standard exercise -->
-      <div style="display: flex" *ngIf="exercise.exerciseType === 'standard'">
-        <ion-button color="danger" style="flex: 1" (click)="onUserReview(experience, 'FAILURE')">
-          <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>
-        </ion-button>
-        <ion-button color="success" style="flex: 1" (click)="onUserReview(experience, 'SUCCESS')">
-          <ion-icon slot="icon-only" name="thumbs-up-outline"></ion-icon>
-        </ion-button>
-      </div>
-
-      <!-- Review for exercise that already have an exercise result -->
-      <div style="display: flex" *ngIf="exercise.exerciseType === 'trueOrFalse'">
-        <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()">
-          Next Exercise
-        </ion-button>
-      </div>
+  <!--  Exercise -->
+  <ng-container *ngIf="experience$ | async as experience">
+    <ng-container *ngIf="hydratedExercise$ | async as exercise" [ngSwitch]="exercise.exerciseType">
+      <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exercise"
+                                  (exerciseStateChanged)="onExerciseStateChanged(experience, $event)"></app-true-or-false-exercise>
+      <app-standard-exercise *ngSwitchDefault [exercise]="exercise"
+                             (exerciseStateChanged)="onExerciseStateChanged(experience, $event)"></app-standard-exercise>
     </ng-container>
   </ng-container>
 

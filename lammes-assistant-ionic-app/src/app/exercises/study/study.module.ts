@@ -10,6 +10,7 @@ import {StudyPage} from './study.page';
 import {PdfViewerModule} from 'ng2-pdf-viewer';
 import {ExerciseFragmentModule} from '../exercise-fragment/exercise-fragment.module';
 import {StudyPopoverModule} from './study-popover/study-popover.module';
+import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import {StudyPopoverModule} from './study-popover/study-popover.module';
     StudyPageRoutingModule,
     PdfViewerModule,
     ExerciseFragmentModule,
-    StudyPopoverModule
+    StudyPopoverModule,
+    ExerciseTypesModule
   ],
   declarations: [StudyPage]
 })
