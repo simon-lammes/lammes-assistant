@@ -60,7 +60,7 @@ export class SaveExerciseModalPage implements OnInit {
     }
   ];
   exerciseForm: FormGroup;
-
+  selectedSegment: 'edit' | 'preview' = 'edit';
   /**
    * The exercise that is being edited by the user. Undefined if a new exercise is created.
    */
@@ -205,6 +205,17 @@ export class SaveExerciseModalPage implements OnInit {
     return fragmentControls.length > 1;
   }
 
+  isFileSelected(fragmentArrayName: string, fragmentIndex: number): boolean {
+    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControl = fragmentControls[fragmentIndex];
+    const {type, value} = fragmentControl.value;
+    return type === 'file' && value;
+  }
+
+  onSegmentChange({detail: {value}}: CustomEvent) {
+    this.selectedSegment = value;
+  }
+
   /**
    * This method makes sure that optional controls are added or removed automatically when the exercist type changes.
    * It should guarantee that at any point in time only the needed optional controls are present.
@@ -243,12 +254,5 @@ export class SaveExerciseModalPage implements OnInit {
       type: this.formBuilder.control(type ?? '', [Validators.required]),
       value: this.formBuilder.control(value ?? '', [Validators.required, Validators.min(1)])
     });
-  }
-
-  isFileSelected(fragmentArrayName: string, fragmentIndex: number): boolean {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
-    const fragmentControl = fragmentControls[fragmentIndex];
-    const {type, value} = fragmentControl.value;
-    return type === 'file' && value;
   }
 }

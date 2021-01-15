@@ -8,66 +8,85 @@
 </ion-header>
 
 <ion-content>
-  <form *ngIf="exerciseForm" [formGroup]="exerciseForm" (ngSubmit)="saveExercise()">
-    <ion-item>
-      <ion-label>Title</ion-label>
-      <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
-    </ion-item>
+  <!-- Segments-->
+  <ion-segment mode="md" [value]="'edit'" (ionChange)="onSegmentChange($event)">
+    <ion-segment-button value="edit">
+      <ion-label>Edit</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="preview">
+      <ion-label>Preview</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 
-    <!-- All exercise fragments -->
-    <ion-list *ngFor="let fragmentType of allFragmentTypes">
-      <ion-list-header>
-        <ion-label>{{fragmentType.title}}</ion-label>
-      </ion-list-header>
-      <div [formArrayName]="fragmentType.fragmentArrayName"
-           *ngFor="let item of getFragmentControls(fragmentType.fragmentArrayName); let i = index;">
-        <div [formGroupName]="i">
-          <ion-item>
-            <ion-label>Type</ion-label>
-            <ion-select interface="popover" formControlName="type"
-                        (ionChange)="onTypeChanged(fragmentType.fragmentArrayName, i)">
-              <ion-select-option value="remove" [disabled]="!canRemoveFragment(fragmentType.fragmentArrayName)"
-                                 (selectionchange)="removeFragment(fragmentType.fragmentArrayName, i)">
-                Remove this fragment
-              </ion-select-option>
-              <ion-select-option value="text">Text</ion-select-option>
-              <ion-select-option value="file">File</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item *ngIf="item.value.type === 'text'">
-            <ion-label>Value</ion-label>
-            <ion-textarea type="text" formControlName="value" rows="4"></ion-textarea>
-          </ion-item>
-          <ion-item *ngIf="item.value.type === 'file'">
-            <ion-label>Value {{isFileSelected(fragmentType.fragmentArrayName, i) ? '(File selected)' : '(No file chosen)'}}</ion-label>
-            <ion-button type="button" ngxFilePicker (filePick)="onFileChange($event, fragmentType.fragmentArrayName, i)">Browse</ion-button>
-          </ion-item>
-
-        </div>
-      </div>
-      <ion-button type="button" expand="block" [disabled]="!canAddFragment(fragmentType.fragmentArrayName)"
-                  (click)="addFragment(fragmentType.fragmentArrayName)">{{fragmentType.addButtonText}}</ion-button>
-    </ion-list>
-
-    <!-- Extra information for special exercise types -->
-    <ion-list>
-      <ion-list-header>
-        <ion-label>Extra information</ion-label>
-      </ion-list-header>
+  <!-- Segment Contents -->
+  <ng-container *ngIf="selectedSegment === 'edit'">
+    <form *ngIf="exerciseForm" [formGroup]="exerciseForm" (ngSubmit)="saveExercise()">
       <ion-item>
-        <ion-label>Exercise type</ion-label>
-        <ion-select interface="popover" formControlName="exerciseType">
-          <ion-select-option value="standard">Standard</ion-select-option>
-          <ion-select-option value="trueOrFalse">True or False</ion-select-option>
-        </ion-select>
+        <ion-label>Title</ion-label>
+        <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
       </ion-item>
-      <ion-item *ngIf="exerciseForm.controls.isStatementCorrect">
-        <ion-label>Is Statement Correct</ion-label>
-        <ion-checkbox slot="end" formControlName="isStatementCorrect"></ion-checkbox>
-      </ion-item>
-    </ion-list>
-    <ion-button type="submit" [disabled]="!exerciseForm.valid" expand="block">
-      Save Changes
-    </ion-button>
-  </form>
+
+      <!-- All exercise fragments -->
+      <ion-list *ngFor="let fragmentType of allFragmentTypes">
+        <ion-list-header>
+          <ion-label>{{fragmentType.title}}</ion-label>
+        </ion-list-header>
+        <div [formArrayName]="fragmentType.fragmentArrayName"
+             *ngFor="let item of getFragmentControls(fragmentType.fragmentArrayName); let i = index;">
+          <div [formGroupName]="i">
+            <ion-item>
+              <ion-label>Type</ion-label>
+              <ion-select interface="popover" formControlName="type"
+                          (ionChange)="onTypeChanged(fragmentType.fragmentArrayName, i)">
+                <ion-select-option value="remove" [disabled]="!canRemoveFragment(fragmentType.fragmentArrayName)"
+                                   (selectionchange)="removeFragment(fragmentType.fragmentArrayName, i)">
+                  Remove this fragment
+                </ion-select-option>
+                <ion-select-option value="text">Text</ion-select-option>
+                <ion-select-option value="file">File</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item *ngIf="item.value.type === 'text'">
+              <ion-label>Value</ion-label>
+              <ion-textarea type="text" formControlName="value" rows="4"></ion-textarea>
+            </ion-item>
+            <ion-item *ngIf="item.value.type === 'file'">
+              <ion-label>Value {{isFileSelected(fragmentType.fragmentArrayName, i) ? '(File selected)' : '(No file chosen)'}}</ion-label>
+              <ion-button type="button" ngxFilePicker (filePick)="onFileChange($event, fragmentType.fragmentArrayName, i)">Browse</ion-button>
+            </ion-item>
+
+          </div>
+        </div>
+        <ion-button type="button" expand="block" [disabled]="!canAddFragment(fragmentType.fragmentArrayName)"
+                    (click)="addFragment(fragmentType.fragmentArrayName)">{{fragmentType.addButtonText}}</ion-button>
+      </ion-list>
+
+      <!-- Extra information for special exercise types -->
+      <ion-list>
+        <ion-list-header>
+          <ion-label>Extra information</ion-label>
+        </ion-list-header>
+        <ion-item>
+          <ion-label>Exercise type</ion-label>
+          <ion-select interface="popover" formControlName="exerciseType">
+            <ion-select-option value="standard">Standard</ion-select-option>
+            <ion-select-option value="trueOrFalse">True or False</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item *ngIf="exerciseForm.controls.isStatementCorrect">
+          <ion-label>Is Statement Correct</ion-label>
+          <ion-checkbox slot="end" formControlName="isStatementCorrect"></ion-checkbox>
+        </ion-item>
+      </ion-list>
+      <ion-button type="submit" [disabled]="!exerciseForm.valid" expand="block">
+        Save Changes
+      </ion-button>
+    </form>
+  </ng-container>
+  <ng-container *ngIf="selectedSegment === 'preview'">
+    <ng-container [ngSwitch]="exerciseForm.value.exerciseType">
+      <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exerciseForm.value"></app-true-or-false-exercise>
+      <app-standard-exercise *ngSwitchDefault [exercise]="exerciseForm.value"></app-standard-exercise>
+    </ng-container>
+  </ng-container>
 </ion-content>
