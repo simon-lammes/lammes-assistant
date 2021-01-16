@@ -15,8 +15,10 @@
     <ion-label>Answer Possibilities</ion-label>
   </ion-list-header>
   <ion-item *ngFor="let answer of usersAnswers; let i = index" [color]="getAnswerColor(answer)">
-    <ion-label>{{answer.value}}</ion-label>
-    <ion-checkbox slot="end" [value]="answer.usersEvaluation" (ionChange)="switchUsersEvaluation(i)"></ion-checkbox>
+    <ion-label>
+      <app-enriched-markdown [data]="answer.value" [files]="exercise.files"></app-enriched-markdown>
+    </ion-label>
+    <ion-checkbox slot="start" [value]="answer.usersEvaluation" (ionChange)="switchUsersEvaluation(i)"></ion-checkbox>
   </ion-item>
 </ion-list>
 

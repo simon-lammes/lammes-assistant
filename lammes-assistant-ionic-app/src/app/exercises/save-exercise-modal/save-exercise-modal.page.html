@@ -57,8 +57,8 @@
               </ion-list-header>
               <ion-item-sliding [formGroup]="answerControl" *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
                 <ion-item >
-                  <ion-input type="text" formControlName="value"></ion-input>
-                  <ion-checkbox slot="end" formControlName="correct"></ion-checkbox>
+                  <ion-textarea rows="3" formControlName="value"></ion-textarea>
+                  <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
                 </ion-item>
                 <ion-item-options side="end" (ionSwipe)="removeFile(i)">
                   <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
