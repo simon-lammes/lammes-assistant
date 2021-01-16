@@ -14,6 +14,8 @@
 <ion-content>
   <!--  Exercise -->
     <ng-container *ngIf="hydratedExercise$ | async as exercise" [ngSwitch]="exercise.exerciseType">
+      <app-multiselect-exercise *ngSwitchCase="'multiselect'" [exercise]="exercise"
+                                  (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-multiselect-exercise>
       <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exercise"
                                   (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-true-or-false-exercise>
       <app-standard-exercise *ngSwitchDefault [exercise]="exercise"

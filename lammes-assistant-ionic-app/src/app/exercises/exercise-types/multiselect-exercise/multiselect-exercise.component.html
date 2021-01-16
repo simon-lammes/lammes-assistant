@@ -1,0 +1,45 @@
+<!-- Assignment -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-title>{{exercise.title}}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.assignment" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- Answer Possibilities -->
+<ion-list>
+  <ion-list-header>
+    <ion-label>Answer Possibilities</ion-label>
+  </ion-list-header>
+  <ion-item *ngFor="let answer of usersAnswers; let i = index" [color]="getAnswerColor(answer)">
+    <ion-label>{{answer.value}}</ion-label>
+    <ion-checkbox slot="end" [value]="answer.usersEvaluation" (ionChange)="switchUsersEvaluation(i)"></ion-checkbox>
+  </ion-item>
+</ion-list>
+
+<!-- Submit -->
+<ng-container *ngIf="!exerciseResult">
+  <ion-button color="primary" style="flex: 1" (click)="submit()" expand="block">
+    Submit
+  </ion-button>
+</ng-container>
+
+<!-- Solution -->
+<ion-card *ngIf="exerciseResult">
+  <ion-card-header>
+    <ion-card-subtitle>Solution</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- Request next exercise -->
+<ng-container *ngIf="exerciseResult">
+  <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()" expand="block">
+    Next Exercise
+  </ion-button>
+</ng-container>

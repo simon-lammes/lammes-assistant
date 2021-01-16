@@ -105,6 +105,15 @@ export const CustomFile = nonNull(inputObjectType({
   },
 }));
 
+export const PossibleAnswer = nonNull(inputObjectType({
+  name: 'PossibleAnswer',
+  description: 'For exercise type "multiselect"',
+  definition(t) {
+    t.nonNull.string('value');
+    t.nonNull.boolean('correct');
+  },
+}));
+
 const Experience = objectType({
   name: 'Experience',
   definition(t) {
@@ -124,7 +133,7 @@ const ExerciseResult = enumType({
 
 const ExerciseType = enumType({
   name: 'ExerciseType',
-  members: ['standard', 'trueOrFalse']
+  members: ['standard', 'multiselect', 'trueOrFalse']
 });
 
 const Query = objectType({
@@ -297,7 +306,8 @@ const Mutation = objectType({
         solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
         files: nonNull(list(arg({type: CustomFile}))),
-        isStatementCorrect: nullable(booleanArg())
+        isStatementCorrect: nullable(booleanArg()),
+        possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);
@@ -313,6 +323,7 @@ const Mutation = objectType({
         exerciseType: nonNull(arg({type: ExerciseType})),
         files: nonNull(list(arg({type: CustomFile}))),
         isStatementCorrect: nullable(booleanArg()),
+        possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
       },
       resolve: (root, args, context) => {
         return updateExercise(context, args);

@@ -4,15 +4,18 @@ import {StandardExerciseComponent} from './standard-exercise/standard-exercise.c
 import {IonicModule} from '@ionic/angular';
 import {TrueOrFalseExerciseComponent} from './true-or-false-exercise/true-or-false-exercise.component';
 import {EnrichedMarkdownModule} from '../../shared/enriched-markdown/enriched-markdown.module';
+import {MultiselectExerciseComponent} from './multiselect-exercise/multiselect-exercise.component';
 
 @NgModule({
   declarations: [
     StandardExerciseComponent,
-    TrueOrFalseExerciseComponent
+    TrueOrFalseExerciseComponent,
+    MultiselectExerciseComponent
   ],
   exports: [
     StandardExerciseComponent,
-    TrueOrFalseExerciseComponent
+    TrueOrFalseExerciseComponent,
+    MultiselectExerciseComponent
   ],
   imports: [
     CommonModule,

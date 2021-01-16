@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
 
-export type ExerciseType = 'standard' | 'trueOrFalse';
+export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect';
 
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
@@ -16,6 +16,11 @@ export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 export interface CustomFile {
   name: string;
   value: string;
+}
+
+export interface PossibleAnswer {
+  value: string;
+  correct: boolean;
 }
 
 /**
@@ -30,6 +35,7 @@ export interface HydratedExercise {
   solution: string;
   exerciseType: ExerciseType;
   isStatementCorrect?: boolean;
+  possibleAnswers: PossibleAnswer[];
   files: CustomFile[];
 }
 
@@ -99,8 +105,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]!) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
       ...ExerciseFragment
     }
   },
@@ -108,8 +114,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]!) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
       ...ExerciseFragment
     }
   },

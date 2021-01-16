@@ -33,6 +33,7 @@ enum ExerciseResult {
 }
 
 enum ExerciseType {
+  multiselect
   standard
   trueOrFalse
 }
@@ -46,7 +47,7 @@ type Experience {
 }
 
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -62,7 +63,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
 type Note {
@@ -79,6 +80,14 @@ type Note {
 
 input NoteWhereUniqueInput {
   id: Int
+}
+
+"""
+For exercise type "multiselect"
+"""
+input PossibleAnswer {
+  correct: Boolean!
+  value: String!
 }
 
 type Query {

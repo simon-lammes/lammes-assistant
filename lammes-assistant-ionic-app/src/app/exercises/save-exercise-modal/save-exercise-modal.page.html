@@ -50,12 +50,31 @@
               <ion-label>{{exerciseControl.title}}</ion-label>
               <ion-checkbox slot="end" [formControlName]="exerciseControl.controlName"></ion-checkbox>
             </ion-item>
+            <!-- Possible Answers -->
+            <ion-list *ngSwitchCase="'possibleAnswers'" formArrayName="possibleAnswers">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title}}</ion-label>
+              </ion-list-header>
+              <ion-item-sliding [formGroup]="answerControl" *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
+                <ion-item >
+                  <ion-input type="text" formControlName="value"></ion-input>
+                  <ion-checkbox slot="end" formControlName="correct"></ion-checkbox>
+                </ion-item>
+                <ion-item-options side="end" (ionSwipe)="removeFile(i)">
+                  <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    Remove
+                  </ion-item-option>
+                </ion-item-options>
+              </ion-item-sliding>
+              <ion-button type="button" (click)="addAnswer()">Add Answer</ion-button>
+            </ion-list>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
               <ion-list-header>
                 <ion-label>{{exerciseControl.title}}</ion-label>
               </ion-list-header>
-              <ion-item-sliding *ngFor="let fileControl of getFileControls(); let i = index">
+              <ion-item-sliding *ngFor="let fileControl of getArrayControls('files'); let i = index">
                 <!-- Actual item -->
                 <ion-item >
                   <ion-label>{{fileControl.value.name}}</ion-label>
@@ -85,6 +104,7 @@
   <!--  Preview-->
   <ng-container *ngIf="selectedSegment === 'preview'">
     <ng-container [ngSwitch]="exerciseForm.value.exerciseType">
+      <app-multiselect-exercise *ngSwitchCase="'multiselect'" [exercise]="exerciseForm.value"></app-multiselect-exercise>
       <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exerciseForm.value"></app-true-or-false-exercise>
       <app-standard-exercise *ngSwitchDefault [exercise]="exerciseForm.value"></app-standard-exercise>
     </ng-container>

@@ -21,6 +21,7 @@ export class EnrichedMarkdownComponent {
    * images in Markdown. We use this mechanism to enable the user to reference his custom files.
    */
   getEnrichedMarkdown() {
-    return [this.data, ...this.files.map(file => `[${file.name}]: ${file.value}`)].join('\n\n');
+    const files = this.files ?? [];
+    return [this.data, ...files.map(file => `[${file.name}]: ${file.value}`)].join('\n\n');
   }
 }

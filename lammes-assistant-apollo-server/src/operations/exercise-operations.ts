@@ -12,13 +12,21 @@ export interface CustomFile {
   value: string;
 }
 
+export interface PossibleAnswer {
+  value: string;
+  correct: boolean;
+}
+
+export type ExerciseType = 'standard' | 'multiselect' | 'trueOrFalse';
+
 export interface CreateExerciseInput {
   title: string;
   assignment: string;
   solution: string;
-  exerciseType: 'standard' | 'trueOrFalse';
+  exerciseType: ExerciseType;
   files: CustomFile[];
   isStatementCorrect?: boolean | null;
+  possibleAnswers?: PossibleAnswer[] | null;
 }
 
 export interface UpdateExerciseInput {
@@ -26,9 +34,10 @@ export interface UpdateExerciseInput {
   title: string;
   assignment: string;
   solution: string;
-  exerciseType: 'standard' | 'trueOrFalse';
+  exerciseType: ExerciseType;
   files: CustomFile[];
   isStatementCorrect?: boolean | null;
+  possibleAnswers?: PossibleAnswer[] | null;
 }
 
 /**
@@ -47,6 +56,7 @@ interface HydratedExercise {
   files: CustomFile[];
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
+  possibleAnswers?: PossibleAnswer[];
 }
 
 export async function createExercise(context: Context, {
@@ -55,7 +65,8 @@ export async function createExercise(context: Context, {
   solution,
   exerciseType,
   isStatementCorrect,
-  files
+  files,
+  possibleAnswers
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -96,7 +107,8 @@ export async function createExercise(context: Context, {
     solution,
     exerciseType,
     isStatementCorrect,
-    files
+    files,
+    possibleAnswers
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
@@ -116,7 +128,8 @@ export async function updateExercise(context: Context, {
   solution,
   exerciseType,
   isStatementCorrect,
-  files
+  files,
+  possibleAnswers
 }: UpdateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -138,7 +151,8 @@ export async function updateExercise(context: Context, {
     solution,
     exerciseType,
     isStatementCorrect,
-    files
+    files,
+    possibleAnswers
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",

@@ -18,7 +18,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers';
   title: string;
   controlName: string;
   /**
@@ -67,6 +67,7 @@ export class SaveExerciseModalPage implements OnInit {
       type: 'select',
       selectOptions: [
         {value: 'standard', displayValue: 'Standard'},
+        {value: 'multiselect', displayValue: 'Multi-select'},
         {value: 'trueOrFalse', displayValue: 'True or False'}
       ],
       controlBuilder: (exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
@@ -77,6 +78,19 @@ export class SaveExerciseModalPage implements OnInit {
       controlName: 'isStatementCorrect',
       exerciseTypes: ['trueOrFalse'],
       controlBuilder: (exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
+    },
+    {
+      title: 'Possible Answers',
+      type: 'possibleAnswers',
+      controlName: 'possibleAnswers',
+      exerciseTypes: ['multiselect'],
+      controlBuilder: (exercise) => {
+        const possibleAnswers = exercise?.possibleAnswers ?? [];
+        return this.formBuilder.array(possibleAnswers.map((answer) => this.formBuilder.group({
+          value: this.formBuilder.control(answer.value),
+          correct: this.formBuilder.control(answer.correct)
+        })), [Validators.required]);
+      }
     },
     {
       title: 'Files',
@@ -117,9 +131,9 @@ export class SaveExerciseModalPage implements OnInit {
     await this.modalController.dismiss();
   }
 
-  getFileControls() {
-    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
-    return filesArrayControl.controls;
+  getArrayControls(formArrayName: string) {
+    const filesArrayControl = this.exerciseForm.controls[formArrayName] as FormArray;
+    return filesArrayControl.controls as FormGroup[];
   }
 
   async saveExercise() {
@@ -241,5 +255,13 @@ export class SaveExerciseModalPage implements OnInit {
   removeFile(index: number) {
     const filesArrayControl = this.exerciseForm.controls.files as FormArray;
     filesArrayControl.removeAt(index);
+  }
+
+  addAnswer() {
+    const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
+    possibleAnswersArrayControl.push(this.formBuilder.group({
+      value: this.formBuilder.control(''),
+      correct: this.formBuilder.control(false)
+    }));
   }
 }
