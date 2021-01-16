@@ -1,10 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
 import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {ReadFile} from 'ngx-file-helpers';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 
 /**
@@ -18,13 +17,9 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'fragmentArray' | 'text' | 'select' | 'checkbox';
+  type: 'textarea' | 'text' | 'select' | 'checkbox';
   title: string;
   controlName: string;
-  /**
-   * Only specified for type 'fragmentArray'.
-   */
-  addButtonText?: string;
   /**
    * Only specified for type 'select'.
    */
@@ -45,7 +40,7 @@ interface ExerciseControl {
   styleUrls: ['./save-exercise-modal.page.scss'],
 })
 export class SaveExerciseModalPage implements OnInit {
-  readonly ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/svg+xml'];
+  readonly ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml'];
   readonly allExerciseControls: ExerciseControl[] = [
     {
       title: 'Title',
@@ -54,22 +49,16 @@ export class SaveExerciseModalPage implements OnInit {
       controlBuilder: (exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.min(1)])
     },
     {
-      title: 'Assignment Fragments',
-      type: 'fragmentArray',
-      controlName: 'assignmentFragments',
-      addButtonText: 'Add assignment fragment',
-      controlBuilder: exercise => this.formBuilder.array(exercise?.assignmentFragments.length > 0
-        ? exercise.assignmentFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
-        : [this.createFragmentFormGroup()])
+      title: 'Assignment',
+      type: 'textarea',
+      controlName: 'assignment',
+      controlBuilder: exercise => this.formBuilder.control(exercise?.assignment ?? '', [Validators.required, Validators.min(1)])
     },
     {
-      title: 'Solution Fragments',
-      type: 'fragmentArray',
-      controlName: 'solutionFragments',
-      addButtonText: 'Add solution fragment',
-      controlBuilder: exercise => this.formBuilder.array(exercise?.solutionFragments.length > 0
-        ? exercise.solutionFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
-        : [this.createFragmentFormGroup()])
+      title: 'Solution',
+      type: 'textarea',
+      controlName: 'solution',
+      controlBuilder: exercise => this.formBuilder.control(exercise?.solution ?? '', [Validators.required, Validators.min(1)])
     },
     {
       title: 'ExerciseType',
@@ -110,11 +99,6 @@ export class SaveExerciseModalPage implements OnInit {
     await this.setupForm();
   }
 
-  getControlsOfFormArray(formArrayControlName: string): FormGroup[] {
-    const fragmentsArray = this.exerciseForm.get(formArrayControlName) as FormArray;
-    return fragmentsArray.controls as FormGroup[];
-  }
-
   async dismissModal() {
     await this.modalController.dismiss();
   }
@@ -137,86 +121,6 @@ export class SaveExerciseModalPage implements OnInit {
 
   trim(formControl: AbstractControl) {
     this.customFormsService.trimAndRemoveNeighboringWhitespaces(formControl);
-  }
-
-  /**
-   * Whenever, the user selects a file, this method converts this file to base64 and integrates it into the form's value.
-   */
-  async onFileChange(event: ReadFile, fragmentArrayName: string, fragmentIndex: number) {
-    const type = event.type;
-    const fileAsBase64 = event.content;
-    // Short circuit when the user did not select any files.
-    if (!fileAsBase64) {
-      return;
-    }
-    if (!this.ALLOWED_FILE_TYPES.includes(type)) {
-      await this.showHint(`File type ${type} is not supported. If you feel like this file type should be supported, you can create a unique issue in GitHub repository for this project.`);
-      return;
-    }
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    const fragmentControl = fragmentControls[fragmentIndex];
-    fragmentControl.controls.value.patchValue(fileAsBase64);
-  }
-
-  addFragment(fragmentArrayName: string) {
-    const fragmentsArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
-    fragmentsArray.push(this.createFragmentFormGroup());
-  }
-
-  /**
-   * The idea of fragments is that the user can add as much fragments as he needs. However, adding a fragment only makes sense when all
-   * existing fragments are used, or to be precise, filled with values.
-   */
-  canAddFragment(fragmentArrayName: string) {
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    return fragmentControls.every(control => control.value.type && control.value.value);
-  }
-
-  /**
-   * When the user changes the type of a fragment, we want to reset value. Otherwise, we could end up with inconsistent state.
-   *
-   * @example
-   * {type: "file", value: "I am a text, but I should be a file."}
-   */
-  resetFragmentControlValue(fragmentArrayName: string, fragmentIndex: number) {
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    const fragmentControl = fragmentControls[fragmentIndex];
-    fragmentControl.controls.value.patchValue('');
-  }
-
-  removeFragment(fragmentArrayName: string, fragmentIndex: number) {
-    const fragmentArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
-    fragmentArray.removeAt(fragmentIndex);
-  }
-
-  /**
-   * Reacts to the event of the user changing a fragments type.
-   */
-  onTypeChanged(fragmentArrayName: string, fragmentIndex: number) {
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    const fragmentControl = fragmentControls[fragmentIndex];
-    const selectedType = fragmentControl.value.type;
-    if (selectedType === 'remove') {
-      this.removeFragment(fragmentArrayName, fragmentIndex);
-    } else {
-      this.resetFragmentControlValue(fragmentArrayName, fragmentIndex);
-    }
-  }
-
-  /**
-   * Removing fragments makes only sense when there multiple of them. If a fragment array had 0 elements,
-   * the state of the form would not make sense.
-   */
-  canRemoveFragment(fragmentArrayName: string) {
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    return fragmentControls.length > 1;
-  }
-
-  isFileSelected(fragmentArrayName: string, fragmentIndex: number): boolean {
-    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
-    const fragmentControl = fragmentControls[fragmentIndex];
-    const {type, value} = fragmentControl.value;
-    return type === 'file' && value;
   }
 
   onSegmentChange({detail: {value}}: CustomEvent) {
@@ -263,12 +167,5 @@ export class SaveExerciseModalPage implements OnInit {
       position: 'top'
     });
     await toast.present();
-  }
-
-  private createFragmentFormGroup(type?: string, value?: string) {
-    return this.formBuilder.group({
-      type: this.formBuilder.control(type ?? '', [Validators.required]),
-      value: this.formBuilder.control(value ?? '', [Validators.required, Validators.min(1)])
-    });
   }
 }

@@ -7,15 +7,10 @@ import {ExerciseCooldown} from "./settings-operations";
 import {generateAuthorizationError} from "../custom-errors/authorization-error";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
 
-interface ExerciseFragment {
-  type: string;
-  value: string;
-}
-
 export interface CreateExerciseInput {
   title: string;
-  assignmentFragments: (ExerciseFragment | null)[];
-  solutionFragments: (ExerciseFragment | null)[];
+  assignment: string;
+  solution: string;
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean | null;
 }
@@ -23,8 +18,8 @@ export interface CreateExerciseInput {
 export interface UpdateExerciseInput {
   id: number;
   title: string;
-  assignmentFragments: (ExerciseFragment | null)[];
-  solutionFragments: (ExerciseFragment | null)[];
+  assignment: string;
+  solution: string;
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean | null;
 }
@@ -40,16 +35,16 @@ interface HydratedExercise {
    */
   versionTimestamp: string;
   title: string;
-  assignmentFragments: ExerciseFragment[];
-  solutionFragments: ExerciseFragment[];
+  assignment: string;
+  solution: string;
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
 }
 
 export async function createExercise(context: Context, {
   title,
-  assignmentFragments,
-  solutionFragments,
+  assignment,
+  solution,
   exerciseType,
   isStatementCorrect
 }: CreateExerciseInput): Promise<Exercise> {
@@ -62,9 +57,6 @@ export async function createExercise(context: Context, {
   }
   if (title.includes('  ') || title.startsWith(' ') || title.endsWith(' ')) {
     throw generateUnnecessaryWhitespacesError('title');
-  }
-  if (assignmentFragments.some(fragment => !fragment?.type || !fragment?.value) || solutionFragments.some(fragment => !fragment?.type || !fragment?.value)) {
-    throw new UserInputError('All fragments should have a not empty type and a not empty value.');
   }
   const versionTimestamp = new Date();
   const exercise: Exercise = await context.prisma.exercise.create({
@@ -91,8 +83,8 @@ export async function createExercise(context: Context, {
     id: exercise.id,
     versionTimestamp: versionTimestamp.toISOString(),
     title,
-    assignmentFragments,
-    solutionFragments,
+    assignment,
+    solution,
     exerciseType,
     isStatementCorrect
   } as HydratedExercise;
@@ -110,17 +102,14 @@ export async function createExercise(context: Context, {
 export async function updateExercise(context: Context, {
   id,
   title,
-  assignmentFragments,
-  solutionFragments,
+  assignment,
+  solution,
   exerciseType,
   isStatementCorrect
 }: UpdateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You need to be authenticated.');
-  }
-  if (assignmentFragments.some(fragment => !fragment?.type || !fragment?.value) || solutionFragments.some(fragment => !fragment?.type || !fragment?.value)) {
-    throw new UserInputError('All fragments should have a not empty type and a not empty value.');
   }
   const exercise = await context.prisma.exercise.findFirst({where: {id}});
   if (!exercise) {
@@ -134,8 +123,8 @@ export async function updateExercise(context: Context, {
     id,
     versionTimestamp: versionTimestamp.toISOString(),
     title,
-    assignmentFragments,
-    solutionFragments,
+    assignment,
+    solution,
     exerciseType,
     isStatementCorrect
   } as HydratedExercise;

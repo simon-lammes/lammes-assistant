@@ -7,8 +7,6 @@ import {IonicModule} from '@ionic/angular';
 import {StudyPageRoutingModule} from './study-routing.module';
 
 import {StudyPage} from './study.page';
-import {PdfViewerModule} from 'ng2-pdf-viewer';
-import {ExerciseFragmentModule} from '../exercise-fragment/exercise-fragment.module';
 import {StudyPopoverModule} from './study-popover/study-popover.module';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
 
@@ -18,8 +16,6 @@ import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
     FormsModule,
     IonicModule,
     StudyPageRoutingModule,
-    PdfViewerModule,
-    ExerciseFragmentModule,
     StudyPopoverModule,
     ExerciseTypesModule
   ],

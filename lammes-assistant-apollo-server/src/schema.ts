@@ -4,7 +4,6 @@ import {
   enumType,
   inputObjectType,
   intArg,
-  list,
   makeSchema,
   nonNull,
   nullable,
@@ -75,14 +74,6 @@ const Registration = objectType({
       type: "User"
     });
   }
-});
-
-export const ExerciseFragment = inputObjectType({
-  name: 'ExerciseFragment',
-  definition(t) {
-    t.nonNull.string('value');
-    t.nonNull.string('type');
-  },
 });
 
 export const ExerciseCooldown = inputObjectType({
@@ -294,8 +285,8 @@ const Mutation = objectType({
       type: "Exercise",
       args: {
         title: nonNull(stringArg()),
-        assignmentFragments: nonNull(list(ExerciseFragment)),
-        solutionFragments: nonNull(list(ExerciseFragment)),
+        assignment: nonNull(stringArg()),
+        solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
         isStatementCorrect: nullable(booleanArg())
       },
@@ -308,8 +299,8 @@ const Mutation = objectType({
       args: {
         id: nonNull(intArg()),
         title: nonNull(stringArg()),
-        assignmentFragments: nonNull(list(ExerciseFragment)),
-        solutionFragments: nonNull(list(ExerciseFragment)),
+        assignment: nonNull(stringArg()),
+        solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
         isStatementCorrect: nullable(booleanArg())
       },

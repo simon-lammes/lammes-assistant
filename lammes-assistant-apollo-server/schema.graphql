@@ -19,11 +19,6 @@ input ExerciseCooldown {
   minutes: Int!
 }
 
-input ExerciseFragment {
-  type: String!
-  value: String!
-}
-
 """
 Results describing how a learner coped with an exercise. Through the use of an enum we make sure that further characteristics can easily added in the future.
 """
@@ -46,7 +41,7 @@ type Experience {
 }
 
 type Mutation {
-  createExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -62,7 +57,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
 }
 
 type Note {

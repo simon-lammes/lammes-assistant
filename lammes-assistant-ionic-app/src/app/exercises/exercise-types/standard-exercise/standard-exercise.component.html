@@ -4,8 +4,9 @@
     <ion-card-subtitle>Assignment</ion-card-subtitle>
     <ion-card-title>{{exercise.title}}</ion-card-title>
   </ion-card-header>
-  <app-exercise-fragment *ngFor="let fragment of exercise.assignmentFragments"
-                         [fragment]="fragment"></app-exercise-fragment>
+  <ion-card-content>
+    <markdown [data]="exercise.assignment"></markdown>
+  </ion-card-content>
 </ion-card>
 <ion-button *ngIf="!isSolutionVisible && exercise.exerciseType === 'standard'"
             expand="block" color="primary" (click)="showSolution()">
@@ -17,8 +18,9 @@
   <ion-card-header>
     <ion-card-subtitle>Solution</ion-card-subtitle>
   </ion-card-header>
-  <app-exercise-fragment *ngFor="let fragment of exercise.solutionFragments"
-                         [fragment]="fragment"></app-exercise-fragment>
+  <ion-card-content>
+    <markdown [data]="exercise.solution"></markdown>
+  </ion-card-content>
 </ion-card>
 
 <!-- Review -->

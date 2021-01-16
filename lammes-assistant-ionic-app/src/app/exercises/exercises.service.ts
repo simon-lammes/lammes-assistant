@@ -11,15 +11,6 @@ export type ExerciseType = 'standard' | 'trueOrFalse';
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
 /**
- * The idea is that an parts of an exercise can consist of different "fragment". For example as an assignment, you could have
- * a short assignment text followed by a little graphic in pdf format.
- */
-export interface ExerciseFragment {
-  type: 'text' | 'file';
-  value: string;
-}
-
-/**
  * A heavier type than a regular exercise. This type can consist binary files associated with the exercise and is therefore not
  * saved in a relational database.
  */
@@ -27,8 +18,8 @@ export interface HydratedExercise {
   id: number;
   title: string;
   versionTimestamp: string;
-  assignmentFragments: ExerciseFragment[];
-  solutionFragments: ExerciseFragment[];
+  assignment: string;
+  solution: string;
   exerciseType: ExerciseType;
   isStatementCorrect?: boolean;
 }
@@ -99,8 +90,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    createExercise(title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },
@@ -108,8 +99,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    updateExercise(id: $id, title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },

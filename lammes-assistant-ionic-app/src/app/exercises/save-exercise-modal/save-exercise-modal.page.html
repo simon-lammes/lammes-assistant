@@ -26,40 +26,11 @@
       <ng-container *ngFor="let exerciseControl of allExerciseControls">
         <ng-container *ngIf="exerciseForm.contains(exerciseControl.controlName)">
           <ng-container [ngSwitch]="exerciseControl.type">
-            <!-- Fragment Array-->
-            <ion-list *ngSwitchCase="'fragmentArray'">
-              <ion-list-header>
-                <ion-label>{{exerciseControl.title}}</ion-label>
-              </ion-list-header>
-              <div [formArrayName]="exerciseControl.controlName"
-                   *ngFor="let item of getControlsOfFormArray(exerciseControl.controlName); let i = index;">
-                <div [formGroupName]="i">
-                  <ion-item>
-                    <ion-label>Type</ion-label>
-                    <ion-select interface="popover" formControlName="type"
-                                (ionChange)="onTypeChanged(exerciseControl.controlName, i)">
-                      <ion-select-option value="remove" [disabled]="!canRemoveFragment(exerciseControl.controlName)"
-                                         (selectionchange)="removeFragment(exerciseControl.controlName, i)">
-                        Remove this fragment
-                      </ion-select-option>
-                      <ion-select-option value="text">Text</ion-select-option>
-                      <ion-select-option value="file">File</ion-select-option>
-                    </ion-select>
-                  </ion-item>
-                  <ion-item *ngIf="item.value.type === 'text'">
-                    <ion-label>Value</ion-label>
-                    <ion-textarea type="text" formControlName="value" rows="4"></ion-textarea>
-                  </ion-item>
-                  <ion-item *ngIf="item.value.type === 'file'">
-                    <ion-label>Value {{isFileSelected(exerciseControl.controlName, i) ? '(File selected)' : '(No file chosen)'}}</ion-label>
-                    <ion-button type="button" ngxFilePicker (filePick)="onFileChange($event, exerciseControl.controlName, i)">Browse</ion-button>
-                  </ion-item>
-
-                </div>
-              </div>
-              <ion-button type="button" expand="block" [disabled]="!canAddFragment(exerciseControl.controlName)"
-                          (click)="addFragment(exerciseControl.controlName)">{{exerciseControl.addButtonText}}</ion-button>
-            </ion-list>
+            <!-- Textarea -->
+            <ion-item *ngSwitchCase="'textarea'">
+              <ion-label>{{exerciseControl.title}}</ion-label>
+              <ion-textarea rows="4" [formControlName]="exerciseControl.controlName" (ionBlur)="trim(exerciseForm.controls[exerciseControl.controlName])"></ion-textarea>
+            </ion-item>
             <!-- Text -->
             <ion-item *ngSwitchCase="'text'">
               <ion-label>{{exerciseControl.title}}</ion-label>
