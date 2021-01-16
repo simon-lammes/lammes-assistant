@@ -40,7 +40,6 @@ model Exercise {
   versionTimestamp           DateTime     @map("version_timestamp")
   title                      String
   creatorId                  Int          @map("creator_id")
-  key                        String       @unique
   markedForDeletionTimestamp DateTime?    @map("marked_for_deletion_timestamp")
   creator                    User         @relation("exercisesToUsers", fields: [creatorId], references: [id])
   experiences                Experience[] @relation("exercisesToExperiences")

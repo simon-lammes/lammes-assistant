@@ -13,14 +13,12 @@
 
 <ion-content>
   <!--  Exercise -->
-  <ng-container *ngIf="experience$ | async as experience">
     <ng-container *ngIf="hydratedExercise$ | async as exercise" [ngSwitch]="exercise.exerciseType">
       <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exercise"
-                                  (exerciseStateChanged)="onExerciseStateChanged(experience, $event)"></app-true-or-false-exercise>
+                                  (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-true-or-false-exercise>
       <app-standard-exercise *ngSwitchDefault [exercise]="exercise"
-                             (exerciseStateChanged)="onExerciseStateChanged(experience, $event)"></app-standard-exercise>
+                             (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-standard-exercise>
     </ng-container>
-  </ng-container>
 
   <!-- No exercise to show -->
   <ng-container *ngIf="!(hydratedExercise$ | async)">

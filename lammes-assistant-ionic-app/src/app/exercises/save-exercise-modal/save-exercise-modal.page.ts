@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
-import {CreateExerciseResult, Exercise, ExercisesService} from '../exercises.service';
+import {Exercise, ExercisesService} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {ReadFile} from 'ngx-file-helpers';
 
@@ -88,11 +88,6 @@ export class SaveExerciseModalPage implements OnInit {
         ? editedHydratedExercise.solutionFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
         : [this.createFragmentFormGroup()])
     });
-    // Changing the title of an already created exercise would require us to change its key everywhere.
-    // As this is complicated, it is not allowed yet.
-    if (this.editedExercise) {
-      this.exerciseForm.controls.title.disable();
-    }
     this.setupOptionalControls();
   }
 
@@ -116,15 +111,11 @@ export class SaveExerciseModalPage implements OnInit {
       });
       await this.dismissModal();
     } else {
-      const result = await this.exercisesService.createExercise(this.exerciseForm.value);
-      switch (result) {
-        case CreateExerciseResult.Success:
-          await this.dismissModal();
-          break;
-        case CreateExerciseResult.Conflict:
-          await this.showHint('Please change your title because the current title conflicts with an already existing exercise.');
-          break;
-      }
+      await this.exercisesService.createExercise(this.exerciseForm.value);
+      await Promise.all([
+        this.showHint('Exercise created', 'primary', 2000),
+        this.dismissModal()
+      ]);
     }
   }
 
@@ -234,10 +225,11 @@ export class SaveExerciseModalPage implements OnInit {
     });
   }
 
-  private async showHint(message: string) {
+  private async showHint(message: string, color = 'warning', duration?: number) {
     const toast = await this.toastController.create({
       header: message,
-      color: 'warning',
+      color,
+      duration,
       buttons: [
         {
           icon: 'close-outline',

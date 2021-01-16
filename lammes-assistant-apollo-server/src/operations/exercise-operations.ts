@@ -2,7 +2,6 @@ import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
 import {Exercise} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
-import {generateConflictError} from "../custom-errors/collision-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
 import {generateAuthorizationError} from "../custom-errors/authorization-error";
@@ -23,6 +22,7 @@ export interface CreateExerciseInput {
 
 export interface UpdateExerciseInput {
   id: number;
+  title: string;
   assignmentFragments: (ExerciseFragment | null)[];
   solutionFragments: (ExerciseFragment | null)[];
   exerciseType: 'standard' | 'trueOrFalse';
@@ -34,7 +34,7 @@ export interface UpdateExerciseInput {
  * in the relational database while an "Hydrated Exercise" is a storage-intensive object saved in DigitalOcean Spaces.
  */
 interface HydratedExercise {
-
+  id: number;
   /**
    * Should be usable to determine whether an exercise changed without looking into the "storage-intensive" parts of the exercise.
    */
@@ -44,19 +44,6 @@ interface HydratedExercise {
   solutionFragments: ExerciseFragment[];
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
-}
-
-/**
- * Using the exercise title, this method creates an identifying key for the exercise following a standardized procedure.
- * This key can be used to create a folder that contains all of the exercises files.
- */
-function createKeyForExercise(exerciseTitle: string) {
-  const matchAllWhitespaces = /\s+/g;
-  const matchAllIgnoredCharacters = /[^a-zA-Z0-9-\s]/g;
-  // Prefix 'c_' stands for custom because the exercise is tied to one user.
-  return 'c-' + exerciseTitle.toLowerCase()
-    .replace(matchAllIgnoredCharacters, '')
-    .replace(matchAllWhitespaces, '-');
 }
 
 export async function createExercise(context: Context, {
@@ -79,36 +66,10 @@ export async function createExercise(context: Context, {
   if (assignmentFragments.some(fragment => !fragment?.type || !fragment?.value) || solutionFragments.some(fragment => !fragment?.type || !fragment?.value)) {
     throw new UserInputError('All fragments should have a not empty type and a not empty value.');
   }
-  const exerciseKey = createKeyForExercise(title);
-  const doesConflictingExerciseExist = await context.prisma.exercise.count({
-    where: {
-      key: exerciseKey
-    }
-  }).then(count => count > 0);
-  if (doesConflictingExerciseExist) {
-    throw generateConflictError('For the given exercise title, we cannot create unique key that is not yet used for another exercise.');
-  }
   const versionTimestamp = new Date();
-  const hydratedExercise = {
-    versionTimestamp: versionTimestamp.toISOString(),
-    title,
-    assignmentFragments,
-    solutionFragments,
-    exerciseType,
-    isStatementCorrect
-  } as HydratedExercise;
-  const upload = context.spacesClient.putObject({
-    Bucket: "lammes-assistant-space",
-    Key: `exercises/${exerciseKey}.json`,
-    Body: JSON.stringify(hydratedExercise),
-    ContentType: "application/json",
-    ACL: "private"
-  });
-  await upload.promise();
-  return context.prisma.exercise.create({
+  const exercise: Exercise = await context.prisma.exercise.create({
     data: {
       title,
-      key: exerciseKey,
       versionTimestamp: versionTimestamp.toISOString(),
       creator: {
         connect: {id: userId}
@@ -126,10 +87,29 @@ export async function createExercise(context: Context, {
       }
     }
   });
+  const hydratedExercise = {
+    id: exercise.id,
+    versionTimestamp: versionTimestamp.toISOString(),
+    title,
+    assignmentFragments,
+    solutionFragments,
+    exerciseType,
+    isStatementCorrect
+  } as HydratedExercise;
+  const upload = context.spacesClient.putObject({
+    Bucket: "lammes-assistant-space",
+    Key: `exercises/exercise-${exercise.id}.json`,
+    Body: JSON.stringify(hydratedExercise),
+    ContentType: "application/json",
+    ACL: "private"
+  });
+  await upload.promise();
+  return exercise;
 }
 
 export async function updateExercise(context: Context, {
   id,
+  title,
   assignmentFragments,
   solutionFragments,
   exerciseType,
@@ -151,8 +131,9 @@ export async function updateExercise(context: Context, {
   }
   const versionTimestamp = new Date();
   const hydratedExercise = {
+    id,
     versionTimestamp: versionTimestamp.toISOString(),
-    title: exercise.title,
+    title,
     assignmentFragments,
     solutionFragments,
     exerciseType,
@@ -160,7 +141,7 @@ export async function updateExercise(context: Context, {
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
-    Key: `exercises/${exercise.key}.json`,
+    Key: `exercises/exercise-${exercise.id}.json`,
     Body: JSON.stringify(hydratedExercise),
     ContentType: "application/json",
     ACL: "private"
@@ -171,6 +152,7 @@ export async function updateExercise(context: Context, {
       id
     },
     data: {
+      title,
       versionTimestamp: versionTimestamp.toISOString(),
     }
   });
@@ -227,19 +209,19 @@ export async function fetchMyNextExperience(context: Context, exerciseCooldown: 
   });
 }
 
-export async function getExerciseDownloadLink(context: Context, exerciseKey: string): Promise<any> {
+export async function getExerciseDownloadLink(context: Context, exerciseId: number): Promise<any> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You must be authenticated.');
   }
   return context.spacesClient.getSignedUrl('getObject', {
     Bucket: "lammes-assistant-space",
-    Key: `exercises/${exerciseKey}.json`,
+    Key: `exercises/exercise-${exerciseId}.json`,
     Expires: 60
   });
 }
 
-export async function registerExerciseExperience(context: Context, exerciseKey: string, exerciseResult: 'FAILURE' | 'SUCCESS'): Promise<any> {
+export async function registerExerciseExperience(context: Context, exerciseId: number, exerciseResult: 'FAILURE' | 'SUCCESS'): Promise<any> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You must be authenticated.');
@@ -248,7 +230,7 @@ export async function registerExerciseExperience(context: Context, exerciseKey: 
     where: {
       learnerId: userId,
       exercise: {
-        key: exerciseKey
+        id: exerciseId
       }
     }
   });

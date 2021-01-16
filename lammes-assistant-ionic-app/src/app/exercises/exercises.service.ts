@@ -1,16 +1,10 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {first, map, switchMap, tap} from 'rxjs/operators';
-import {GraphQLError} from 'graphql';
 import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
-
-export enum CreateExerciseResult {
-  Success,
-  Conflict
-}
 
 export type ExerciseType = 'standard' | 'trueOrFalse';
 
@@ -30,6 +24,7 @@ export interface ExerciseFragment {
  * saved in a relational database.
  */
 export interface HydratedExercise {
+  id: number;
   title: string;
   versionTimestamp: string;
   assignmentFragments: ExerciseFragment[];
@@ -41,7 +36,6 @@ export interface HydratedExercise {
 export interface Exercise {
   id: number;
   title: string;
-  key: string;
   versionTimestamp: string;
   markedForDeletionTimestamp: string;
 }
@@ -67,7 +61,6 @@ const exerciseFragment = gql`
   fragment ExerciseFragment on Exercise {
     id,
     title,
-    key,
     versionTimestamp,
     markedForDeletionTimestamp
   }
@@ -115,8 +108,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    updateExercise(id: $id, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignmentFragments: [ExerciseFragment]!, $solutionFragments: [ExerciseFragment]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    updateExercise(id: $id, title: $title, assignmentFragments: $assignmentFragments, solutionFragments: $solutionFragments, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },
@@ -133,14 +126,14 @@ const usersNextExperienceQuery = gql`
 `;
 
 const getExerciseDownloadLinkQuery = gql`
-  query GetExerciseDownloadLink($exerciseKey: String!) {
-    getExerciseDownloadLink(exerciseKey: $exerciseKey)
+  query GetExerciseDownloadLink($exerciseId: Int!) {
+    getExerciseDownloadLink(exerciseId: $exerciseId)
   }
 `;
 
 const registerExerciseExperienceMutation = gql`
-  mutation RegisterExerciseExperience($exerciseKey: String!, $exerciseResult: ExerciseResult!) {
-    registerExerciseExperience(exerciseKey: $exerciseKey, exerciseResult: $exerciseResult) {
+  mutation RegisterExerciseExperience($exerciseId: Int!, $exerciseResult: ExerciseResult!) {
+    registerExerciseExperience(exerciseId: $exerciseId, exerciseResult: $exerciseResult) {
       ...ExperienceFragment
     }
   },
@@ -236,11 +229,10 @@ export class ExercisesService {
   ) {
   }
 
-  async createExercise(exerciseData: any): Promise<CreateExerciseResult> {
-    const {data, errors} = await this.apollo.mutate<{ createExercise: Exercise }, any>({
+  async createExercise(exerciseData: any): Promise<any> {
+    await this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
       variables: exerciseData,
-      errorPolicy: 'all',
       update: (cache, mutationResult) => {
         if (mutationResult.errors) {
           return;
@@ -251,13 +243,6 @@ export class ExercisesService {
         cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedCachedExercises}});
       }
     }).toPromise();
-    if (data.createExercise) {
-      return CreateExerciseResult.Success;
-    }
-    if (errors.some((e: GraphQLError) => e.extensions.code === 'CONFLICT')) {
-      return CreateExerciseResult.Conflict;
-    }
-    throw Error('Unhandled situation');
   }
 
   async updateExercise(exerciseData: any): Promise<any> {
@@ -275,7 +260,7 @@ export class ExercisesService {
     if (!exercise) {
       return undefined;
     }
-    const cacheKey = `hydrated-exercise.${exercise.key}`;
+    const cacheKey = `hydrated-exercise.${exercise.id}`;
     const cachedHydratedExercise = await from(this.storage.get(cacheKey))
       .pipe(complementHydratedExerciseWithDefaultValues()).toPromise() as HydratedExercise;
     // When the version timestamp of our cached hydrated exercise matches the version timestamp of the provided exercise
@@ -295,7 +280,7 @@ export class ExercisesService {
     }
   }
 
-  async registerExerciseExperience(args: { exerciseKey: string, exerciseResult: ExerciseResult }) {
+  async registerExerciseExperience(args: { exerciseId: number, exerciseResult: ExerciseResult }) {
     await this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
       mutation: registerExerciseExperienceMutation,
       variables: args
@@ -371,7 +356,7 @@ export class ExercisesService {
       fetchPolicy: 'no-cache',
       query: getExerciseDownloadLinkQuery,
       variables: {
-        exerciseKey: exercise.key
+        exerciseId: exercise.id
       }
     }).valueChanges.pipe(
       map(({data}) => data.getExerciseDownloadLink)

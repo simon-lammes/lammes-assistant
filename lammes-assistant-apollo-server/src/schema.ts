@@ -1,5 +1,6 @@
 import {
-  arg, booleanArg,
+  arg,
+  booleanArg,
   enumType,
   inputObjectType,
   intArg,
@@ -32,7 +33,8 @@ import {
   getExerciseDownloadLink,
   registerExerciseExperience,
   removeExercise,
-  restoreExercise, updateExercise
+  restoreExercise,
+  updateExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
 
@@ -100,7 +102,6 @@ const Exercise = objectType({
     t.model.creatorId();
     t.model.creator();
     t.model.versionTimestamp();
-    t.model.key();
     t.model.markedForDeletionTimestamp();
   }
 });
@@ -181,10 +182,10 @@ const Query = objectType({
     t.field('getExerciseDownloadLink', {
       type: "String",
       args: {
-        exerciseKey: nonNull(stringArg())
+        exerciseId: nonNull(intArg())
       },
       resolve: (root, args, context) => {
-        return getExerciseDownloadLink(context, args.exerciseKey);
+        return getExerciseDownloadLink(context, args.exerciseId);
       }
     });
     t.field('getSettingsDownloadLink', {
@@ -306,6 +307,7 @@ const Mutation = objectType({
       type: "Exercise",
       args: {
         id: nonNull(intArg()),
+        title: nonNull(stringArg()),
         assignmentFragments: nonNull(list(ExerciseFragment)),
         solutionFragments: nonNull(list(ExerciseFragment)),
         exerciseType: nonNull(arg({type: ExerciseType})),
@@ -337,11 +339,11 @@ const Mutation = objectType({
     t.field("registerExerciseExperience", {
       type: "Experience",
       args: {
-        exerciseKey: nonNull(stringArg()),
+        exerciseId: nonNull(intArg()),
         exerciseResult: nonNull(arg({type: ExerciseResult}))
       },
       resolve: (root, args, context) => {
-        return registerExerciseExperience(context, args.exerciseKey, args.exerciseResult);
+        return registerExerciseExperience(context, args.exerciseId, args.exerciseResult);
       }
     });
     t.field('saveSettings', {

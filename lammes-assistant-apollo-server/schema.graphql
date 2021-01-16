@@ -8,7 +8,6 @@ type Exercise {
   creator: User!
   creatorId: Int!
   id: Int!
-  key: String!
   markedForDeletionTimestamp: DateTime
   title: String!
   versionTimestamp: DateTime!
@@ -53,7 +52,7 @@ type Mutation {
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
-  registerExerciseExperience(exerciseKey: String!, exerciseResult: ExerciseResult!): Experience
+  registerExerciseExperience(exerciseId: Int!, exerciseResult: ExerciseResult!): Experience
 
   """
   Removes an exercise and thereby marks it for deletion. It will be deleted when this action is not reverted within a certain amount of time.
@@ -63,7 +62,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!): Exercise
+  updateExercise(assignmentFragments: [ExerciseFragment]!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solutionFragments: [ExerciseFragment]!, title: String!): Exercise
 }
 
 type Note {
@@ -83,7 +82,7 @@ input NoteWhereUniqueInput {
 }
 
 type Query {
-  getExerciseDownloadLink(exerciseKey: String!): String
+  getExerciseDownloadLink(exerciseId: Int!): String
 
   """Will be null if the user has no settings yet."""
   getSettingsDownloadLink: String

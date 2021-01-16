@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {Exercise, ExerciseResult, ExercisesService, Experience} from '../exercises.service';
+import {Exercise, ExerciseResult, ExercisesService, Experience, HydratedExercise} from '../exercises.service';
 import {switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {Observable} from 'rxjs';
@@ -34,10 +34,10 @@ export class StudyPage {
   ) {
   }
 
-  private async registerExerciseResult(exerciseKey: string, exerciseResult: ExerciseResult) {
+  private async registerExerciseResult(exerciseId: number, exerciseResult: ExerciseResult) {
     const toastPromise = this.showToastForExerciseResult(exerciseResult);
     const registerPromise = this.exercisesService.registerExerciseExperience({
-      exerciseKey,
+      exerciseId,
       exerciseResult
     });
     await Promise.all([toastPromise, registerPromise]);
@@ -59,10 +59,10 @@ export class StudyPage {
     await toast.present();
   }
 
-  async onExerciseStateChanged(experience: Experience, {exerciseResult, nextExerciseRequested}: ExerciseState) {
+  async onExerciseStateChanged(exercise: HydratedExercise, {exerciseResult, nextExerciseRequested}: ExerciseState) {
     if (exerciseResult) {
       const toastPromise = this.showToastForExerciseResult(exerciseResult);
-      const registerPromise = this.registerExerciseResult(experience.exercise.key, exerciseResult);
+      const registerPromise = this.registerExerciseResult(exercise.id, exerciseResult);
       await Promise.all([toastPromise, registerPromise]);
     }
     if (nextExerciseRequested) {
