@@ -58,7 +58,7 @@
                 </div>
               </div>
               <ion-button type="button" expand="block" [disabled]="!canAddFragment(exerciseControl.controlName)"
-                          (click)="addFragment(exerciseControl.controlName)">{{exerciseControl.controlName}}</ion-button>
+                          (click)="addFragment(exerciseControl.controlName)">{{exerciseControl.addButtonText}}</ion-button>
             </ion-list>
             <!-- Text -->
             <ion-item *ngSwitchCase="'text'">
