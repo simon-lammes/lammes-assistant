@@ -5,7 +5,7 @@
     <ion-card-title>{{exercise.title}}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    <markdown [data]="exercise.assignment"></markdown>
+    <app-enriched-markdown [data]="exercise.assignment" [files]="exercise.files"></app-enriched-markdown>
   </ion-card-content>
 </ion-card>
 
@@ -27,7 +27,7 @@
     <ion-card-subtitle>Solution</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
-    <markdown [data]="exercise.solution"></markdown>
+    <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
   </ion-card-content>
 </ion-card>
 

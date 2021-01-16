@@ -29,7 +29,7 @@
             <!-- Textarea -->
             <ion-item *ngSwitchCase="'textarea'">
               <ion-label>{{exerciseControl.title}}</ion-label>
-              <ion-textarea rows="4" [formControlName]="exerciseControl.controlName" (ionBlur)="trim(exerciseForm.controls[exerciseControl.controlName])"></ion-textarea>
+              <ion-textarea rows="4" [formControlName]="exerciseControl.controlName"></ion-textarea>
             </ion-item>
             <!-- Text -->
             <ion-item *ngSwitchCase="'text'">
@@ -50,6 +50,30 @@
               <ion-label>{{exerciseControl.title}}</ion-label>
               <ion-checkbox slot="end" [formControlName]="exerciseControl.controlName"></ion-checkbox>
             </ion-item>
+            <!-- Files -->
+            <ion-list *ngSwitchCase="'files'">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title}}</ion-label>
+              </ion-list-header>
+              <ion-item-sliding *ngFor="let fileControl of getFileControls(); let i = index">
+                <!-- Actual item -->
+                <ion-item >
+                  <ion-label>{{fileControl.value.name}}</ion-label>
+                  <ion-button slot="end" fill="clear" (click)="copyFileReferenceToClipboard(fileControl.value)">
+                    <ion-icon name="clipboard-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+
+                <!-- Sliding options right side -->
+                <ion-item-options side="end" (ionSwipe)="removeFile(i)">
+                  <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    Remove
+                  </ion-item-option>
+                </ion-item-options>
+              </ion-item-sliding>
+              <ion-button type="button" ngxFilePicker (filePick)="addFile($event)">Add File</ion-button>
+            </ion-list>
           </ng-container>
         </ng-container>
       </ng-container>

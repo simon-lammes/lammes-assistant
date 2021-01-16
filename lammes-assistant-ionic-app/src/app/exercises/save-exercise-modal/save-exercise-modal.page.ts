@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ModalController, ToastController} from '@ionic/angular';
-import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AlertController, ModalController, ToastController} from '@ionic/angular';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
 import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
+import {ReadFile} from 'ngx-file-helpers';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -17,7 +18,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files';
   title: string;
   controlName: string;
   /**
@@ -76,6 +77,18 @@ export class SaveExerciseModalPage implements OnInit {
       controlName: 'isStatementCorrect',
       exerciseTypes: ['trueOrFalse'],
       controlBuilder: (exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
+    },
+    {
+      title: 'Files',
+      type: 'files',
+      controlName: 'files',
+      controlBuilder: exercise => {
+        const files = exercise?.files ?? [];
+        return this.formBuilder.array(files.map((file) => this.formBuilder.group({
+          name: this.formBuilder.control(file.name),
+          value: this.formBuilder.control(file.value)
+        })));
+      }
     }
   ];
   exerciseForm: FormGroup;
@@ -91,7 +104,8 @@ export class SaveExerciseModalPage implements OnInit {
     private formBuilder: FormBuilder,
     private customFormsService: CustomFormsServiceService,
     private exercisesService: ExercisesService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) {
   }
 
@@ -101,6 +115,11 @@ export class SaveExerciseModalPage implements OnInit {
 
   async dismissModal() {
     await this.modalController.dismiss();
+  }
+
+  getFileControls() {
+    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
+    return filesArrayControl.controls;
   }
 
   async saveExercise() {
@@ -167,5 +186,60 @@ export class SaveExerciseModalPage implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+
+  async addFile(file: ReadFile) {
+    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
+      await this.showHint('File type not allowed.');
+      return;
+    }
+    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
+    const alert = await this.alertController.create({
+      header: 'Add File',
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          placeholder: 'Name',
+          value: file.name
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Save',
+          handler: async (result: { name: string }) => {
+            const {name} = result;
+            const doesNameAlreadyExist = filesArrayControl.controls.some(control => control.value.name === name);
+            if (doesNameAlreadyExist) {
+              await this.showHint('You already have a file with this name.');
+              return;
+            }
+            filesArrayControl.push(this.formBuilder.control({
+              name,
+              value: file.content
+            }));
+          }
+        }
+      ]
+    });
+    await alert.present();
+    // I do not know a nicer way of autofocusing the first input element.
+    const firstInput: any = document.querySelector('ion-alert input');
+    firstInput.focus();
+  }
+
+  async copyFileReferenceToClipboard(file: { name: string, value: string }) {
+    const {name} = file;
+    await navigator.clipboard.writeText(`![${name}][${name}]`);
+    await this.showHint('File reference copied to clipboard.', 'primary', 1500);
+  }
+
+  removeFile(index: number) {
+    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
+    filesArrayControl.removeAt(index);
   }
 }

@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {StandardExerciseComponent} from './standard-exercise/standard-exercise.component';
 import {IonicModule} from '@ionic/angular';
 import {TrueOrFalseExerciseComponent} from './true-or-false-exercise/true-or-false-exercise.component';
-import {MarkdownModule} from 'ngx-markdown';
+import {EnrichedMarkdownModule} from '../../shared/enriched-markdown/enriched-markdown.module';
 
 @NgModule({
   declarations: [
@@ -17,7 +17,7 @@ import {MarkdownModule} from 'ngx-markdown';
   imports: [
     CommonModule,
     IonicModule,
-    MarkdownModule
+    EnrichedMarkdownModule
   ]
 })
 export class ExerciseTypesModule { }

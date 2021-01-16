@@ -7,11 +7,17 @@ import {ExerciseCooldown} from "./settings-operations";
 import {generateAuthorizationError} from "../custom-errors/authorization-error";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
 
+export interface CustomFile {
+  name: string;
+  value: string;
+}
+
 export interface CreateExerciseInput {
   title: string;
   assignment: string;
   solution: string;
   exerciseType: 'standard' | 'trueOrFalse';
+  files: CustomFile[];
   isStatementCorrect?: boolean | null;
 }
 
@@ -21,6 +27,7 @@ export interface UpdateExerciseInput {
   assignment: string;
   solution: string;
   exerciseType: 'standard' | 'trueOrFalse';
+  files: CustomFile[];
   isStatementCorrect?: boolean | null;
 }
 
@@ -37,6 +44,7 @@ interface HydratedExercise {
   title: string;
   assignment: string;
   solution: string;
+  files: CustomFile[];
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
 }
@@ -46,7 +54,8 @@ export async function createExercise(context: Context, {
   assignment,
   solution,
   exerciseType,
-  isStatementCorrect
+  isStatementCorrect,
+  files
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -86,7 +95,8 @@ export async function createExercise(context: Context, {
     assignment,
     solution,
     exerciseType,
-    isStatementCorrect
+    isStatementCorrect,
+    files
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
@@ -105,7 +115,8 @@ export async function updateExercise(context: Context, {
   assignment,
   solution,
   exerciseType,
-  isStatementCorrect
+  isStatementCorrect,
+  files
 }: UpdateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -126,7 +137,8 @@ export async function updateExercise(context: Context, {
     assignment,
     solution,
     exerciseType,
-    isStatementCorrect
+    isStatementCorrect,
+    files
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",

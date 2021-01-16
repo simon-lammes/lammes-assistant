@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+input CustomFile {
+  name: String!
+  value: String!
+}
+
 scalar DateTime
 
 type Exercise {
@@ -41,7 +46,7 @@ type Experience {
 }
 
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -57,7 +62,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, id: Int!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, solution: String!, title: String!): Exercise
 }
 
 type Note {

@@ -6,6 +6,7 @@ import {IonicModule} from '@ionic/angular';
 
 import {SaveExerciseModalPage} from './save-exercise-modal.page';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
+import {NgxFileHelpersModule} from 'ngx-file-helpers';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
     IonicModule,
     ReactiveFormsModule,
     ExerciseTypesModule,
+    NgxFileHelpersModule,
   ],
   declarations: [SaveExerciseModalPage]
 })

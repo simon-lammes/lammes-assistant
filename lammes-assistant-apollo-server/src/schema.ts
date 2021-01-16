@@ -3,7 +3,7 @@ import {
   booleanArg,
   enumType,
   inputObjectType,
-  intArg,
+  intArg, list,
   makeSchema,
   nonNull,
   nullable,
@@ -96,6 +96,14 @@ const Exercise = objectType({
     t.model.markedForDeletionTimestamp();
   }
 });
+
+export const CustomFile = nonNull(inputObjectType({
+  name: 'CustomFile',
+  definition(t) {
+    t.nonNull.string('value');
+    t.nonNull.string('name');
+  },
+}));
 
 const Experience = objectType({
   name: 'Experience',
@@ -288,6 +296,7 @@ const Mutation = objectType({
         assignment: nonNull(stringArg()),
         solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
+        files: nonNull(list(arg({type: CustomFile}))),
         isStatementCorrect: nullable(booleanArg())
       },
       resolve: (root, args, context) => {
@@ -302,7 +311,8 @@ const Mutation = objectType({
         assignment: nonNull(stringArg()),
         solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
-        isStatementCorrect: nullable(booleanArg())
+        files: nonNull(list(arg({type: CustomFile}))),
+        isStatementCorrect: nullable(booleanArg()),
       },
       resolve: (root, args, context) => {
         return updateExercise(context, args);

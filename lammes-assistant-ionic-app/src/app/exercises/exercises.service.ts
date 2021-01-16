@@ -11,6 +11,14 @@ export type ExerciseType = 'standard' | 'trueOrFalse';
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
 /**
+ * A file stored within an exercise.
+ */
+export interface CustomFile {
+  name: string;
+  value: string;
+}
+
+/**
  * A heavier type than a regular exercise. This type can consist binary files associated with the exercise and is therefore not
  * saved in a relational database.
  */
@@ -22,6 +30,7 @@ export interface HydratedExercise {
   solution: string;
   exerciseType: ExerciseType;
   isStatementCorrect?: boolean;
+  files: CustomFile[];
 }
 
 export interface Exercise {
@@ -90,8 +99,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },
@@ -99,8 +108,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect) {
       ...ExerciseFragment
     }
   },
