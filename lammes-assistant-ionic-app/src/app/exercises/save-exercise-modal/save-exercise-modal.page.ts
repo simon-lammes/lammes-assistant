@@ -1,32 +1,38 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
-import {Exercise, ExercisesService} from '../exercises.service';
+import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {ReadFile} from 'ngx-file-helpers';
+import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 
 /**
- * Exercises can have different types of fragments, for example: fragments for the assignment and fragments for the solution.
- * Those types are described with this interface.
+ * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
+ * Some controls are only present for some exercise types. To keep this information about which exercise control is needed
+ * for which exercise, we have this model.
  */
-interface FragmentArrayType {
-  title: string;
-  fragmentArrayName: string;
-  addButtonText: string;
-}
-
-/**
- * A control that is only needed if the exercise has a specific type.
- */
-interface OptionalControl {
+interface ExerciseControl {
 
   /**
-   * The exercise types for which this control is needed.
+   * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
-  exerciseTypes: string[];
+  exerciseTypes?: ExerciseType[];
+  type: 'fragmentArray' | 'text' | 'select' | 'checkbox';
+  title: string;
   controlName: string;
-  control: FormControl;
+  /**
+   * Only specified for type 'fragmentArray'.
+   */
+  addButtonText?: string;
+  /**
+   * Only specified for type 'select'.
+   */
+  selectOptions?: {
+    value: string;
+    displayValue: string;
+  }[];
+  controlBuilder: (exercise?: HydratedExercise) => AbstractControl;
 }
 
 /**
@@ -40,23 +46,47 @@ interface OptionalControl {
 })
 export class SaveExerciseModalPage implements OnInit {
   readonly ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/svg+xml'];
-  readonly allFragmentTypes: FragmentArrayType[] = [
+  readonly allExerciseControls: ExerciseControl[] = [
+    {
+      title: 'Title',
+      controlName: 'title',
+      type: 'text',
+      controlBuilder: (exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.min(1)])
+    },
     {
       title: 'Assignment Fragments',
-      fragmentArrayName: 'assignmentFragments',
-      addButtonText: 'Add assignment fragment'
+      type: 'fragmentArray',
+      controlName: 'assignmentFragments',
+      addButtonText: 'Add assignment fragment',
+      controlBuilder: exercise => this.formBuilder.array(exercise?.assignmentFragments.length > 0
+        ? exercise.assignmentFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
+        : [this.createFragmentFormGroup()])
     },
     {
       title: 'Solution Fragments',
-      fragmentArrayName: 'solutionFragments',
-      addButtonText: 'Add solution fragment'
-    }
-  ];
-  readonly optionalControls: OptionalControl[] = [
+      type: 'fragmentArray',
+      controlName: 'solutionFragments',
+      addButtonText: 'Add solution fragment',
+      controlBuilder: exercise => this.formBuilder.array(exercise?.solutionFragments.length > 0
+        ? exercise.solutionFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
+        : [this.createFragmentFormGroup()])
+    },
     {
+      title: 'ExerciseType',
+      controlName: 'exerciseType',
+      type: 'select',
+      selectOptions: [
+        {value: 'standard', displayValue: 'Standard'},
+        {value: 'trueOrFalse', displayValue: 'True or False'}
+      ],
+      controlBuilder: (exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
+    },
+    {
+      title: 'Is statement correct?',
+      type: 'checkbox',
       controlName: 'isStatementCorrect',
       exerciseTypes: ['trueOrFalse'],
-      control: this.formBuilder.control(false, [Validators.required])
+      controlBuilder: (exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
     }
   ];
   exerciseForm: FormGroup;
@@ -77,25 +107,11 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async ngOnInit(): Promise<any> {
-    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
-    this.exerciseForm = this.formBuilder.group({
-      title: this.formBuilder.control(editedHydratedExercise?.title ?? '', [Validators.required, Validators.min(1)]),
-      exerciseType: this.formBuilder.control(editedHydratedExercise?.exerciseType ?? 'standard', [Validators.required]),
-      assignmentFragments: this.formBuilder.array(editedHydratedExercise?.assignmentFragments.length > 0
-        ? editedHydratedExercise.assignmentFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
-        : [this.createFragmentFormGroup()]),
-      solutionFragments: this.formBuilder.array(editedHydratedExercise?.solutionFragments.length > 0
-        ? editedHydratedExercise.solutionFragments.map(x => this.createFragmentFormGroup(x.type, x.value))
-        : [this.createFragmentFormGroup()])
-    });
-    this.setupOptionalControls();
+    await this.setupForm();
   }
 
-  /**
-   * Can for example get all FormGroups that contain an assignment fragment.
-   */
-  getFragmentControls(fragmentArrayName: string): FormGroup[] {
-    const fragmentsArray = this.exerciseForm.get(fragmentArrayName) as FormArray;
+  getControlsOfFormArray(formArrayControlName: string): FormGroup[] {
+    const fragmentsArray = this.exerciseForm.get(formArrayControlName) as FormArray;
     return fragmentsArray.controls as FormGroup[];
   }
 
@@ -119,8 +135,8 @@ export class SaveExerciseModalPage implements OnInit {
     }
   }
 
-  trim(formControlName: string) {
-    this.customFormsService.trimAndRemoveNeighboringWhitespaces(this.exerciseForm, formControlName);
+  trim(formControl: AbstractControl) {
+    this.customFormsService.trimAndRemoveNeighboringWhitespaces(formControl);
   }
 
   /**
@@ -137,7 +153,7 @@ export class SaveExerciseModalPage implements OnInit {
       await this.showHint(`File type ${type} is not supported. If you feel like this file type should be supported, you can create a unique issue in GitHub repository for this project.`);
       return;
     }
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     const fragmentControl = fragmentControls[fragmentIndex];
     fragmentControl.controls.value.patchValue(fileAsBase64);
   }
@@ -152,7 +168,7 @@ export class SaveExerciseModalPage implements OnInit {
    * existing fragments are used, or to be precise, filled with values.
    */
   canAddFragment(fragmentArrayName: string) {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     return fragmentControls.every(control => control.value.type && control.value.value);
   }
 
@@ -163,7 +179,7 @@ export class SaveExerciseModalPage implements OnInit {
    * {type: "file", value: "I am a text, but I should be a file."}
    */
   resetFragmentControlValue(fragmentArrayName: string, fragmentIndex: number) {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     const fragmentControl = fragmentControls[fragmentIndex];
     fragmentControl.controls.value.patchValue('');
   }
@@ -177,7 +193,7 @@ export class SaveExerciseModalPage implements OnInit {
    * Reacts to the event of the user changing a fragments type.
    */
   onTypeChanged(fragmentArrayName: string, fragmentIndex: number) {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     const fragmentControl = fragmentControls[fragmentIndex];
     const selectedType = fragmentControl.value.type;
     if (selectedType === 'remove') {
@@ -192,12 +208,12 @@ export class SaveExerciseModalPage implements OnInit {
    * the state of the form would not make sense.
    */
   canRemoveFragment(fragmentArrayName: string) {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     return fragmentControls.length > 1;
   }
 
   isFileSelected(fragmentArrayName: string, fragmentIndex: number): boolean {
-    const fragmentControls = this.getFragmentControls(fragmentArrayName);
+    const fragmentControls = this.getControlsOfFormArray(fragmentArrayName);
     const fragmentControl = fragmentControls[fragmentIndex];
     const {type, value} = fragmentControl.value;
     return type === 'file' && value;
@@ -208,17 +224,25 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   /**
-   * This method makes sure that optional controls are added or removed automatically when the exercist type changes.
-   * It should guarantee that at any point in time only the needed optional controls are present.
+   * This method makes sure that exercise controls are added or removed automatically when the exercise type changes.
+   * It should guarantee that at any point in time only those controls are present that are needed for the current exercise type.
    */
-  private setupOptionalControls() {
-    this.exerciseForm.controls.exerciseType.valueChanges.pipe(untilDestroyed(this)).subscribe(exerciseType => {
-      this.optionalControls.forEach(optionalControl => {
-        const isOptionalControlNeededForExerciseType = optionalControl.exerciseTypes.includes(exerciseType);
+  private async setupForm() {
+    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
+    this.exerciseForm = this.formBuilder.group({});
+    this.exerciseForm.valueChanges.pipe(
+      untilDestroyed(this),
+      startWith({exerciseType: editedHydratedExercise?.exerciseType ?? 'standard'}),
+      map(formValue => formValue.exerciseType as ExerciseType),
+      distinctUntilChanged()
+    ).subscribe(exerciseType => {
+      this.allExerciseControls.forEach(optionalControl => {
+        const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
+          || optionalControl.exerciseTypes.includes(exerciseType);
         const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
         if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
-          this.exerciseForm.addControl(optionalControl.controlName, this.formBuilder.control(false, [Validators.required]));
-        } else {
+          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(editedHydratedExercise));
+        } else if (!isOptionalControlNeededForExerciseType) {
           this.exerciseForm.removeControl(optionalControl.controlName);
         }
       });
