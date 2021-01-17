@@ -24,24 +24,32 @@ export interface Settings {
    */
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
+  myExerciseLabels: string[];
 }
 
-const saveSettingsMutation = gql`
-  mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!) {
-    saveSettings(exerciseCooldown: $exerciseCooldown) {
-      id,
-      settingsUpdatedTimestamp
-    }
+const userFragment = gql`
+  fragment UserFragment on User {
+    id,
+    settingsUpdatedTimestamp
   }
+`;
+
+const saveSettingsMutation = gql`
+  mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!, $myExerciseLabels: [String!]!) {
+    saveSettings(exerciseCooldown: $exerciseCooldown, myExerciseLabels: $myExerciseLabels) {
+      ...UserFragment
+    }
+  },
+  ${userFragment}
 `;
 
 const getCurrentUserQuery = gql`
   query GetCurrentUserQuery {
     me {
-      id,
-      settingsUpdatedTimestamp
+      ...UserFragment
     }
-  }
+  },
+  ${userFragment}
 `;
 
 const getSettingsDownloadLinkQuery = gql`
@@ -78,6 +86,13 @@ export class SettingsService {
         await this.cacheSettings(user, settings);
         return settings;
       }
+    }),
+    // We include the default settings because the settings might be outdated and missing new properties.
+    map(settings => {
+      return {
+        ...environment.defaultSettings,
+        ...settings
+      };
     }),
     // We do not need to check cache for every new subscription. (performance)
     shareReplay(1)
@@ -120,7 +135,7 @@ export class SettingsService {
   }
 
   private getSettingsDownloadLink() {
-    return this.apollo.query<{getSettingsDownloadLink: string}>({
+    return this.apollo.query<{ getSettingsDownloadLink: string }>({
       // As the download link is only short-lived (meaning it expires), we should not use a cache.
       // If we used a cache, we might end up using an expired download link.
       fetchPolicy: 'no-cache',

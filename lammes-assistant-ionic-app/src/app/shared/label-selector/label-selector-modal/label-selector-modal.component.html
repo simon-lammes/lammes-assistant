@@ -12,9 +12,10 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let label of labels$ | async">
-      <ion-label>{{label.title}}</ion-label>
-      <ion-checkbox slot="start" [checked]="selectedLabels.includes(label.title)" (ionChange)="onChangeLabelSelection($event, label)"></ion-checkbox>
+    <ion-item *ngFor="let label of allDisplayedLabels$ | async">
+      <ion-label>{{label}}</ion-label>
+      <ion-checkbox slot="start" [checked]="selectedLabels.has(label)" (ionChange)="onChangeLabelSelection($event, label)"></ion-checkbox>
     </ion-item>
   </ion-list>
+  <ion-button fill="block" (click)="createNewLabel()">Create New Label</ion-button>
 </ion-content>

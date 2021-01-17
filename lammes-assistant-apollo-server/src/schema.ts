@@ -37,7 +37,6 @@ import {
   updateExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
-import {fetchMyFavoriteLabels} from "./operations/label-operations";
 
 const User = objectType({
   name: 'User',
@@ -240,12 +239,6 @@ const Query = objectType({
         return getCurrentUser(context);
       }
     });
-    t.list.field('myFavoriteLabels', {
-      type: "Label",
-      resolve: (root, args, context) => {
-        return fetchMyFavoriteLabels(context);
-      }
-    });
   },
 })
 
@@ -389,7 +382,8 @@ const Mutation = objectType({
     t.field('saveSettings', {
       type: "User",
       args: {
-        exerciseCooldown: nonNull(arg({type: ExerciseCooldown}))
+        exerciseCooldown: nonNull(arg({type: ExerciseCooldown})),
+        myExerciseLabels: nonNull(list(nonNull(stringArg())))
       },
       resolve: (root, args, context) => {
         return saveSettings(context, args);

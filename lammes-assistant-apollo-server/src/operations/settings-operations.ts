@@ -18,7 +18,8 @@ export interface ExerciseCooldown {
 
 export interface Settings {
   settingsUpdatedTimestamp?: string;
-  exerciseCooldown: ExerciseCooldown
+  exerciseCooldown: ExerciseCooldown;
+  myExerciseLabels: string[];
 }
 
 export async function saveSettings(context: Context, settings: Settings): Promise<any> {

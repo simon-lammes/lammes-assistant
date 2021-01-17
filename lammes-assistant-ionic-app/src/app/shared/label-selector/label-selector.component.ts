@@ -21,7 +21,7 @@ export class LabelSelectorComponent implements ControlValueAccessor {
   heading: string;
 
   isDisabled = false;
-  selectedLabels: string[];
+  selectedLabels: Set<string>;
   private onChange: (labels: string[]) => void;
   private onTouched: () => void;
 
@@ -31,7 +31,7 @@ export class LabelSelectorComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    this.selectedLabels = obj;
+    this.selectedLabels = new Set<string>(obj);
   }
 
   registerOnChange(fn: any): void {
@@ -47,14 +47,14 @@ export class LabelSelectorComponent implements ControlValueAccessor {
   }
 
   getSelectedLabelsConcatenated() {
-    return this.selectedLabels.join(', ');
+    return [...this.selectedLabels].join(', ');
   }
 
   async openLabelSelectorModal() {
     const modal = await this.modalController.create({
       component: LabelSelectorModalComponent,
       componentProps: {
-        selectedLabels: this.selectedLabels
+        initiallySelectedLabels: this.selectedLabels
       }
     });
     await modal.present();
@@ -64,6 +64,6 @@ export class LabelSelectorComponent implements ControlValueAccessor {
     }
     const {selectedLabels = this.selectedLabels} = data;
     this.selectedLabels = selectedLabels;
-    this.onChange(selectedLabels);
+    this.onChange([...selectedLabels]);
   }
 }

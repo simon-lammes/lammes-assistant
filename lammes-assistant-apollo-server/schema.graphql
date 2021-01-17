@@ -83,7 +83,7 @@ type Mutation {
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
-  saveSettings(exerciseCooldown: ExerciseCooldown!): User
+  saveSettings(exerciseCooldown: ExerciseCooldown!, myExerciseLabels: [String!]!): User
   updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
@@ -122,7 +122,6 @@ type Query {
   myDeferredNotes: [Note]
   myExercises: [Exercise]
   myExercisesThatAreMarkedForDeletion: [Exercise]
-  myFavoriteLabels: [Label]
   myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
   myPendingNotes: [Note]
   myResolvedNotes: [Note]

@@ -1,11 +1,14 @@
 import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
-import {Exercise, ExerciseLabelCreateWithoutExercisesInput, ExerciseLabelScalarWhereInput} from "@prisma/client";
+import {Exercise,
+  ExerciseLabelCreateOrConnectWithoutexercisesInput,
+  ExerciseLabelCreateWithoutExercisesInput, ExerciseLabelScalarWhereInput, ExerciseLabelWhereUniqueInput} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
 import {generateAuthorizationError} from "../custom-errors/authorization-error";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
+import {prismaStrategy} from "nexus-plugin-prisma/dist/pagination/prisma";
 
 export interface CustomFile {
   name: string;
@@ -94,11 +97,16 @@ export async function createExercise(context: Context, {
         create: labels.map(label => {
           return {
             label: {
-              connect: {
-                title: label
+              connectOrCreate: {
+                create: {
+                  title: label
+                },
+                where: {
+                  title: label
+                }
               }
             }
-          }
+          };
         })
       },
       // For every new exercise the user creates, we directly want to create an "Experience" object containing the information
@@ -200,21 +208,26 @@ export async function updateExercise(context: Context, {
     data: {
       title,
       exerciseLabels: {
-        deleteMany: removeLabels.map(label => {
+        deleteMany: removeLabels.length > 0 ? removeLabels.map(label => {
           return {
             exerciseId: id,
             labelId: label.id
           } as ExerciseLabelScalarWhereInput;
-        }),
+        }) : undefined,
         create: addedLabels.map(label => {
           return {
             label: {
-              connect: {
-                title: label
+              connectOrCreate: {
+                create: {
+                  title: label
+                },
+                where: {
+                  title: label
+                }
               }
             }
           } as ExerciseLabelCreateWithoutExercisesInput;
-        }),
+        })
       },
       versionTimestamp: versionTimestamp.toISOString(),
     }
