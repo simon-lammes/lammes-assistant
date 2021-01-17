@@ -12,6 +12,7 @@ scalar DateTime
 type Exercise {
   creator: User!
   creatorId: Int!
+  exerciseLabels(after: ExerciseLabelWhereUniqueInput, before: ExerciseLabelWhereUniqueInput, first: Int, last: Int): [ExerciseLabel!]!
   id: Int!
   markedForDeletionTimestamp: DateTime
   title: String!
@@ -22,6 +23,21 @@ input ExerciseCooldown {
   days: Int!
   hours: Int!
   minutes: Int!
+}
+
+input ExerciseIdLabelIdCompoundUniqueInput {
+  exerciseId: Int!
+  labelId: Int!
+}
+
+type ExerciseLabel {
+  exerciseId: Int!
+  label: Label!
+  labelId: Int!
+}
+
+input ExerciseLabelWhereUniqueInput {
+  exerciseId_labelId: ExerciseIdLabelIdCompoundUniqueInput
 }
 
 """

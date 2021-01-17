@@ -5,6 +5,7 @@ import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
+import {Label} from '../shared/label-selector/labels.service';
 
 export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect';
 
@@ -45,6 +46,9 @@ export interface Exercise {
   title: string;
   versionTimestamp: string;
   markedForDeletionTimestamp: string;
+  exerciseLabels: {
+    label: Label;
+  }[];
 }
 
 export interface Experience {
@@ -69,7 +73,12 @@ const exerciseFragment = gql`
     id,
     title,
     versionTimestamp,
-    markedForDeletionTimestamp
+    markedForDeletionTimestamp,
+    exerciseLabels {
+      label {
+        title
+      }
+    }
   }
 `;
 
@@ -192,14 +201,27 @@ function complementHydratedExerciseWithDefaultValues() {
 })
 export class ExercisesService {
 
+  readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
+    map(({data}) => data.myExercises),
+    // Sort the labels client-side because it is easier!
+    map(exercises => exercises.map(exercise => {
+      return {
+        ...exercise,
+        exerciseLabels: [...exercise.exerciseLabels].sort((a, b) => a.label.title.localeCompare(b.label.title))
+      };
+    })),
+  );
+  readonly usersExercisesThatAreMarkedForDeletion$ = this.apollo.watchQuery<{ myExercisesThatAreMarkedForDeletion: Exercise[] }>({
+    query: usersRemovedExercisesQuery
+  }).valueChanges.pipe(
+    map(({data}) => data.myExercisesThatAreMarkedForDeletion)
+  );
   // Study Progress
   private readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
   readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
-
   // Request next exercise
   private readonly requestNextExerciseBehaviourSubject = new BehaviorSubject(true);
   private readonly requestNextExercise$ = this.requestNextExerciseBehaviourSubject.asObservable();
-
   /**
    * The users experience that he should work on next while studying. Informally: the next exercise.
    * This observable is "re-triggered" when the study progress changes (the user finished an exercise)
@@ -216,16 +238,6 @@ export class ExercisesService {
       fetchPolicy: 'no-cache'
     }).valueChanges),
     map(({data}) => data.myNextExperience)
-  );
-
-  readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
-    map(({data}) => data.myExercises)
-  );
-
-  readonly usersExercisesThatAreMarkedForDeletion$ = this.apollo.watchQuery<{ myExercisesThatAreMarkedForDeletion: Exercise[] }>({
-    query: usersRemovedExercisesQuery
-  }).valueChanges.pipe(
-    map(({data}) => data.myExercisesThatAreMarkedForDeletion)
   );
 
   constructor(
@@ -356,6 +368,10 @@ export class ExercisesService {
     }).toPromise();
   }
 
+  requestNextExercise() {
+    this.requestNextExerciseBehaviourSubject.next(true);
+  }
+
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
     return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
       // As the download link is only short-lived (meaning it expires), we should not use a cache.
@@ -368,9 +384,5 @@ export class ExercisesService {
     }).valueChanges.pipe(
       map(({data}) => data.getExerciseDownloadLink)
     );
-  }
-
-  requestNextExercise() {
-    this.requestNextExerciseBehaviourSubject.next(true);
   }
 }

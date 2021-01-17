@@ -15,7 +15,12 @@
     <ion-item-sliding *ngFor="let exercise of exercises$ | async">
       <!-- Actual item -->
       <ion-item (click)="editExercise(exercise)" button>
-        <ion-label>{{exercise.title}}</ion-label>
+        <ion-label>
+          <h2>{{exercise.title}}</h2>
+          <ion-chip *ngFor="let exerciseLabel of exercise.exerciseLabels">
+            <ion-label>{{exerciseLabel.label.title}}</ion-label>
+          </ion-chip>
+        </ion-label>
       </ion-item>
 
       <!-- Sliding options right side -->

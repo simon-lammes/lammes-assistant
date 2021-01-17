@@ -20,6 +20,7 @@ export class ExercisesPage {
     private router: Router,
     private popoverController: PopoverController
   ) {
+    this.exercises$.subscribe(console.log);
   }
 
   async createExercise() {

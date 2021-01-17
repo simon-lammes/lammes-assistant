@@ -85,7 +85,16 @@ export const ExerciseCooldown = inputObjectType({
     t.nonNull.int('hours');
     t.nonNull.int('minutes');
   },
-})
+});
+
+const ExerciseLabel = objectType({
+  name: 'ExerciseLabel',
+  definition(t) {
+    t.model.exerciseId();
+    t.model.labelId();
+    t.model.label();
+  }
+});
 
 const Exercise = objectType({
   name: 'Exercise',
@@ -96,6 +105,7 @@ const Exercise = objectType({
     t.model.creator();
     t.model.versionTimestamp();
     t.model.markedForDeletionTimestamp();
+    t.model.exerciseLabels();
   }
 });
 
@@ -389,7 +399,7 @@ const Mutation = objectType({
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User, Note, Registration, Exercise, Experience, Label],
+  types: [Query, Mutation, User, Note, Registration, Exercise, Experience, Label, ExerciseLabel],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',
