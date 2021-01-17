@@ -1,6 +1,6 @@
 import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
-import {Exercise} from "@prisma/client";
+import {Exercise, ExerciseLabelCreateWithoutExercisesInput, ExerciseLabelScalarWhereInput} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
@@ -25,6 +25,7 @@ export interface CreateExerciseInput {
   solution: string;
   exerciseType: ExerciseType;
   files: CustomFile[];
+  labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
 }
@@ -36,6 +37,7 @@ export interface UpdateExerciseInput {
   solution: string;
   exerciseType: ExerciseType;
   files: CustomFile[];
+  labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
 }
@@ -54,6 +56,7 @@ interface HydratedExercise {
   assignment: string;
   solution: string;
   files: CustomFile[];
+  labels: string[];
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
   possibleAnswers?: PossibleAnswer[];
@@ -66,6 +69,7 @@ export async function createExercise(context: Context, {
   exerciseType,
   isStatementCorrect,
   files,
+  labels,
   possibleAnswers
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
@@ -85,6 +89,17 @@ export async function createExercise(context: Context, {
       versionTimestamp: versionTimestamp.toISOString(),
       creator: {
         connect: {id: userId}
+      },
+      exerciseLabels: {
+        create: labels.map(label => {
+          return {
+            label: {
+              connect: {
+                title: label
+              }
+            }
+          }
+        })
       },
       // For every new exercise the user creates, we directly want to create an "Experience" object containing the information
       // that the user has not yet started studying this exercise. We need this object for querying functionality.
@@ -108,6 +123,7 @@ export async function createExercise(context: Context, {
     exerciseType,
     isStatementCorrect,
     files,
+    labels,
     possibleAnswers
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
@@ -129,6 +145,7 @@ export async function updateExercise(context: Context, {
   exerciseType,
   isStatementCorrect,
   files,
+  labels,
   possibleAnswers
 }: UpdateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
@@ -152,6 +169,7 @@ export async function updateExercise(context: Context, {
     exerciseType,
     isStatementCorrect,
     files,
+    labels,
     possibleAnswers
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
@@ -161,13 +179,43 @@ export async function updateExercise(context: Context, {
     ContentType: "application/json",
     ACL: "private"
   });
-  await upload.promise();
+  // Which labels are currently associated with the exercise?
+  const currentLabelsPromise = context.prisma.label.findMany({
+    where: {
+      exerciseLabels: {
+        some: {
+          exerciseId: id
+        }
+      }
+    }
+  })
+  const [currentLabels] = await Promise.all([currentLabelsPromise, upload.promise()]);
+  // Which labels has the user removed or added to the exercise?
+  const removeLabels = currentLabels.filter(label => !labels.some(x => x === label.title));
+  const addedLabels = labels.filter(label => !currentLabels.some(x => x.title === label));
   return context.prisma.exercise.update({
     where: {
       id
     },
     data: {
       title,
+      exerciseLabels: {
+        deleteMany: removeLabels.map(label => {
+          return {
+            exerciseId: id,
+            labelId: label.id
+          } as ExerciseLabelScalarWhereInput;
+        }),
+        create: addedLabels.map(label => {
+          return {
+            label: {
+              connect: {
+                title: label
+              }
+            }
+          } as ExerciseLabelCreateWithoutExercisesInput;
+        }),
+      },
       versionTimestamp: versionTimestamp.toISOString(),
     }
   });

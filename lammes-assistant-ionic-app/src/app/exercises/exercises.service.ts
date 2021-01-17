@@ -37,6 +37,7 @@ export interface HydratedExercise {
   isStatementCorrect?: boolean;
   possibleAnswers: PossibleAnswer[];
   files: CustomFile[];
+  labels?: string[];
 }
 
 export interface Exercise {
@@ -105,8 +106,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]!) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
       ...ExerciseFragment
     }
   },
@@ -114,8 +115,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]!) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
       ...ExerciseFragment
     }
   },

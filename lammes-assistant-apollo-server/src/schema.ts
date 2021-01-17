@@ -3,7 +3,8 @@ import {
   booleanArg,
   enumType,
   inputObjectType,
-  intArg, list,
+  intArg,
+  list,
   makeSchema,
   nonNull,
   nullable,
@@ -36,6 +37,7 @@ import {
   updateExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
+import {fetchMyFavoriteLabels} from "./operations/label-operations";
 
 const User = objectType({
   name: 'User',
@@ -122,6 +124,14 @@ const Experience = objectType({
     t.model.exercise();
     t.model.lastStudiedTimestamp();
     t.model.correctStreak();
+  }
+});
+
+const Label = objectType({
+  name: 'Label',
+  definition(t) {
+    t.model.id();
+    t.model.title();
   }
 });
 
@@ -220,6 +230,12 @@ const Query = objectType({
         return getCurrentUser(context);
       }
     });
+    t.list.field('myFavoriteLabels', {
+      type: "Label",
+      resolve: (root, args, context) => {
+        return fetchMyFavoriteLabels(context);
+      }
+    });
   },
 })
 
@@ -306,6 +322,7 @@ const Mutation = objectType({
         solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
         files: nonNull(list(arg({type: CustomFile}))),
+        labels: nonNull(list(nonNull(stringArg()))),
         isStatementCorrect: nullable(booleanArg()),
         possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
       },
@@ -322,6 +339,7 @@ const Mutation = objectType({
         solution: nonNull(stringArg()),
         exerciseType: nonNull(arg({type: ExerciseType})),
         files: nonNull(list(arg({type: CustomFile}))),
+        labels: nonNull(list(nonNull(stringArg()))),
         isStatementCorrect: nullable(booleanArg()),
         possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
       },
@@ -366,12 +384,12 @@ const Mutation = objectType({
       resolve: (root, args, context) => {
         return saveSettings(context, args);
       }
-    })
+    });
   },
 })
 
 export const schema = makeSchema({
-  types: [Query, Mutation, User, Note, Registration, Exercise, Experience],
+  types: [Query, Mutation, User, Note, Registration, Exercise, Experience, Label],
   plugins: [nexusPrisma({experimentalCRUD: true})],
   outputs: {
     schema: __dirname + '/../schema.graphql',

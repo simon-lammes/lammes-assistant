@@ -36,13 +36,14 @@ model Note {
 }
 
 model Exercise {
-  id                         Int          @id @default(autoincrement())
-  versionTimestamp           DateTime     @map("version_timestamp")
+  id                         Int             @id @default(autoincrement())
+  versionTimestamp           DateTime        @map("version_timestamp")
   title                      String
-  creatorId                  Int          @map("creator_id")
-  markedForDeletionTimestamp DateTime?    @map("marked_for_deletion_timestamp")
-  creator                    User         @relation("exercisesToUsers", fields: [creatorId], references: [id])
-  experiences                Experience[] @relation("exercisesToExperiences")
+  creatorId                  Int             @map("creator_id")
+  markedForDeletionTimestamp DateTime?       @map("marked_for_deletion_timestamp")
+  creator                    User            @relation("exercisesToUsers", fields: [creatorId], references: [id])
+  exerciseLabels             ExerciseLabel[] @relation("exercisesToLabels")
+  experiences                Experience[]    @relation("exercisesToExperiences")
 
   @@map("exercises")
 }
@@ -57,4 +58,22 @@ model Experience {
 
   @@id([exerciseId, learnerId])
   @@map("experiences")
+}
+
+model ExerciseLabel {
+  exerciseId Int      @map("exercise_id")
+  labelId    Int      @map("label_id")
+  exercises  Exercise @relation("exercisesToLabels", fields: [exerciseId], references: [id])
+  label      Label    @relation(fields: [labelId], references: [id])
+
+  @@id([exerciseId, labelId])
+  @@map("exercise_labels")
+}
+
+model Label {
+  id             Int             @id @default(autoincrement())
+  title          String          @unique
+  exerciseLabels ExerciseLabel[]
+
+  @@map("labels")
 }

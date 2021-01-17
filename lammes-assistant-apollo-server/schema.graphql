@@ -46,8 +46,13 @@ type Experience {
   learnerId: Int!
 }
 
+type Label {
+  id: Int!
+  title: String!
+}
+
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -63,7 +68,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
 type Note {
@@ -101,6 +106,7 @@ type Query {
   myDeferredNotes: [Note]
   myExercises: [Exercise]
   myExercisesThatAreMarkedForDeletion: [Exercise]
+  myFavoriteLabels: [Label]
   myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
   myPendingNotes: [Note]
   myResolvedNotes: [Note]

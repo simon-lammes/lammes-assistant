@@ -7,6 +7,7 @@ import {IonicModule} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal.page';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
 import {NgxFileHelpersModule} from 'ngx-file-helpers';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import {NgxFileHelpersModule} from 'ngx-file-helpers';
     ReactiveFormsModule,
     ExerciseTypesModule,
     NgxFileHelpersModule,
+    SharedModule,
   ],
   declarations: [SaveExerciseModalPage]
 })

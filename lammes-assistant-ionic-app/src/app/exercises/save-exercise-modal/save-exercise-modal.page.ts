@@ -18,7 +18,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector';
   title: string;
   controlName: string;
   /**
@@ -103,6 +103,12 @@ export class SaveExerciseModalPage implements OnInit {
           value: this.formBuilder.control(file.value)
         })));
       }
+    },
+    {
+      title: 'Labels',
+      type: 'labelSelector',
+      controlName: 'labels',
+      controlBuilder: (exercise) => this.formBuilder.control(exercise?.labels ?? [])
     }
   ];
   exerciseForm: FormGroup;

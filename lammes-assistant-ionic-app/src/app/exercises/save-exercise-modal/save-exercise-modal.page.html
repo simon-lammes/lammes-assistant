@@ -93,6 +93,8 @@
               </ion-item-sliding>
               <ion-button type="button" ngxFilePicker (filePick)="addFile($event)">Add File</ion-button>
             </ion-list>
+            <!-- Labels -->
+            <app-label-selector *ngSwitchCase="'labelSelector'" [heading]="exerciseControl.title" [formControlName]="exerciseControl.controlName"></app-label-selector>
           </ng-container>
         </ng-container>
       </ng-container>
