@@ -1,14 +1,15 @@
 import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
-import {Exercise,
-  ExerciseLabelCreateOrConnectWithoutexercisesInput,
-  ExerciseLabelCreateWithoutExercisesInput, ExerciseLabelScalarWhereInput, ExerciseLabelWhereUniqueInput} from "@prisma/client";
+import {
+  Exercise,
+  ExerciseLabelListRelationFilter,
+  ExerciseLabelScalarWhereInput
+} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
 import {generateAuthorizationError} from "../custom-errors/authorization-error";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
-import {prismaStrategy} from "nexus-plugin-prisma/dist/pagination/prisma";
 
 export interface CustomFile {
   name: string;
@@ -63,6 +64,14 @@ interface HydratedExercise {
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
   possibleAnswers?: PossibleAnswer[];
+}
+
+/**
+ * The user might want to filter for specific exercises.
+ */
+export interface ExerciseFilter {
+  labels: string[];
+  creatorId?: number | null;
 }
 
 export async function createExercise(context: Context, {
@@ -226,7 +235,7 @@ export async function updateExercise(context: Context, {
                 }
               }
             }
-          } as ExerciseLabelCreateWithoutExercisesInput;
+          };
         })
       },
       versionTimestamp: versionTimestamp.toISOString(),
@@ -234,14 +243,26 @@ export async function updateExercise(context: Context, {
   });
 }
 
-export async function fetchMyExercises(context: Context): Promise<Exercise[]> {
+export async function fetchFilteredExercises(context: Context, {
+  creatorId,
+  labels
+}: ExerciseFilter): Promise<Exercise[]> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
   }
   return context.prisma.exercise.findMany({
     where: {
-      creatorId: userId,
+      creatorId: creatorId ?? userId,
+      exerciseLabels: labels?.length > 0 ? {
+        some: {
+          label: {
+            title: {
+              in: labels
+            }
+          }
+        }
+      } : undefined,
       // We want the displayed exercises not to contain exercises that are marked for deletion.
       markedForDeletionTimestamp: null
     },

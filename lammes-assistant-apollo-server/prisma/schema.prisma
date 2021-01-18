@@ -63,7 +63,7 @@ model Experience {
 model ExerciseLabel {
   exerciseId Int      @map("exercise_id")
   labelId    Int      @map("label_id")
-  exercises  Exercise @relation("exercisesToLabels", fields: [exerciseId], references: [id])
+  exercise   Exercise @relation("exercisesToLabels", fields: [exerciseId], references: [id])
   label      Label    @relation(fields: [labelId], references: [id])
 
   @@id([exerciseId, labelId])

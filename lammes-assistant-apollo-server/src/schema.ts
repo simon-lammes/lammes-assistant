@@ -26,8 +26,7 @@ import {
   resolveNote
 } from "./operations/note-operations";
 import {
-  createExercise,
-  fetchMyExercises,
+  createExercise, fetchFilteredExercises,
   fetchMyExercisesThatAreMarkedForDeletion,
   fetchMyNextExperience,
   getExerciseDownloadLink,
@@ -185,10 +184,14 @@ const Query = objectType({
         return fetchMyResolvedNotes(context);
       }
     });
-    t.list.field('myExercises', {
+    t.list.field('filteredExercises', {
       type: "Exercise",
+      args: {
+        creatorId: nullable(intArg()),
+        labels: nonNull(list(nonNull(stringArg())))
+      },
       resolve: (root, args, context) => {
-        return fetchMyExercises(context);
+        return fetchFilteredExercises(context, args);
       }
     });
     t.list.field('myExercisesThatAreMarkedForDeletion', {

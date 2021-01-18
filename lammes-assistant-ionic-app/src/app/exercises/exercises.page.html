@@ -11,8 +11,17 @@
 </ion-header>
 
 <ion-content>
+  <ion-list [formGroup]="filterForm">
+    <ion-list-header>
+      <ion-label>Filter</ion-label>
+    </ion-list-header>
+    <app-label-selector heading="Labels" formControlName="labels" noSelectionText="No Label Filters"></app-label-selector>
+  </ion-list>
   <ion-list>
-    <ion-item-sliding *ngFor="let exercise of exercises$ | async">
+    <ion-list-header>
+      <ion-label>Filtered Exercises</ion-label>
+    </ion-list-header>
+    <ion-item-sliding *ngFor="let exercise of filteredExercises$ | async">
       <!-- Actual item -->
       <ion-item (click)="editExercise(exercise)" button>
         <ion-label>

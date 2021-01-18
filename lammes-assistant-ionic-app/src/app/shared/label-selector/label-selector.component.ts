@@ -20,6 +20,12 @@ export class LabelSelectorComponent implements ControlValueAccessor {
   @Input()
   heading: string;
 
+  /**
+   * This text is displayed when no labels are selected.
+   */
+  @Input()
+  noSelectionText = '';
+
   isDisabled = false;
   selectedLabels: Set<string>;
   private onChange: (labels: string[]) => void;
@@ -46,7 +52,10 @@ export class LabelSelectorComponent implements ControlValueAccessor {
     this.isDisabled = isDisabled;
   }
 
-  getSelectedLabelsConcatenated() {
+  getValueRepresentation() {
+    if (this.selectedLabels.size === 0) {
+      return this.noSelectionText;
+    }
     return [...this.selectedLabels].join(', ');
   }
 

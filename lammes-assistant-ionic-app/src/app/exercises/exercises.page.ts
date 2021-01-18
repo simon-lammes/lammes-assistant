@@ -1,25 +1,40 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
-import {Exercise, ExercisesService} from './exercises.service';
+import {Exercise, ExerciseFilter, ExercisesService} from './exercises.service';
 import {Router} from '@angular/router';
 import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
+import {FormBuilder, FormGroup} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {startWith, switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-exercises',
   templateUrl: './exercises.page.html',
   styleUrls: ['./exercises.page.scss'],
 })
-export class ExercisesPage {
-
-  exercises$ = this.exercisesService.usersExercises$;
+export class ExercisesPage implements OnInit {
+  filteredExercises$: Observable<Exercise[]>;
+  filter$: Observable<any>;
+  filterForm: FormGroup;
 
   constructor(
     private modalController: ModalController,
     private exercisesService: ExercisesService,
     private router: Router,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private formBuilder: FormBuilder
   ) {
+  }
+
+  ngOnInit(): void {
+    this.filterForm = this.formBuilder.group({
+      labels: this.formBuilder.control([])
+    });
+    this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as ExerciseFilter));
+    this.filteredExercises$ = this.filter$.pipe(
+      switchMap(filter => this.exercisesService.getFilteredExercises(filter))
+    );
   }
 
   async createExercise() {

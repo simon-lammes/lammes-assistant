@@ -5,7 +5,6 @@ import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {SettingsService} from '../settings/settings.service';
-import {Label} from '../shared/label-selector/labels.service';
 
 export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect';
 
@@ -47,13 +46,23 @@ export interface Exercise {
   versionTimestamp: string;
   markedForDeletionTimestamp: string;
   exerciseLabels: {
-    label: Label;
+    label: {
+      id: string;
+      title: string;
+    };
   }[];
 }
 
 export interface Experience {
   correctStreak: number;
   exercise: Exercise;
+}
+
+/**
+ * The user might want to filter for specific exercises.
+ */
+export interface ExerciseFilter {
+  labels: string[];
 }
 
 /**
@@ -96,9 +105,9 @@ const experienceFragment = gql`
   ${exerciseFragment}
 `;
 
-const usersExercisesQuery = gql`
-  query UsersExercisesQuery {
-    myExercises {
+const filteredExercisesQuery = gql`
+  query FilteredExercisesQuery($labels: [String!]!, $creatorId: Int) {
+    filteredExercises(labels: $labels, creatorId: $creatorId) {
       ...ExerciseFragment
     }
   },
@@ -201,16 +210,6 @@ function complementHydratedExerciseWithDefaultValues() {
 })
 export class ExercisesService {
 
-  readonly usersExercises$ = this.apollo.watchQuery<{ myExercises: Exercise[] }>({query: usersExercisesQuery}).valueChanges.pipe(
-    map(({data}) => data.myExercises),
-    // Sort the labels client-side because it is easier!
-    map(exercises => exercises.map(exercise => {
-      return {
-        ...exercise,
-        exerciseLabels: [...exercise.exerciseLabels].sort((a, b) => a.label.title.localeCompare(b.label.title))
-      };
-    })),
-  );
   readonly usersExercisesThatAreMarkedForDeletion$ = this.apollo.watchQuery<{ myExercisesThatAreMarkedForDeletion: Exercise[] }>({
     query: usersRemovedExercisesQuery
   }).valueChanges.pipe(
@@ -251,16 +250,7 @@ export class ExercisesService {
   async createExercise(exerciseData: any): Promise<any> {
     await this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
-      variables: exerciseData,
-      update: (cache, mutationResult) => {
-        if (mutationResult.errors) {
-          return;
-        }
-        const cachedExercises = (cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] }).myExercises;
-        const newExercise = mutationResult.data.createExercise;
-        const updatedCachedExercises = [...cachedExercises, newExercise];
-        cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedCachedExercises}});
-      }
+      variables: exerciseData
     }).toPromise();
   }
 
@@ -318,14 +308,6 @@ export class ExercisesService {
       update: (cache, mutationResult) => {
         const removedExercise = mutationResult.data.removeExercise;
         try {
-          const exercisesCache = cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] };
-          const exercises = exercisesCache.myExercises;
-          const updatedExercises = exercises.filter(e => e.id !== removedExercise.id);
-          cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedExercises}});
-        } catch (e) {
-          // If query was yet not cached, we get an exception.
-        }
-        try {
           const removedExercisesCache = cache.readQuery({
             query: usersRemovedExercisesQuery
           }) as { myExercisesThatAreMarkedForDeletion: Exercise[] };
@@ -346,15 +328,6 @@ export class ExercisesService {
       update: (cache, mutationResult) => {
         const restoredExercise = mutationResult.data.restoreExercise;
         try {
-          const exercisesCache = cache.readQuery({query: usersExercisesQuery}) as { myExercises: Exercise[] };
-          const exercises = exercisesCache.myExercises;
-          const updatedExercises = [...exercises, restoredExercise];
-          updatedExercises.sort((a, b) => a.title.localeCompare(b.title));
-          cache.writeQuery({query: usersExercisesQuery, data: {myExercises: updatedExercises}});
-        } catch (e) {
-          // If query was yet not cached, we get an exception.
-        }
-        try {
           const removedExercisesCache = cache.readQuery({
             query: usersRemovedExercisesQuery
           }) as { myExercisesThatAreMarkedForDeletion: Exercise[] };
@@ -370,6 +343,22 @@ export class ExercisesService {
 
   requestNextExercise() {
     this.requestNextExerciseBehaviourSubject.next(true);
+  }
+
+  getFilteredExercises(filter: ExerciseFilter) {
+    return this.apollo.watchQuery<{ filteredExercises: Exercise[] }>({
+      query: filteredExercisesQuery,
+      variables: filter,
+    }).valueChanges.pipe(
+      map(({data}) => data.filteredExercises),
+      // Sort the labels client-side because it is easier!
+      map(exercises => exercises.map(exercise => {
+        return {
+          ...exercise,
+          exerciseLabels: [...exercise.exerciseLabels].sort((a, b) => a.label.title.localeCompare(b.label.title))
+        };
+      })),
+    );
   }
 
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {

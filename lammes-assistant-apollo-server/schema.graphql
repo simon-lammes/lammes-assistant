@@ -112,6 +112,7 @@ input PossibleAnswer {
 }
 
 type Query {
+  filteredExercises(creatorId: Int, labels: [String!]!): [Exercise]
   getExerciseDownloadLink(exerciseId: Int!): String
 
   """Will be null if the user has no settings yet."""
@@ -120,7 +121,6 @@ type Query {
   """Returns the user object that belongs to user making the request."""
   me: User
   myDeferredNotes: [Note]
-  myExercises: [Exercise]
   myExercisesThatAreMarkedForDeletion: [Exercise]
   myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
   myPendingNotes: [Note]
