@@ -71,7 +71,7 @@ interface HydratedExercise {
  */
 export interface ExerciseFilter {
   labels: string[];
-  creatorId?: number | null;
+  creatorIds?: number[] | null;
 }
 
 export async function createExercise(context: Context, {
@@ -244,7 +244,7 @@ export async function updateExercise(context: Context, {
 }
 
 export async function fetchFilteredExercises(context: Context, {
-  creatorId,
+  creatorIds,
   labels
 }: ExerciseFilter): Promise<Exercise[]> {
   const userId = context.jwtPayload?.userId;
@@ -253,7 +253,9 @@ export async function fetchFilteredExercises(context: Context, {
   }
   return context.prisma.exercise.findMany({
     where: {
-      creatorId: creatorId ?? userId,
+      creatorId: creatorIds && creatorIds.length > 0 ? {
+        in: creatorIds
+      } : userId,
       exerciseLabels: labels?.length > 0 ? {
         some: {
           label: {

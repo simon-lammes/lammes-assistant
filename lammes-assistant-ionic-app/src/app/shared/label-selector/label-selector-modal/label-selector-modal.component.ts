@@ -30,7 +30,7 @@ export class LabelSelectorModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.selectedLabels = this.initiallySelectedLabels;
+    this.selectedLabels = new Set<string>(this.initiallySelectedLabels);
     this.allDisplayedLabels$ = this.settings$.pipe(
       map(settings => [...new Set([...settings.myExerciseLabels, ...this.initiallySelectedLabels])].sort())
     );

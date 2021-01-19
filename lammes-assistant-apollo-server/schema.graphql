@@ -112,7 +112,8 @@ input PossibleAnswer {
 }
 
 type Query {
-  filteredExercises(creatorId: Int, labels: [String!]!): [Exercise]
+  filteredExercises(creatorIds: [Int!], labels: [String!]!): [Exercise]
+  filteredUsers(query: String): [User]
   getExerciseDownloadLink(exerciseId: Int!): String
 
   """Will be null if the user has no settings yet."""

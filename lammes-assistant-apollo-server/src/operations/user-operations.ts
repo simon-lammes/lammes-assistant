@@ -1,4 +1,4 @@
-import {User} from "@prisma/client";
+import {Exercise, User} from "@prisma/client";
 import {ApolloError, AuthenticationError} from "apollo-server";
 import {environment} from "../environment";
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,11 @@ import * as jwt from 'jsonwebtoken';
 import {Context} from "../context";
 import {generateNotFoundError} from "../custom-errors/not-found-error";
 import { generateConflictError } from "../custom-errors/collision-error";
+import {ExerciseFilter} from "./exercise-operations";
+
+export interface UserFilter {
+  query?: string | null;
+}
 
 /**
  * The required input for creating a new user.
@@ -84,4 +89,22 @@ export function verifyToken(token: string | undefined): JwtPayload | undefined {
 
 function generateJwtToken(userId: number) {
   return jwt.sign({userId} as JwtPayload, environment.SECRET, {expiresIn: '2 days'});
+}
+
+export async function fetchFilteredUsers({prisma, jwtPayload}: Context, {query}: UserFilter): Promise<User[]> {
+  const userId = jwtPayload?.userId;
+  if (!userId) {
+    throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
+  }
+  return prisma.user.findMany({
+    where: {
+      username: query ? {
+        contains: query,
+        mode: 'insensitive'
+      } : undefined
+    },
+    orderBy: {
+      username: 'asc'
+    }
+  });
 }

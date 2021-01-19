@@ -13,7 +13,7 @@ import {
 } from '@nexus/schema'
 import {AuthenticationError} from 'apollo-server';
 import {nexusPrisma} from 'nexus-plugin-prisma'
-import {login, register, SignupInput} from "./operations/user-operations";
+import {fetchFilteredUsers, login, register, SignupInput} from "./operations/user-operations";
 import {
   createNote,
   deleteNote,
@@ -187,11 +187,20 @@ const Query = objectType({
     t.list.field('filteredExercises', {
       type: "Exercise",
       args: {
-        creatorId: nullable(intArg()),
+        creatorIds: nullable(list(nonNull(intArg()))),
         labels: nonNull(list(nonNull(stringArg())))
       },
       resolve: (root, args, context) => {
         return fetchFilteredExercises(context, args);
+      }
+    });
+    t.list.field('filteredUsers', {
+      type: "User",
+      args: {
+        query: nullable(stringArg()),
+      },
+      resolve: (root, args, context) => {
+        return fetchFilteredUsers(context, args);
       }
     });
     t.list.field('myExercisesThatAreMarkedForDeletion', {

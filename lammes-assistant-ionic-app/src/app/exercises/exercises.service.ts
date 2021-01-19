@@ -106,8 +106,8 @@ const experienceFragment = gql`
 `;
 
 const filteredExercisesQuery = gql`
-  query FilteredExercisesQuery($labels: [String!]!, $creatorId: Int) {
-    filteredExercises(labels: $labels, creatorId: $creatorId) {
+  query FilteredExercisesQuery($labels: [String!]!, $creatorIds: [Int!]) {
+    filteredExercises(labels: $labels, creatorIds: $creatorIds) {
       ...ExerciseFragment
     }
   },

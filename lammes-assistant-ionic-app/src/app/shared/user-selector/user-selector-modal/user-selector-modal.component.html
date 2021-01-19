@@ -1,0 +1,28 @@
+<ng-container [formGroup]="filterForm">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Select Users</ion-title>
+      <ion-buttons slot="start">
+        <ion-button (click)="cancel()">Cancel</ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button (click)="set()">Set</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar>
+      <ion-searchbar formControlName="query" debounce="400"></ion-searchbar>
+    </ion-toolbar>
+  </ion-header>
+</ng-container>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let user of filteredUsers$ | async">
+      <ion-label>
+        <h2>{{user.username}}</h2>
+        <p>{{user.firstName}} {{user.lastName}}</p>
+      </ion-label>
+      <ion-checkbox slot="start" [checked]="selectedUserIds.has(user.id)" (ionChange)="onChangeUserSelection($event, user)"></ion-checkbox>
+    </ion-item>
+  </ion-list>
+</ion-content>

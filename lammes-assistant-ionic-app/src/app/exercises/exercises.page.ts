@@ -29,6 +29,7 @@ export class ExercisesPage implements OnInit {
 
   ngOnInit(): void {
     this.filterForm = this.formBuilder.group({
+      creatorIds: this.formBuilder.control([]),
       labels: this.formBuilder.control([])
     });
     this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as ExerciseFilter));
