@@ -4,7 +4,7 @@ import {first, map, switchMap, tap} from 'rxjs/operators';
 import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
-import {SettingsService} from '../settings/settings.service';
+import {ExerciseCooldown} from '../settings/settings.service';
 
 export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect';
 
@@ -62,7 +62,8 @@ export interface Experience {
  * The user might want to filter for specific exercises.
  */
 export interface ExerciseFilter {
-  labels: string[];
+  labels?: string[];
+  creatorIds?: number[];
 }
 
 /**
@@ -141,15 +142,6 @@ const updateExerciseMutation = gql`
   ${exerciseFragment}
 `;
 
-const usersNextExperienceQuery = gql`
-  query MyNextExperience($exerciseCooldown: ExerciseCooldown!) {
-    myNextExperience(exerciseCooldown: $exerciseCooldown) {
-      ...ExperienceFragment
-    }
-  },
-  ${experienceFragment}
-`;
-
 const getExerciseDownloadLinkQuery = gql`
   query GetExerciseDownloadLink($exerciseId: Int!) {
     getExerciseDownloadLink(exerciseId: $exerciseId)
@@ -218,33 +210,30 @@ export class ExercisesService {
   // Study Progress
   private readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
   readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
-  // Request next exercise
-  private readonly requestNextExerciseBehaviourSubject = new BehaviorSubject(true);
-  private readonly requestNextExercise$ = this.requestNextExerciseBehaviourSubject.asObservable();
-  /**
-   * The users experience that he should work on next while studying. Informally: the next exercise.
-   * This observable is "re-triggered" when the study progress changes (the user finished an exercise)
-   * and when the user changed the exercise cooldown. The reasons for these triggers can be explained as follows:
-   * When the user finishes an exercise, he must start working on the next one.
-   * When the user changes the exercise time, the "algorithm" might pick a different (better suited?) exercise.
-   */
-  readonly usersNextExperience$: Observable<Experience> = this.requestNextExercise$.pipe(
-    switchMap(() => this.settingsService.exerciseCooldown$),
-    switchMap(exerciseCooldown => this.apollo.watchQuery<{ myNextExperience: Experience }>({
-      query: usersNextExperienceQuery,
-      variables: {exerciseCooldown},
-      // When we used the cache, we would be "stuck" with the same exercise.
-      fetchPolicy: 'no-cache'
-    }).valueChanges),
-    map(({data}) => data.myNextExperience)
-  );
 
   constructor(
     private apollo: Apollo,
     private http: HttpClient,
     private storage: Storage,
-    private settingsService: SettingsService
   ) {
+  }
+
+  getNextExercise(exerciseCooldown: ExerciseCooldown, exerciseFilter: ExerciseFilter) {
+    return this.apollo.query<{ myNextExercise: Exercise }>({
+      query: gql`
+        query MyNextExercise($exerciseCooldown: ExerciseCooldown!, $labels: [String!], $creatorIds: [Int!]) {
+          myNextExercise(exerciseCooldown: $exerciseCooldown, labels: $labels, creatorIds: $creatorIds) {
+            ...ExerciseFragment
+          }
+        },
+        ${exerciseFragment}
+      `,
+      variables: {...exerciseFilter, exerciseCooldown},
+      // When we used the cache, we would be "stuck" with the same exercise.
+      fetchPolicy: 'no-cache'
+    }).pipe(
+      map(({data}) => data.myNextExercise)
+    );
   }
 
   async createExercise(exerciseData: any): Promise<any> {
@@ -339,10 +328,6 @@ export class ExercisesService {
         }
       }
     }).toPromise();
-  }
-
-  requestNextExercise() {
-    this.requestNextExerciseBehaviourSubject.next(true);
   }
 
   getFilteredExercises(filter: ExerciseFilter) {

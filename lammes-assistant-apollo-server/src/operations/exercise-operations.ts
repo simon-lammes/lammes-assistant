@@ -274,36 +274,57 @@ export async function fetchFilteredExercises(context: Context, {
   });
 }
 
-export async function fetchMyNextExperience(context: Context, exerciseCooldown: ExerciseCooldown): Promise<any> {
-  const userId = context.jwtPayload?.userId;
+export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exerciseCooldown: ExerciseCooldown, creatorIds?: number[] | null, labels?: string[] | null): Promise<any> {
+  const userId = jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
   }
   const now = DateTime.fromJSDate(new Date());
-  return context.prisma.experience.findFirst({
+  return prisma.exercise.findFirst({
     where: {
-      learnerId: userId,
-      exercise: {
-        // We want the displayed exercises not to contain exercises that are marked for deletion.
-        markedForDeletionTimestamp: null
-      },
+      creatorId: creatorIds && creatorIds.length > 0 ? {
+        in: creatorIds
+      } : userId,
+      exerciseLabels: labels && labels.length > 0 ? {
+        some: {
+          label: {
+            title: {
+              in: labels
+            }
+          }
+        }
+      } : undefined,
+      markedForDeletionTimestamp: null,
       OR: [
         {
-          lastStudiedTimestamp: {
-            lte: now.minus({
-              days: exerciseCooldown.days,
-              hours: exerciseCooldown.hours,
-              minutes: exerciseCooldown.minutes
-            }).toISO()
+          experiences: {
+            none: {
+              learnerId: userId
+            }
           }
         },
         {
-          lastStudiedTimestamp: null
+          experiences: {
+            some: {
+              learnerId: userId,
+              OR: [
+                {
+                  lastStudiedTimestamp: {
+                    lte: now.minus({
+                      days: exerciseCooldown.days,
+                      hours: exerciseCooldown.hours,
+                      minutes: exerciseCooldown.minutes
+                    }).toISO()
+                  }
+                },
+                {
+                  lastStudiedTimestamp: null
+                }
+              ]
+            }
+          }
         }
-      ]
-    },
-    orderBy: {
-      correctStreak: 'asc'
+      ],
     },
   });
 }
@@ -325,31 +346,34 @@ export async function registerExerciseExperience(context: Context, exerciseId: n
   if (!userId) {
     throw new AuthenticationError('You must be authenticated.');
   }
-  const experience = await context.prisma.experience.findFirst({
-    where: {
-      learnerId: userId,
-      exercise: {
-        id: exerciseId
-      }
-    }
-  });
-  if (!experience) {
-    throw new ApolloError('Invalid request. For the given user and exerciseKey we could not find an experience to update.');
-  }
-  return context.prisma.experience.update({
+  return context.prisma.experience.upsert({
     where: {
       exerciseId_learnerId: {
-        exerciseId: experience.exerciseId,
+        exerciseId: exerciseId,
         learnerId: userId
       }
     },
-    data: {
+    update: {
       correctStreak: exerciseResult === "SUCCESS" ? {
         increment: 1
       } : 0,
       lastStudiedTimestamp: new Date()
+    },
+    create: {
+      exercise: {
+        connect: {
+          id: exerciseId
+        }
+      },
+      learner: {
+        connect: {
+          id: userId
+        }
+      },
+      correctStreak: 0,
+      lastStudiedTimestamp: new Date()
     }
-  })
+  });
 }
 
 export async function removeExercise(context: Context, exerciseId: number): Promise<any> {

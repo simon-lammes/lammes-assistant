@@ -27,8 +27,7 @@ import {
 } from "./operations/note-operations";
 import {
   createExercise, fetchFilteredExercises,
-  fetchMyExercisesThatAreMarkedForDeletion,
-  fetchMyNextExperience,
+  fetchMyExercisesThatAreMarkedForDeletion, fetchMyNextExercise,
   getExerciseDownloadLink,
   registerExerciseExperience,
   removeExercise,
@@ -209,13 +208,15 @@ const Query = objectType({
         return fetchMyExercisesThatAreMarkedForDeletion(context);
       }
     });
-    t.field('myNextExperience', {
-      type: "Experience",
+    t.field('myNextExercise', {
+      type: "Exercise",
       args: {
-        exerciseCooldown: nonNull(arg({type: ExerciseCooldown}))
+        exerciseCooldown: nonNull(arg({type: ExerciseCooldown})),
+        creatorIds: nullable(list(nonNull(intArg()))),
+        labels: nullable(list(nonNull(stringArg())))
       },
       resolve: (root, args, context) => {
-        return fetchMyNextExperience(context, args.exerciseCooldown);
+        return fetchMyNextExercise(context, args.exerciseCooldown, args.creatorIds, args.labels);
       }
     });
     t.field('getExerciseDownloadLink', {

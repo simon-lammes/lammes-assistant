@@ -123,7 +123,7 @@ type Query {
   me: User
   myDeferredNotes: [Note]
   myExercisesThatAreMarkedForDeletion: [Exercise]
-  myNextExperience(exerciseCooldown: ExerciseCooldown!): Experience
+  myNextExercise(creatorIds: [Int!], exerciseCooldown: ExerciseCooldown!, labels: [String!]): Exercise
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

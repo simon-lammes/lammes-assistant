@@ -1,9 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
-import {Exercise, ExerciseResult, ExercisesService, Experience, HydratedExercise} from '../exercises.service';
-import {switchMap} from 'rxjs/operators';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {Exercise, ExerciseFilter, ExerciseResult, ExercisesService, HydratedExercise} from '../exercises.service';
+import {map, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent} from './study-popover/study-popover.component';
+import {ActivatedRoute} from '@angular/router';
+import {SettingsService} from '../../settings/settings.service';
 
 export interface ExerciseState {
   exerciseResult?: ExerciseResult;
@@ -15,23 +17,69 @@ export interface ExerciseState {
   templateUrl: './study.page.html',
   styleUrls: ['./study.page.scss'],
 })
-export class StudyPage {
+export class StudyPage implements OnInit {
   @ViewChild(IonContent) ionContent: IonContent;
-
-  /**
-   * The current experience that the user is "working on". Contains the current exercise.
-   */
-  experience$: Observable<Experience> = this.exercisesService.usersNextExperience$;
-  hydratedExercise$ = this.experience$.pipe(
-    switchMap(experience => this.exercisesService.getHydratedExercise(experience?.exercise))
-  );
   studyProgress$ = this.exercisesService.studyProgress$;
+  exerciseFilter$: Observable<ExerciseFilter>;
+  exercise$: Observable<Exercise>;
+  hydratedExercise$: Observable<HydratedExercise>;
+  private nextExerciseRequestedBehaviourSubject = new BehaviorSubject(true);
+  nextExerciseRequested$ = this.nextExerciseRequestedBehaviourSubject.asObservable();
 
   constructor(
     private exercisesService: ExercisesService,
     private toastController: ToastController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private activatedRoute: ActivatedRoute,
+    private settingsService: SettingsService
   ) {
+  }
+
+  ngOnInit(): void {
+    this.exerciseFilter$ = this.activatedRoute.queryParamMap.pipe(
+      map((params) => {
+        return {
+          labels: params.getAll('labels'),
+          creatorIds: params.getAll('creatorIds').map(labelString => +labelString)
+        };
+      })
+    );
+    this.exercise$ = combineLatest([
+      this.nextExerciseRequested$,
+      this.settingsService.exerciseCooldown$,
+      this.exerciseFilter$
+    ]).pipe(
+      switchMap(([, exerciseCooldown, exerciseFilter]) => {
+        return this.exercisesService.getNextExercise(exerciseCooldown, exerciseFilter);
+      })
+    );
+    this.hydratedExercise$ = this.exercise$.pipe(
+      switchMap(exercise => this.exercisesService.getHydratedExercise(exercise))
+    );
+  }
+
+  async onExerciseStateChanged(exercise: HydratedExercise, {exerciseResult, nextExerciseRequested}: ExerciseState) {
+    if (exerciseResult) {
+      const toastPromise = this.showToastForExerciseResult(exerciseResult);
+      const registerPromise = this.registerExerciseResult(exercise.id, exerciseResult);
+      await Promise.all([toastPromise, registerPromise]);
+    }
+    if (nextExerciseRequested) {
+      this.nextExerciseRequestedBehaviourSubject.next(true);
+      await this.ionContent.scrollToTop(600);
+    }
+  }
+
+  async showPopover(event: MouseEvent, exercise: Exercise) {
+    const popover = await this.popoverController.create({
+      component: StudyPopoverComponent,
+      componentProps: {
+        exercise
+      },
+      event,
+      translucent: true
+    });
+    return await popover.present();
   }
 
   private async registerExerciseResult(exerciseId: number, exerciseResult: ExerciseResult) {
@@ -57,29 +105,5 @@ export class StudyPage {
       position: 'top'
     });
     await toast.present();
-  }
-
-  async onExerciseStateChanged(exercise: HydratedExercise, {exerciseResult, nextExerciseRequested}: ExerciseState) {
-    if (exerciseResult) {
-      const toastPromise = this.showToastForExerciseResult(exerciseResult);
-      const registerPromise = this.registerExerciseResult(exercise.id, exerciseResult);
-      await Promise.all([toastPromise, registerPromise]);
-    }
-    if (nextExerciseRequested) {
-      this.exercisesService.requestNextExercise();
-      await this.ionContent.scrollToTop(600);
-    }
-  }
-
-  async showPopover(event: MouseEvent, exercise: Exercise) {
-    const popover = await this.popoverController.create({
-      component: StudyPopoverComponent,
-      componentProps: {
-        exercise
-      },
-      event,
-      translucent: true
-    });
-    return await popover.present();
   }
 }

@@ -46,7 +46,12 @@ export class ExercisesPage implements OnInit {
   }
 
   async startStudying() {
-    await this.router.navigateByUrl('/tabs/exercises/study');
+    const filter = this.filterForm.value as ExerciseFilter;
+    const trimmedFilter: ExerciseFilter = {
+      creatorIds: filter.creatorIds?.length > 0 ? filter.creatorIds : undefined,
+      labels: filter.labels?.length > 0 ? filter.labels : undefined
+    };
+    await this.router.navigate(['tabs', 'exercises', 'study'], {queryParams: trimmedFilter});
   }
 
   async removeExercise(exercise: Exercise) {
