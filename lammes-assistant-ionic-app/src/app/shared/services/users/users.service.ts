@@ -8,6 +8,7 @@ export interface User {
   username: string;
   firstName: string;
   lastName: string;
+  settingsUpdatedTimestamp: string;
 }
 
 export interface UserFilter {
@@ -36,6 +37,20 @@ const filteredUsersQuery = gql`
   providedIn: 'root'
 })
 export class UsersService {
+
+  readonly currentUser$ = this.apollo.watchQuery<{ me: User }>({
+    query: gql`
+      query GetCurrentUserQuery {
+        me {
+          ...UserFragment
+        }
+      },
+      ${userFragment}
+    `
+  })
+  .valueChanges.pipe(
+    map(({data}) => data.me)
+  );
 
   constructor(
     private apollo: Apollo

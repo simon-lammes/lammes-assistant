@@ -5,11 +5,7 @@ import {Storage} from '@ionic/storage';
 import {distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import _ from 'lodash';
 import {environment} from '../../environments/environment';
-
-export interface User {
-  id: number;
-  settingsUpdatedTimestamp: string;
-}
+import {User, UsersService} from '../shared/services/users/users.service';
 
 export interface ExerciseCooldown {
   days: number;
@@ -42,15 +38,6 @@ const saveSettingsMutation = gql`
   ${userFragment}
 `;
 
-const getCurrentUserQuery = gql`
-  query GetCurrentUserQuery {
-    me {
-      ...UserFragment
-    }
-  },
-  ${userFragment}
-`;
-
 const getSettingsDownloadLinkQuery = gql`
   query GetSettingsDownloadLinkQuery {
     getSettingsDownloadLink
@@ -62,12 +49,7 @@ const getSettingsDownloadLinkQuery = gql`
 })
 export class SettingsService {
 
-  readonly currentUser$ = this.apollo.watchQuery<{ me: User }>({query: getCurrentUserQuery})
-    .valueChanges.pipe(
-      map(({data}) => data.me)
-    );
-
-  readonly currentSettings$ = this.currentUser$.pipe(
+  readonly currentSettings$ = this.usersService.currentUser$.pipe(
     switchMap(async user => {
       const cachedSettings = await this.retrieveCachedSettings(user);
       const isCacheFresh = cachedSettings?.settingsUpdatedTimestamp
@@ -110,7 +92,8 @@ export class SettingsService {
   constructor(
     private apollo: Apollo,
     private http: HttpClient,
-    private storage: Storage
+    private storage: Storage,
+    private usersService: UsersService
   ) {
   }
 

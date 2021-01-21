@@ -251,7 +251,7 @@ export async function fetchFilteredExercises(context: Context, {
     where: {
       creatorId: creatorIds && creatorIds.length > 0 ? {
         in: creatorIds
-      } : userId,
+      } : undefined,
       exerciseLabels: labels?.length > 0 ? {
         some: {
           label: {

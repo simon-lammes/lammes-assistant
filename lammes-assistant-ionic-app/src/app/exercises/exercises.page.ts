@@ -6,7 +6,8 @@ import {Router} from '@angular/router';
 import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {startWith, switchMap} from 'rxjs/operators';
+import {first, startWith, switchMap} from 'rxjs/operators';
+import {UsersService} from '../shared/services/users/users.service';
 
 @Component({
   selector: 'app-exercises',
@@ -23,13 +24,15 @@ export class ExercisesPage implements OnInit {
     private exercisesService: ExercisesService,
     private router: Router,
     private popoverController: PopoverController,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private usersService: UsersService
   ) {
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    const user = await this.usersService.currentUser$.pipe(first()).toPromise();
     this.filterForm = this.formBuilder.group({
-      creatorIds: this.formBuilder.control([]),
+      creatorIds: this.formBuilder.control([user.id]),
       labels: this.formBuilder.control([])
     });
     this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as ExerciseFilter));
