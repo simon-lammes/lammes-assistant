@@ -119,6 +119,12 @@ export class SaveExerciseModalPage implements OnInit {
   @Input()
   private editedExercise: Exercise;
 
+  /**
+   * If an exercise is provided, one must specify whether the user this exercise.
+   */
+  @Input()
+  doesUserOwnEditedExercise = true;
+
   constructor(
     private modalController: ModalController,
     private formBuilder: FormBuilder,
@@ -143,7 +149,7 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async saveExercise() {
-    if (this.editedExercise) {
+    if (this.editedExercise && this.doesUserOwnEditedExercise) {
       await this.exercisesService.updateExercise({
         ...this.editedExercise,
         ...this.exerciseForm.value

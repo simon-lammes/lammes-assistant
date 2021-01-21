@@ -71,10 +71,12 @@ export class ExercisesPage implements OnInit {
   }
 
   async editExercise(exercise: Exercise) {
+    const user = await this.usersService.currentUser$.pipe(first()).toPromise();
     const modal = await this.modalController.create({
       component: SaveExerciseModalPage,
       componentProps: {
-        editedExercise: exercise
+        editedExercise: exercise,
+        doesUserOwnEditedExercise: exercise.creatorId === user.id
       }
     });
     return await modal.present();

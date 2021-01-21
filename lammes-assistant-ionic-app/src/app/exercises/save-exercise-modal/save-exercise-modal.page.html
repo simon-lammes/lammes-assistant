@@ -5,7 +5,7 @@
       <ion-button (click)="dismissModal()">Close</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button *ngIf="exerciseForm" (click)="saveExercise()" [disabled]="!exerciseForm.valid">Save</ion-button>
+      <ion-button *ngIf="exerciseForm" (click)="saveExercise()" [disabled]="!exerciseForm.valid">{{doesUserOwnEditedExercise ? 'Save' : 'Save Copy'}}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>

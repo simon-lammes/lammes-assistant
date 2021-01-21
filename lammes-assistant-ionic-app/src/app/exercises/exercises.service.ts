@@ -42,6 +42,7 @@ export interface HydratedExercise {
 
 export interface Exercise {
   id: number;
+  creatorId: number;
   title: string;
   versionTimestamp: string;
   markedForDeletionTimestamp: string;
@@ -84,6 +85,7 @@ const exerciseFragment = gql`
     title,
     versionTimestamp,
     markedForDeletionTimestamp,
+    creatorId,
     exerciseLabels {
       label {
         title
@@ -335,6 +337,10 @@ export class ExercisesService {
     return this.apollo.watchQuery<{ filteredExercises: Exercise[] }>({
       query: filteredExercisesQuery,
       variables: filter,
+      // When user changed exercise resources, this query needs to update.
+      // Solely using refetchQueries would not suffice because this targets only single queries.
+      // However, there could be thousand caches of this query, all with different input variables.
+      fetchPolicy: 'cache-and-network',
     }).valueChanges.pipe(
       map(({data}) => data.filteredExercises),
       // Sort the labels client-side because it is easier!
