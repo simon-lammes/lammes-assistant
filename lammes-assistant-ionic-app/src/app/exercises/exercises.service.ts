@@ -239,7 +239,8 @@ export class ExercisesService {
   async createExercise(exerciseData: any): Promise<any> {
     await this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
-      variables: exerciseData
+      variables: exerciseData,
+      refetchQueries: ['FilteredExercisesQuery']
     }).toPromise();
   }
 
