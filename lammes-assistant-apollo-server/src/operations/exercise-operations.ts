@@ -1,10 +1,6 @@
 import {Context} from "../context";
 import {ApolloError, AuthenticationError, UserInputError} from "apollo-server";
-import {
-  Exercise,
-  ExerciseLabelListRelationFilter,
-  ExerciseLabelScalarWhereInput
-} from "@prisma/client";
+import {Exercise, ExerciseLabelScalarWhereInput} from "@prisma/client";
 import {generateUnnecessaryWhitespacesError} from "../custom-errors/unnecessary-whitespaces-error";
 import {DateTime} from 'luxon';
 import {ExerciseCooldown} from "./settings-operations";
@@ -280,7 +276,8 @@ export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exercis
     throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
   }
   const now = DateTime.fromJSDate(new Date());
-  return prisma.exercise.findFirst({
+  // We first try to find an exercise that fits the criteria and that the user has never done.
+  const exerciseWithNoExperience = await prisma.exercise.findFirst({
     where: {
       creatorId: creatorIds && creatorIds.length > 0 ? {
         in: creatorIds
@@ -295,38 +292,47 @@ export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exercis
         }
       } : undefined,
       markedForDeletionTimestamp: null,
+      experiences: {
+        none: {
+          learnerId: userId
+        }
+      },
+    },
+  });
+  if (exerciseWithNoExperience) {
+    return exerciseWithNoExperience;
+  }
+  // Now we look for an exercise in which the user has the smallest correct streak.
+  const mostUnstableExperience = await prisma.experience.findFirst({
+    where: {
+      learnerId: userId,
+      exercise: {
+        // We want the displayed exercises not to contain exercises that are marked for deletion.
+        markedForDeletionTimestamp: null
+      },
       OR: [
         {
-          experiences: {
-            none: {
-              learnerId: userId
-            }
+          lastStudiedTimestamp: {
+            lte: now.minus({
+              days: exerciseCooldown.days,
+              hours: exerciseCooldown.hours,
+              minutes: exerciseCooldown.minutes
+            }).toISO()
           }
         },
         {
-          experiences: {
-            some: {
-              learnerId: userId,
-              OR: [
-                {
-                  lastStudiedTimestamp: {
-                    lte: now.minus({
-                      days: exerciseCooldown.days,
-                      hours: exerciseCooldown.hours,
-                      minutes: exerciseCooldown.minutes
-                    }).toISO()
-                  }
-                },
-                {
-                  lastStudiedTimestamp: null
-                }
-              ]
-            }
-          }
+          lastStudiedTimestamp: null
         }
-      ],
+      ]
     },
+    orderBy: {
+      correctStreak: 'asc'
+    },
+    include: {
+      exercise: true
+    }
   });
+  return mostUnstableExperience?.exercise;
 }
 
 export async function getExerciseDownloadLink(context: Context, exerciseId: number): Promise<any> {
