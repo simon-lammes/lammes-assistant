@@ -24,7 +24,6 @@ export interface Settings {
    */
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
-  myExerciseLabels: string[];
 }
 
 const userFragment = gql`
@@ -35,8 +34,8 @@ const userFragment = gql`
 `;
 
 const saveSettingsMutation = gql`
-  mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!, $myExerciseLabels: [String!]!) {
-    saveSettings(exerciseCooldown: $exerciseCooldown, myExerciseLabels: $myExerciseLabels) {
+  mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!) {
+    saveSettings(exerciseCooldown: $exerciseCooldown) {
       ...UserFragment
     }
   },

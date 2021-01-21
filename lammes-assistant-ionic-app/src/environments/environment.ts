@@ -19,7 +19,6 @@ export const environment: Environment = {
       hours: 2,
       minutes: 0
     },
-    myExerciseLabels: [],
     settingsUpdatedTimestamp: undefined
   }
 };

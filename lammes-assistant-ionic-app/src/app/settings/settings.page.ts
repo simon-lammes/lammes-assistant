@@ -41,14 +41,13 @@ export class SettingsPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const {exerciseCooldown, myExerciseLabels} = await this.settings$.pipe(first()).toPromise();
+    const {exerciseCooldown} = await this.settings$.pipe(first()).toPromise();
     this.settingsForm = this.fb.group({
       exerciseCooldown: this.fb.group({
         days: this.fb.control(exerciseCooldown.days),
         hours: this.fb.control(exerciseCooldown.hours),
         minutes: this.fb.control(exerciseCooldown.minutes)
       }),
-      myExerciseLabels: this.fb.control(myExerciseLabels)
     });
     this.exerciseCooldownTextualRepresentation$ = this.exerciseCooldownGroup.valueChanges.pipe(
       // We want this observable to include the initial value.

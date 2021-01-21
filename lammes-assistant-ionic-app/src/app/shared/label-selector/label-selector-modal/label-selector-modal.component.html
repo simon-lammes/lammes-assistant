@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [formGroup]="filterForm">
   <ion-toolbar>
     <ion-title>Select Labels</ion-title>
     <ion-buttons slot="start">
@@ -8,14 +8,16 @@
       <ion-button (click)="set()">Set</ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar formControlName="query" debounce="400"></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
+  <ion-list *ngIf="selectedLabels$ | async as selectedLabels">
     <ion-item *ngFor="let label of allDisplayedLabels$ | async">
       <ion-label>{{label}}</ion-label>
       <ion-checkbox slot="start" [checked]="selectedLabels.has(label)" (ionChange)="onChangeLabelSelection($event, label)"></ion-checkbox>
     </ion-item>
   </ion-list>
-  <ion-button fill="block" (click)="createNewLabel()">Create New Label</ion-button>
 </ion-content>

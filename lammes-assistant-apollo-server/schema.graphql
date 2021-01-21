@@ -83,7 +83,7 @@ type Mutation {
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
-  saveSettings(exerciseCooldown: ExerciseCooldown!, myExerciseLabels: [String!]!): User
+  saveSettings(exerciseCooldown: ExerciseCooldown!): User
   updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
@@ -113,6 +113,7 @@ input PossibleAnswer {
 
 type Query {
   filteredExercises(creatorIds: [Int!], labels: [String!]!): [Exercise]
+  filteredLabels(query: String): [Label]
   filteredUsers(query: String): [User]
   getExerciseDownloadLink(exerciseId: Int!): String
 

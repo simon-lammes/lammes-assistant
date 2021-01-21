@@ -35,6 +35,7 @@ import {
   updateExercise
 } from "./operations/exercise-operations";
 import {getCurrentUser, getSettingsDownloadLink, saveSettings} from "./operations/settings-operations";
+import {fetchFilteredLabels} from "./operations/label-operations";
 
 const User = objectType({
   name: 'User',
@@ -200,6 +201,15 @@ const Query = objectType({
       },
       resolve: (root, args, context) => {
         return fetchFilteredUsers(context, args);
+      }
+    });
+    t.list.field('filteredLabels', {
+      type: "Label",
+      args: {
+        query: nullable(stringArg()),
+      },
+      resolve: (root, args, context) => {
+        return fetchFilteredLabels(context, args);
       }
     });
     t.list.field('myExercisesThatAreMarkedForDeletion', {
@@ -396,7 +406,6 @@ const Mutation = objectType({
       type: "User",
       args: {
         exerciseCooldown: nonNull(arg({type: ExerciseCooldown})),
-        myExerciseLabels: nonNull(list(nonNull(stringArg())))
       },
       resolve: (root, args, context) => {
         return saveSettings(context, args);

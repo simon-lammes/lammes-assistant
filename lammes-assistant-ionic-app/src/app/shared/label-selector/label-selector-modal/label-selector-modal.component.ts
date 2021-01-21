@@ -1,10 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {AlertController, ModalController, ToastController} from '@ionic/angular';
-import {Observable} from 'rxjs';
-import {Settings, SettingsService} from '../../../settings/settings.service';
-import {first, map} from 'rxjs/operators';
-
-const labelRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+import {ModalController} from '@ionic/angular';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
+import {distinctUntilChanged, map, startWith, switchMap} from 'rxjs/operators';
+import {LabelFilter, LabelsService} from '../../services/labels/labels.service';
+import {FormBuilder, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-label-selector-modal',
@@ -12,27 +11,61 @@ const labelRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
   styleUrls: ['./label-selector-modal.component.scss'],
 })
 export class LabelSelectorModalComponent implements OnInit {
-  settings$: Observable<Settings> = this.settingsService.currentSettings$;
-
-  @Input()
-  initiallySelectedLabels: Set<string>;
-
-  selectedLabels: Set<string>;
-
-  allDisplayedLabels$: Observable<string[]>;
 
   constructor(
     private modalController: ModalController,
-    private alertController: AlertController,
-    private toastController: ToastController,
-    private settingsService: SettingsService
+    private fb: FormBuilder,
+    private labelsService: LabelsService
   ) {
   }
+  @Input()
+  initiallySelectedLabels: Set<string>;
+
+  selectedLabelsSubject: BehaviorSubject<Set<string>>;
+
+  selectedLabels$: Observable<Set<string>>;
+
+  allDisplayedLabels$: Observable<string[]>;
+
+  filterForm: FormGroup;
+
+  filter$: Observable<LabelFilter>;
+
+  filterQuery$: Observable<string>;
+
+  filteredLabels$: Observable<string[]>;
 
   ngOnInit(): void {
-    this.selectedLabels = new Set<string>(this.initiallySelectedLabels);
-    this.allDisplayedLabels$ = this.settings$.pipe(
-      map(settings => [...new Set([...settings.myExerciseLabels, ...this.initiallySelectedLabels])].sort())
+    this.selectedLabelsSubject = new BehaviorSubject<Set<string>>(new Set<string>(this.initiallySelectedLabels));
+    this.selectedLabels$ = this.selectedLabelsSubject.asObservable();
+    this.filterForm = this.fb.group({
+      query: this.fb.control('')
+    });
+    this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as LabelFilter));
+    this.filterQuery$ = this.filter$.pipe(
+      map(filter => filter.query),
+      distinctUntilChanged()
+    );
+    this.filteredLabels$ = this.filter$.pipe(
+      switchMap(filter => this.labelsService.getFilteredLabels(filter))
+    );
+    this.allDisplayedLabels$ = combineLatest([
+      this.filteredLabels$,
+      this.filterQuery$,
+      this.selectedLabels$
+    ]).pipe(
+      map(([filteredLabels, filterQuery, selectedLabels]) => {
+        if (!filterQuery) {
+          return [...selectedLabels, ...filteredLabels.filter(filteredLabel => !selectedLabels.has(filteredLabel))];
+        } else {
+          const newLabel = this.labelsService.validLabelFromFilterQuery(filterQuery);
+          if (newLabel && !filteredLabels.includes(newLabel)) {
+            return [newLabel, ...filteredLabels];
+          } else {
+            return filteredLabels;
+          }
+        }
+      })
     );
   }
 
@@ -41,75 +74,19 @@ export class LabelSelectorModalComponent implements OnInit {
   }
 
   onChangeLabelSelection(event: CustomEvent, label: string) {
+    const selectedLabels = new Set<string>(this.selectedLabelsSubject.value);
     const {detail: {checked}} = event;
     if (checked) {
-      this.selectedLabels.add(label);
+      selectedLabels.add(label);
     } else {
-      this.selectedLabels.delete(label);
+      selectedLabels.delete(label);
     }
+    this.selectedLabelsSubject.next(selectedLabels);
   }
 
   async set() {
     await this.modalController.dismiss({
-      selectedLabels: this.selectedLabels
+      selectedLabels: this.selectedLabelsSubject.value
     });
-  }
-
-  async createNewLabel() {
-    const alert = await this.alertController.create({
-      header: 'Create New Label',
-      inputs: [
-        {
-          name: 'label',
-          type: 'text',
-          placeholder: 'Label'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Save',
-          handler: async (result: { label: string }) => {
-            const {label} = result;
-            const doesFollowNamingConvention = labelRegex.test(label);
-            if (!doesFollowNamingConvention) {
-              await this.showHint('Tags need to follow this naming naming pattern: \'my-label-1\'');
-              return;
-            }
-            const currentSettings = await this.settings$.pipe(first()).toPromise();
-            const newSettings: Settings = {
-              ...currentSettings,
-              myExerciseLabels: [...currentSettings.myExerciseLabels, label]
-            };
-            await this.settingsService.saveSettings(newSettings);
-            this.selectedLabels.add(label);
-            this.selectedLabels = new Set<string>(this.selectedLabels);
-          }
-        }
-      ]
-    });
-    await alert.present();
-    // I do not know a nicer way of autofocusing the first input element.
-    const firstInput: any = document.querySelector('ion-alert input');
-    firstInput.focus();
-  }
-
-  private async showHint(message: string) {
-    const toast = await this.toastController.create({
-      header: message,
-      duration: 6500,
-      color: 'warning',
-      buttons: [
-        {
-          icon: 'close-outline',
-          role: 'cancel'
-        }
-      ],
-      position: 'top'
-    });
-    await toast.present();
   }
 }
