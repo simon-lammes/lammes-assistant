@@ -63,8 +63,8 @@
                   <ion-textarea rows="3" formControlName="value"></ion-textarea>
                   <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
                 </ion-item>
-                <ion-item-options side="end" (ionSwipe)="removeFile(i)">
-                  <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
+                <ion-item-options side="end" (ionSwipe)="removeAnswer(i)">
+                  <ion-item-option expandable="true" color="danger" (click)="removeAnswer(i)">
                     <ion-icon name="trash-outline"></ion-icon>
                     Remove
                   </ion-item-option>

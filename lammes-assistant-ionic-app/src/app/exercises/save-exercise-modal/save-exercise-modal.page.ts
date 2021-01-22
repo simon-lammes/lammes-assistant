@@ -276,4 +276,9 @@ export class SaveExerciseModalPage implements OnInit {
       correct: this.formBuilder.control(false)
     }));
   }
+
+  removeAnswer(i: number) {
+    const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
+    possibleAnswersArrayControl.removeAt(i);
+  }
 }
