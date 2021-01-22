@@ -23,6 +23,8 @@ export interface PossibleAnswer {
   correct: boolean;
 }
 
+export type LanguageCodeIso639_1 = 'en' | 'de';
+
 /**
  * A heavier type than a regular exercise. This type can consist binary files associated with the exercise and is therefore not
  * saved in a relational database.
@@ -38,6 +40,7 @@ export interface HydratedExercise {
   possibleAnswers: PossibleAnswer[];
   files: CustomFile[];
   labels?: string[];
+  languageCode: LanguageCodeIso639_1;
 }
 
 export interface Exercise {
@@ -52,6 +55,7 @@ export interface Exercise {
       title: string;
     };
   }[];
+  languageCode: LanguageCodeIso639_1;
 }
 
 export interface Experience {
@@ -90,7 +94,8 @@ const exerciseFragment = gql`
       label {
         title
       }
-    }
+    },
+    languageCode
   }
 `;
 
@@ -127,8 +132,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $languageCode: LanguageCode!) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, languageCode: $languageCode) {
       ...ExerciseFragment
     }
   },
@@ -136,8 +141,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!]) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $languageCode: LanguageCode!) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, languageCode: $languageCode) {
       ...ExerciseFragment
     }
   },
@@ -185,7 +190,8 @@ const restoreExerciseMutation = gql`
  */
 function complementHydratedExerciseWithDefaultValues() {
   const hydratedExerciseDefaultValues = {
-    exerciseType: 'standard'
+    exerciseType: 'standard',
+    languageCode: 'en'
   } as Partial<HydratedExercise>;
   return <T extends HydratedExercise>(source: Observable<T>) => {
     return source.pipe(

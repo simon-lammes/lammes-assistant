@@ -109,6 +109,16 @@ export class SaveExerciseModalPage implements OnInit {
       type: 'labelSelector',
       controlName: 'labels',
       controlBuilder: (exercise) => this.formBuilder.control(exercise?.labels ?? [])
+    },
+    {
+      title: 'Language',
+      type: 'select',
+      controlName: 'languageCode',
+      selectOptions: [
+        {value: 'en', displayValue: 'English'},
+        {value: 'de', displayValue: 'German'}
+      ],
+      controlBuilder: (exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
     }
   ];
   exerciseForm: FormGroup;

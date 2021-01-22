@@ -104,6 +104,7 @@ const Exercise = objectType({
     t.model.versionTimestamp();
     t.model.markedForDeletionTimestamp();
     t.model.exerciseLabels();
+    t.model.languageCode();
   }
 });
 
@@ -152,6 +153,12 @@ const ExerciseResult = enumType({
 const ExerciseType = enumType({
   name: 'ExerciseType',
   members: ['standard', 'multiselect', 'trueOrFalse']
+});
+
+const LanguageCode = enumType({
+  name: 'LanguageCode',
+  description: 'We use ISO 639-1.',
+  members: ['en', 'de']
 });
 
 const Query = objectType({
@@ -350,7 +357,8 @@ const Mutation = objectType({
         files: nonNull(list(arg({type: CustomFile}))),
         labels: nonNull(list(nonNull(stringArg()))),
         isStatementCorrect: nullable(booleanArg()),
-        possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
+        possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
+        languageCode: nonNull(arg({type: LanguageCode}))
       },
       resolve: (root, args, context) => {
         return createExercise(context, args);
@@ -367,7 +375,8 @@ const Mutation = objectType({
         files: nonNull(list(arg({type: CustomFile}))),
         labels: nonNull(list(nonNull(stringArg()))),
         isStatementCorrect: nullable(booleanArg()),
-        possibleAnswers: nullable(list(arg({type: PossibleAnswer})))
+        possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
+        languageCode: nonNull(arg({type: LanguageCode}))
       },
       resolve: (root, args, context) => {
         return updateExercise(context, args);

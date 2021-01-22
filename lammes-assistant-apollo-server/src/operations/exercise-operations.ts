@@ -28,6 +28,7 @@ export interface CreateExerciseInput {
   labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
+  languageCode: 'en' | 'de' | undefined;
 }
 
 export interface UpdateExerciseInput {
@@ -40,6 +41,7 @@ export interface UpdateExerciseInput {
   labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
+  languageCode: 'en' | 'de' | undefined;
 }
 
 /**
@@ -60,6 +62,7 @@ interface HydratedExercise {
   exerciseType: 'standard' | 'trueOrFalse';
   isStatementCorrect?: boolean;
   possibleAnswers?: PossibleAnswer[];
+  languageCode: string;
 }
 
 /**
@@ -78,7 +81,8 @@ export async function createExercise(context: Context, {
   isStatementCorrect,
   files,
   labels,
-  possibleAnswers
+  possibleAnswers,
+  languageCode
 }: CreateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -98,6 +102,7 @@ export async function createExercise(context: Context, {
       creator: {
         connect: {id: userId}
       },
+      languageCode,
       exerciseLabels: {
         create: labels.map(label => {
           return {
@@ -137,7 +142,8 @@ export async function createExercise(context: Context, {
     isStatementCorrect,
     files,
     labels,
-    possibleAnswers
+    possibleAnswers,
+    languageCode
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
@@ -159,7 +165,8 @@ export async function updateExercise(context: Context, {
   isStatementCorrect,
   files,
   labels,
-  possibleAnswers
+  possibleAnswers,
+  languageCode
 }: UpdateExerciseInput): Promise<Exercise> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -183,7 +190,8 @@ export async function updateExercise(context: Context, {
     isStatementCorrect,
     files,
     labels,
-    possibleAnswers
+    possibleAnswers,
+    languageCode
   } as HydratedExercise;
   const upload = context.spacesClient.putObject({
     Bucket: "lammes-assistant-space",
@@ -212,6 +220,7 @@ export async function updateExercise(context: Context, {
     },
     data: {
       title,
+      languageCode,
       exerciseLabels: {
         deleteMany: removeLabels.length > 0 ? removeLabels.map(label => {
           return {

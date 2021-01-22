@@ -41,6 +41,7 @@ model Exercise {
   title                      String
   creatorId                  Int             @map("creator_id")
   markedForDeletionTimestamp DateTime?       @map("marked_for_deletion_timestamp")
+  languageCode               LanguageCode    @default(en) @map("language_code")
   creator                    User            @relation("exercisesToUsers", fields: [creatorId], references: [id])
   exerciseLabels             ExerciseLabel[] @relation("exercisesToLabels")
   experiences                Experience[]    @relation("exercisesToExperiences")
@@ -76,4 +77,11 @@ model Label {
   exerciseLabels ExerciseLabel[]
 
   @@map("labels")
+}
+
+enum LanguageCode {
+  en
+  de
+
+   @@map("language_code_iso_639_1")
 }

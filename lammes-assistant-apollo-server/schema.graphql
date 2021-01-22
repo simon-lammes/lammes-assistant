@@ -14,6 +14,7 @@ type Exercise {
   creatorId: Int!
   exerciseLabels(after: ExerciseLabelWhereUniqueInput, before: ExerciseLabelWhereUniqueInput, first: Int, last: Int): [ExerciseLabel!]!
   id: Int!
+  languageCode: LanguageCode!
   markedForDeletionTimestamp: DateTime
   title: String!
   versionTimestamp: DateTime!
@@ -67,8 +68,14 @@ type Label {
   title: String!
 }
 
+"""We use ISO 639-1."""
+enum LanguageCode {
+  de
+  en
+}
+
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -84,7 +91,7 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(exerciseCooldown: ExerciseCooldown!): User
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
 type Note {
