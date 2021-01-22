@@ -11,13 +11,14 @@
 
 <!-- TrueOrFalse (only shown for this type of exercise) -->
 <div style="display: flex">
-  <ion-button color="{{getRightOrWrongButtonColor(false)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
-              (click)="onEvaluatedStatement(false)">
-    Wrong
-  </ion-button>
+  <!-- Right should come first, because this is what users are used to from Kahoot -->
   <ion-button color="{{getRightOrWrongButtonColor(true)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
               (click)="onEvaluatedStatement(true)">
     Right
+  </ion-button>
+  <ion-button color="{{getRightOrWrongButtonColor(false)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
+              (click)="onEvaluatedStatement(false)">
+    Wrong
   </ion-button>
 </div>
 
