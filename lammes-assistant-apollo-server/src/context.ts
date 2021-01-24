@@ -1,8 +1,8 @@
 import {PrismaClient} from '@prisma/client'
 import {ExpressContext} from "apollo-server-express/src/ApolloServer";
-import {JwtPayload, verifyToken} from "./operations/user-operations";
 import AWS from "aws-sdk";
 import {environment} from "./environment";
+import {JwtPayload, verifyToken} from "./utils/jwt-utils";
 
 const prisma = new PrismaClient();
 

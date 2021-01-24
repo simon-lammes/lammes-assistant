@@ -141,7 +141,6 @@ type Query {
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note
-  users: [User]
 }
 
 type Registration {
