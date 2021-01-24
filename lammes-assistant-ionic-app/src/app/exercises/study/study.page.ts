@@ -40,8 +40,9 @@ export class StudyPage implements OnInit {
       map((params) => {
         return {
           labels: params.getAll('labels'),
-          creatorIds: params.getAll('creatorIds').map(labelString => +labelString)
-        };
+          creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
+          languageCodes: params.getAll('languageCodes')
+        } as ExerciseFilter;
       })
     );
     this.exercise$ = combineLatest([

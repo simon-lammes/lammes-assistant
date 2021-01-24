@@ -26,6 +26,12 @@ input ExerciseCooldown {
   minutes: Int!
 }
 
+input ExerciseFilter {
+  creatorIds: [Int!]
+  labels: [String!]
+  languageCodes: [LanguageCode!]
+}
+
 input ExerciseIdLabelIdCompoundUniqueInput {
   exerciseId: Int!
   labelId: Int!
@@ -119,7 +125,7 @@ input PossibleAnswer {
 }
 
 type Query {
-  filteredExercises(creatorIds: [Int!], labels: [String!]!): [Exercise]
+  filteredExercises(exerciseFilter: ExerciseFilter!): [Exercise]
   filteredLabels(query: String): [Label]
   filteredUsers(query: String): [User]
   getExerciseDownloadLink(exerciseId: Int!): String
@@ -131,7 +137,7 @@ type Query {
   me: User
   myDeferredNotes: [Note]
   myExercisesThatAreMarkedForDeletion: [Exercise]
-  myNextExercise(creatorIds: [Int!], exerciseCooldown: ExerciseCooldown!, labels: [String!]): Exercise
+  myNextExercise(exerciseCooldown: ExerciseCooldown!, exerciseFilter: ExerciseFilter!): Exercise
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

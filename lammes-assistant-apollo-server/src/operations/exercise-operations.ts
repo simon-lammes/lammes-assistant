@@ -19,6 +19,8 @@ export interface PossibleAnswer {
 
 export type ExerciseType = 'standard' | 'multiselect' | 'trueOrFalse';
 
+export type LanguageCode = 'en' | 'de';
+
 export interface CreateExerciseInput {
   title: string;
   assignment: string;
@@ -28,7 +30,7 @@ export interface CreateExerciseInput {
   labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
-  languageCode: 'en' | 'de' | undefined;
+  languageCode: LanguageCode | undefined;
 }
 
 export interface UpdateExerciseInput {
@@ -41,7 +43,7 @@ export interface UpdateExerciseInput {
   labels: string[];
   isStatementCorrect?: boolean | null;
   possibleAnswers?: PossibleAnswer[] | null;
-  languageCode: 'en' | 'de' | undefined;
+  languageCode: LanguageCode | undefined;
 }
 
 /**
@@ -69,8 +71,9 @@ interface HydratedExercise {
  * The user might want to filter for specific exercises.
  */
 export interface ExerciseFilter {
-  labels: string[];
+  labels?: string[] | null;
   creatorIds?: number[] | null;
+  languageCodes?: LanguageCode[] | null;
 }
 
 export async function createExercise(context: Context, {
@@ -250,7 +253,8 @@ export async function updateExercise(context: Context, {
 
 export async function fetchFilteredExercises(context: Context, {
   creatorIds,
-  labels
+  labels,
+  languageCodes
 }: ExerciseFilter): Promise<Exercise[]> {
   const userId = context.jwtPayload?.userId;
   if (!userId) {
@@ -261,7 +265,7 @@ export async function fetchFilteredExercises(context: Context, {
       creatorId: creatorIds && creatorIds.length > 0 ? {
         in: creatorIds
       } : undefined,
-      exerciseLabels: labels?.length > 0 ? {
+      exerciseLabels: labels && labels.length > 0 ? {
         some: {
           label: {
             title: {
@@ -269,6 +273,9 @@ export async function fetchFilteredExercises(context: Context, {
             }
           }
         }
+      } : undefined,
+      languageCode: languageCodes && languageCodes.length > 0 ? {
+        in: languageCodes
       } : undefined,
       // We want the displayed exercises not to contain exercises that are marked for deletion.
       markedForDeletionTimestamp: null
@@ -279,7 +286,7 @@ export async function fetchFilteredExercises(context: Context, {
   });
 }
 
-export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exerciseCooldown: ExerciseCooldown, creatorIds?: number[] | null, labels?: string[] | null): Promise<any> {
+export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exerciseCooldown: ExerciseCooldown, {creatorIds, labels, languageCodes}: ExerciseFilter): Promise<any> {
   const userId = jwtPayload?.userId;
   if (!userId) {
     throw new AuthenticationError('You can only fetch your exercises when you are authenticated.');
@@ -300,6 +307,9 @@ export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exercis
           }
         }
       } : undefined,
+      languageCode: languageCodes && languageCodes.length > 0 ? {
+        in: languageCodes
+      } : undefined,
       markedForDeletionTimestamp: null,
       experiences: {
         none: {
@@ -317,7 +327,22 @@ export async function fetchMyNextExercise({prisma, jwtPayload}: Context, exercis
       learnerId: userId,
       exercise: {
         // We want the displayed exercises not to contain exercises that are marked for deletion.
-        markedForDeletionTimestamp: null
+        markedForDeletionTimestamp: null,
+        creatorId: creatorIds && creatorIds.length > 0 ? {
+          in: creatorIds
+        } : userId,
+        exerciseLabels: labels && labels.length > 0 ? {
+          some: {
+            label: {
+              title: {
+                in: labels
+              }
+            }
+          }
+        } : undefined,
+        languageCode: languageCodes && languageCodes.length > 0 ? {
+          in: languageCodes
+        } : undefined
       },
       OR: [
         {

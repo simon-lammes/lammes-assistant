@@ -6,8 +6,9 @@ import {Router} from '@angular/router';
 import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {first, startWith, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, first, startWith, switchMap} from 'rxjs/operators';
 import {UsersService} from '../shared/services/users/users.service';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-exercises',
@@ -33,9 +34,13 @@ export class ExercisesPage implements OnInit {
     const user = await this.usersService.currentUser$.pipe(first()).toPromise();
     this.filterForm = this.formBuilder.group({
       creatorIds: this.formBuilder.control([user.id]),
-      labels: this.formBuilder.control([])
+      labels: this.formBuilder.control([]),
+      languageCodes: this.formBuilder.control([])
     });
-    this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as ExerciseFilter));
+    this.filter$ = this.filterForm.valueChanges.pipe(
+      startWith(this.filterForm.value as ExerciseFilter),
+      distinctUntilChanged((x, y) => _.isEqual(x, y))
+    );
     this.filteredExercises$ = this.filter$.pipe(
       switchMap(filter => this.exercisesService.getFilteredExercises(filter))
     );
@@ -52,7 +57,8 @@ export class ExercisesPage implements OnInit {
     const filter = this.filterForm.value as ExerciseFilter;
     const trimmedFilter: ExerciseFilter = {
       creatorIds: filter.creatorIds?.length > 0 ? filter.creatorIds : undefined,
-      labels: filter.labels?.length > 0 ? filter.labels : undefined
+      labels: filter.labels?.length > 0 ? filter.labels : undefined,
+      languageCodes: filter.languageCodes?.length > 0 ? filter.languageCodes : undefined
     };
     await this.router.navigate(['tabs', 'exercises', 'study'], {queryParams: trimmedFilter});
   }

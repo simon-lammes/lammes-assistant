@@ -15,8 +15,18 @@
     <ion-list-header>
       <ion-label>Filter</ion-label>
     </ion-list-header>
-    <app-user-selector heading="Creators" formControlName="creatorIds" noSelectionText="Showing exercises of all users"></app-user-selector>
-    <app-label-selector heading="Labels" formControlName="labels" noSelectionText="No Label Filters"></app-label-selector>
+    <app-user-selector heading="Creators" formControlName="creatorIds"
+                       noSelectionText="Showing exercises of all users"></app-user-selector>
+    <app-label-selector heading="Labels" formControlName="labels"
+                        noSelectionText="No Label Filters"></app-label-selector>
+    <ion-item>
+      <ion-label>Language</ion-label>
+      <ion-select formControlName="languageCodes" multiple>
+        <ion-select-option value="en">English</ion-select-option>
+        <ion-select-option value="de">German</ion-select-option>
+      </ion-select>
+    </ion-item>
+
   </ion-list>
   <ion-list>
     <ion-list-header>

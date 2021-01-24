@@ -85,6 +85,15 @@ export const ExerciseCooldown = inputObjectType({
   },
 });
 
+export const ExerciseFilter = inputObjectType({
+  name: 'ExerciseFilter',
+  definition(t) {
+    t.nullable.list.nonNull.int('creatorIds')
+    t.nullable.list.nonNull.string('labels')
+    t.nullable.list.nonNull.field('languageCodes', {type: LanguageCode});
+  },
+});
+
 const ExerciseLabel = objectType({
   name: 'ExerciseLabel',
   definition(t) {
@@ -194,11 +203,10 @@ const Query = objectType({
     t.list.field('filteredExercises', {
       type: "Exercise",
       args: {
-        creatorIds: nullable(list(nonNull(intArg()))),
-        labels: nonNull(list(nonNull(stringArg())))
+        exerciseFilter: nonNull(arg({type: ExerciseFilter}))
       },
       resolve: (root, args, context) => {
-        return fetchFilteredExercises(context, args);
+        return fetchFilteredExercises(context, args.exerciseFilter);
       }
     });
     t.list.field('filteredUsers', {
@@ -229,11 +237,10 @@ const Query = objectType({
       type: "Exercise",
       args: {
         exerciseCooldown: nonNull(arg({type: ExerciseCooldown})),
-        creatorIds: nullable(list(nonNull(intArg()))),
-        labels: nullable(list(nonNull(stringArg())))
+        exerciseFilter: nonNull(arg({type: ExerciseFilter}))
       },
       resolve: (root, args, context) => {
-        return fetchMyNextExercise(context, args.exerciseCooldown, args.creatorIds, args.labels);
+        return fetchMyNextExercise(context, args.exerciseCooldown, args.exerciseFilter);
       }
     });
     t.field('getExerciseDownloadLink', {

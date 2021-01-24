@@ -69,6 +69,7 @@ export interface Experience {
 export interface ExerciseFilter {
   labels?: string[];
   creatorIds?: number[];
+  languageCodes?: LanguageCodeIso639_1[];
 }
 
 /**
@@ -107,15 +108,6 @@ const experienceFragment = gql`
   fragment ExperienceFragment on Experience {
     correctStreak,
     exercise {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
-`;
-
-const filteredExercisesQuery = gql`
-  query FilteredExercisesQuery($labels: [String!]!, $creatorIds: [Int!]) {
-    filteredExercises(labels: $labels, creatorIds: $creatorIds) {
       ...ExerciseFragment
     }
   },
@@ -229,14 +221,14 @@ export class ExercisesService {
   getNextExercise(exerciseCooldown: ExerciseCooldown, exerciseFilter: ExerciseFilter) {
     return this.apollo.query<{ myNextExercise: Exercise }>({
       query: gql`
-        query MyNextExercise($exerciseCooldown: ExerciseCooldown!, $labels: [String!], $creatorIds: [Int!]) {
-          myNextExercise(exerciseCooldown: $exerciseCooldown, labels: $labels, creatorIds: $creatorIds) {
+        query MyNextExercise($exerciseCooldown: ExerciseCooldown!, $exerciseFilter: ExerciseFilter!) {
+          myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilter) {
             ...ExerciseFragment
           }
         },
         ${exerciseFragment}
       `,
-      variables: {...exerciseFilter, exerciseCooldown},
+      variables: {exerciseFilter, exerciseCooldown},
       // When we used the cache, we would be "stuck" with the same exercise.
       fetchPolicy: 'no-cache'
     }).pipe(
@@ -339,10 +331,17 @@ export class ExercisesService {
     }).toPromise();
   }
 
-  getFilteredExercises(filter: ExerciseFilter) {
+  getFilteredExercises(exerciseFilter: ExerciseFilter) {
     return this.apollo.watchQuery<{ filteredExercises: Exercise[] }>({
-      query: filteredExercisesQuery,
-      variables: filter,
+      query: gql`
+        query FilteredExercisesQuery($exerciseFilter: ExerciseFilter!) {
+          filteredExercises(exerciseFilter: $exerciseFilter) {
+            ...ExerciseFragment
+          }
+        },
+        ${exerciseFragment}
+      `,
+      variables: {exerciseFilter},
       // When user changed exercise resources, this query needs to update.
       // Solely using refetchQueries would not suffice because this targets only single queries.
       // However, there could be thousand caches of this query, all with different input variables.
