@@ -2,7 +2,7 @@
 
 ### Local Development
 
-Run `npm install` and then `npm run start`. As default configuration, we use [`environment.ts`](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.ts). By default, the app is configured to communicate with the remotely hosted server instance that should always be running.
+Run `npm install` and then `npm run start:remote`. As default configuration, we use [`environment.ts`](https://github.com/simon-lammes/lammes-assistant/blob/master/lammes-assistant-ionic-app/src/environments/environment.ts). By default, the app is configured to communicate with the remotely hosted server instance that should always be running.
 
 If you do have a local server instance running and want to test how your locally developed app works together with your locally developed server, run `npm run start:local` instead. It will configure the app to communicate with the locally deployed server. This is the more powerful development configuration that you will need for developing features that require changes in both frontend and backend. The default configuration, however, can be convenient when you are just making changes to the frontend and don't want to start a local instance of the server.
 

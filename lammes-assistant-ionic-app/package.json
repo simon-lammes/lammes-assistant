@@ -4,7 +4,7 @@
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
   "scripts": {
-    "start": "ionic serve",
+    "start:remote": "ionic serve",
     "start:local": "ionic serve --configuration local",
     "build:prod": "ionic build --prod"
   },
