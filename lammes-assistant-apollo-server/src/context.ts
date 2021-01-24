@@ -14,6 +14,13 @@ const spacesClient = new AWS.S3({
 });
 
 /**
+ * This object holds the **default** values that are used when they are not overridden.
+ */
+const defaultApplicationConfiguration: ApplicationConfiguration = {
+  minPasswordLength: 6
+}
+
+/**
  * An object that is created for every request so that it can be used by the resolvers.
  * It can contain information about the request.
  */
@@ -35,10 +42,18 @@ export interface Context {
    * using the AWS library as the Spaces documentation suggests.
    */
   spacesClient: AWS.S3;
+
+  applicationConfiguration: ApplicationConfiguration
+}
+
+export interface ApplicationConfiguration {
+  minPasswordLength: number;
 }
 
 export function createContext({req}: ExpressContext): Context {
   const token = req.headers.authorization;
   const jwtPayload = verifyToken(token);
-  return { prisma, jwtPayload, spacesClient };
+  // Currently, we just use the default config because overriding is not yet implemented.
+  const applicationConfiguration = defaultApplicationConfiguration;
+  return { prisma, jwtPayload, spacesClient, applicationConfiguration };
 }

@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {CustomFormsServiceService} from '../../shared/custom-forms-service.service';
+import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
@@ -138,7 +138,7 @@ export class SaveExerciseModalPage implements OnInit {
   constructor(
     private modalController: ModalController,
     private formBuilder: FormBuilder,
-    private customFormsService: CustomFormsServiceService,
+    private customFormsService: CustomFormsService,
     private exercisesService: ExercisesService,
     private toastController: ToastController,
     private alertController: AlertController

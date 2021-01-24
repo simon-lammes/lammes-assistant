@@ -6,6 +6,7 @@ import {LabelSelectorModalComponent} from './label-selector/label-selector-modal
 import {UserSelectorComponent} from './user-selector/user-selector.component';
 import {UserSelectorModalComponent} from './user-selector/user-selector-modal/user-selector-modal.component';
 import {ReactiveFormsModule} from '@angular/forms';
+import {ValidationFeedbackComponent} from './validation-feedback/validation-feedback.component';
 
 
 @NgModule({
@@ -13,11 +14,13 @@ import {ReactiveFormsModule} from '@angular/forms';
     LabelSelectorComponent,
     LabelSelectorModalComponent,
     UserSelectorComponent,
-    UserSelectorModalComponent
+    UserSelectorModalComponent,
+    ValidationFeedbackComponent
   ],
   exports: [
     LabelSelectorComponent,
-    UserSelectorComponent
+    UserSelectorComponent,
+    ValidationFeedbackComponent
   ],
   imports: [
     CommonModule,

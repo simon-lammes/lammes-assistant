@@ -1,4 +1,12 @@
-import {CustomFile, PossibleAnswer} from "../../operations/exercise-operations";
+export interface CustomFile {
+  name: string;
+  value: string;
+}
+
+export interface PossibleAnswer {
+  value: string;
+  correct: boolean;
+}
 
 /**
  * An exercise with all the information belonging to it. A regular "Exercise" only contains light metadata and it saved

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {delay, retryWhen, tap} from 'rxjs/operators';
-import {environment} from '../../environments/environment';
+import {environment} from '../../../environments/environment';
 import {ToastController} from '@ionic/angular';
 
 @Injectable({

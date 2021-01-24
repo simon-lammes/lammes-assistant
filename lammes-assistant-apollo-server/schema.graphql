@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+type ApplicationConfiguration {
+  """How long the password of new users is required to be"""
+  minPasswordLength: Int
+}
+
 input CustomFile {
   name: String!
   value: String!
@@ -125,6 +130,7 @@ input PossibleAnswer {
 }
 
 type Query {
+  currentApplicationConfiguration: ApplicationConfiguration
   filteredExercises(exerciseFilter: ExerciseFilter!): [Exercise]
   filteredLabels(query: String): [Label]
   filteredUsers(query: String): [User]

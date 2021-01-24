@@ -7,7 +7,7 @@ import {AbstractControl} from '@angular/forms';
 @Injectable({
   providedIn: 'root'
 })
-export class CustomFormsServiceService {
+export class CustomFormsService {
 
   /**
    * Trims the input of the user and makes sure that whitespaces are not next to each other: 'a   b' becomes 'a b'.
@@ -17,5 +17,11 @@ export class CustomFormsServiceService {
     const trimmedValue = value.trim();
     const trimmedValueWithoutNeighboringWhitespaces = trimmedValue.replace(/[\s]{2,}/g, ' ');
     control.patchValue(trimmedValueWithoutNeighboringWhitespaces);
+  }
+
+  removeAllWhitespaces(control: AbstractControl) {
+    const value = control.value as string;
+    const newValue = value.replace(/[\s]/g, '');
+    control.patchValue(newValue);
   }
 }

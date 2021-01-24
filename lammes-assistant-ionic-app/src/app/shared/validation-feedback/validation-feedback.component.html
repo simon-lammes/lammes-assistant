@@ -1,0 +1,7 @@
+<p>
+  <ion-chip *ngFor="let validation of validationAspects">
+    <ion-icon *ngIf="validation.valid" name="checkmark-circle" color="success"></ion-icon>
+    <ion-icon *ngIf="!validation.valid" name="close-outline" color="danger"></ion-icon>
+    <ion-label>{{validation.description}}</ion-label>
+  </ion-chip>
+</p>
