@@ -6,6 +6,7 @@ import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exe
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
+import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -41,7 +42,6 @@ interface ExerciseControl {
   styleUrls: ['./save-exercise-modal.page.scss'],
 })
 export class SaveExerciseModalPage implements OnInit {
-  readonly ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml'];
   readonly allExerciseControls: ExerciseControl[] = [
     {
       title: 'Title',
@@ -141,7 +141,8 @@ export class SaveExerciseModalPage implements OnInit {
     private customFormsService: CustomFormsService,
     private exercisesService: ExercisesService,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private applicationConfigurationService: ApplicationConfigurationService
   ) {
   }
 
@@ -225,7 +226,8 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async addFile(file: ReadFile) {
-    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
+    const {allowedFileTypes} = await this.applicationConfigurationService.getApplicationConfigurationSnapshot();
+    if (!allowedFileTypes.includes(file.type)) {
       await this.showHint('File type not allowed.');
       return;
     }

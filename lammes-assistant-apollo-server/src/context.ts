@@ -17,7 +17,8 @@ const spacesClient = new AWS.S3({
  * This object holds the **default** values that are used when they are not overridden.
  */
 const defaultApplicationConfiguration: ApplicationConfiguration = {
-  minPasswordLength: 6
+  minPasswordLength: 6,
+  allowedFileTypes: ['image/jpeg', 'image/png', 'image/svg+xml']
 }
 
 /**
@@ -46,8 +47,12 @@ export interface Context {
   applicationConfiguration: ApplicationConfiguration
 }
 
+/**
+ * Documented in GraphQL schema.
+ */
 export interface ApplicationConfiguration {
   minPasswordLength: number;
+  allowedFileTypes: string[];
 }
 
 export function createContext({req}: ExpressContext): Context {

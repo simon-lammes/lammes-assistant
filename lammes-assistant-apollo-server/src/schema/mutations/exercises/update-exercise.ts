@@ -9,6 +9,7 @@ import {CustomFile} from "../../types/custom-file";
 import {PossibleAnswer} from "../../types/possible-answer";
 import {HydratedExercise} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
+import {validateExercise} from "../../../utils/validators/exercise-validation";
 
 export const updateExercise = mutationField("updateExercise", {
   type: exerciseObjectType,
@@ -38,7 +39,7 @@ export const updateExercise = mutationField("updateExercise", {
       possibleAnswers,
       solution
     },
-    {jwtPayload, prisma, spacesClient}
+    {jwtPayload, prisma, spacesClient, applicationConfiguration}
   ) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
@@ -51,6 +52,7 @@ export const updateExercise = mutationField("updateExercise", {
     if (exercise.creatorId !== userId) {
       throw generateAuthorizationError("You do not own the requested resource.");
     }
+    validateExercise(applicationConfiguration, {files, title});
     const versionTimestamp = new Date();
     const hydratedExercise = {
       id,

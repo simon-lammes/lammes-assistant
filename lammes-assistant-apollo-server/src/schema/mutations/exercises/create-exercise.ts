@@ -8,6 +8,8 @@ import {CustomFile} from "../../types/custom-file";
 import {PossibleAnswer} from "../../types/possible-answer";
 import {HydratedExercise} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
+import {validateExerciseFiles} from "../../../utils/validators/exercise-validation/exercise-file-validation";
+import {validateExercise} from "../../../utils/validators/exercise-validation";
 
 export const createExercise = mutationField('createExercise', {
   type: exerciseObjectType,
@@ -34,17 +36,12 @@ export const createExercise = mutationField('createExercise', {
       labels,
       possibleAnswers,
       languageCode
-    }, {jwtPayload, prisma, spacesClient}) => {
+    }, {jwtPayload, prisma, spacesClient, applicationConfiguration}) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
       throw new AuthenticationError('You can only create exercises when you are authenticated.');
     }
-    if (title.length === 0) {
-      throw new UserInputError('Title cannot be empty.');
-    }
-    if (title.includes('  ') || title.startsWith(' ') || title.endsWith(' ')) {
-      throw generateUnnecessaryWhitespacesError('title');
-    }
+    validateExercise(applicationConfiguration, {files, title});
     const versionTimestamp = new Date();
     const exercise: Exercise = await prisma.exercise.create({
       data: {
