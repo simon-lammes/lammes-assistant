@@ -1,14 +1,14 @@
 import {arg, mutationField, nonNull} from "@nexus/schema";
-import {Settings} from "../../../operations/settings-operations";
 import {AuthenticationError} from "apollo-server";
 import {getSettingsUrl} from "../../../utils/object-storage-utils";
-import {ExerciseCooldown} from "../../types/exercise-cooldown";
+import {ExerciseCooldownType} from "../../types/exercise-cooldown";
 import {userObjectType} from "../../types/user";
+import {Settings} from "../../types/settings";
 
 export const saveSettingsMutation = mutationField('saveSettings', {
   type: userObjectType,
   args: {
-    exerciseCooldown: nonNull(arg({type: ExerciseCooldown})),
+    exerciseCooldown: nonNull(arg({type: ExerciseCooldownType})),
   },
   resolve: async (root, settings, context) => {
     const userId = context.jwtPayload?.userId;
