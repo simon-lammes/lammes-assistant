@@ -11,7 +11,7 @@ export const filteredExercises = queryField('filteredExercises', {
   },
   resolve: (
     root,
-    {exerciseFilter: {creatorIds,labels, languageCodes}},
+    {exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak}},
     {jwtPayload, prisma}
   ) => {
     const userId = jwtPayload?.userId;
@@ -35,6 +35,26 @@ export const filteredExercises = queryField('filteredExercises', {
         languageCode: languageCodes && languageCodes.length > 0 ? {
           in: languageCodes
         } : undefined,
+        // Match exercises whose experience either fit the 'maximumCorrectStreak' filter or does not yet exist for the user.
+        OR: [
+          {
+            experiences: {
+              some: {
+                learnerId: userId,
+                correctStreak: typeof maximumCorrectStreak === 'number' ? {
+                  lte: maximumCorrectStreak
+                } : undefined,
+              }
+            }
+          },
+          {
+            experiences: {
+              none: {
+                learnerId: userId
+              }
+            }
+          }
+        ],
         // We want the displayed exercises not to contain exercises that are marked for deletion.
         markedForDeletionTimestamp: null
       },

@@ -38,6 +38,7 @@ input ExerciseFilter {
   creatorIds: [Int!]
   labels: [String!]
   languageCodes: [LanguageCode!]
+  maximumCorrectStreak: Int
 }
 
 input ExerciseIdLabelIdCompoundUniqueInput {

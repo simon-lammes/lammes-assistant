@@ -16,7 +16,7 @@ export const myNextExercise = queryField('myNextExercise', {
     root,
     {
       exerciseCooldown,
-      exerciseFilter: {creatorIds, labels, languageCodes}
+      exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak}
     },
     {jwtPayload, prisma}
   ) => {
@@ -58,6 +58,9 @@ export const myNextExercise = queryField('myNextExercise', {
     const mostUnstableExperience = await prisma.experience.findFirst({
       where: {
         learnerId: userId,
+        correctStreak: typeof maximumCorrectStreak === 'number' ? {
+          lte: maximumCorrectStreak
+        } : undefined,
         exercise: {
           // We want the displayed exercises not to contain exercises that are marked for deletion.
           markedForDeletionTimestamp: null,

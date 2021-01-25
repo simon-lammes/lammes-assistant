@@ -7,5 +7,6 @@ export const ExerciseFilter = inputObjectType({
     t.nullable.list.nonNull.int('creatorIds');
     t.nullable.list.nonNull.string('labels');
     t.nullable.list.nonNull.field('languageCodes', {type: LanguageCodeEnumType});
+    t.nullable.int('maximumCorrectStreak');
   },
 });

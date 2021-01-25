@@ -6,6 +6,7 @@ import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
 import {SettingsService} from '../../settings/settings.service';
+import {isNumeric} from 'rxjs/internal-compatibility';
 
 export interface ExerciseState {
   exerciseResult?: ExerciseResult;
@@ -41,7 +42,8 @@ export class StudyPage implements OnInit {
         return {
           labels: params.getAll('labels'),
           creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
-          languageCodes: params.getAll('languageCodes')
+          languageCodes: params.getAll('languageCodes'),
+          maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined
         } as ExerciseFilter;
       })
     );

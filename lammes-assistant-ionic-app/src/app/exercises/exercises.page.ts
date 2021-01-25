@@ -4,11 +4,13 @@ import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.p
 import {Exercise, ExerciseFilter, ExercisesService} from './exercises.service';
 import {Router} from '@angular/router';
 import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {distinctUntilChanged, first, startWith, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, first, startWith, switchMap} from 'rxjs/operators';
 import {UsersService} from '../shared/services/users/users.service';
 import _ from 'lodash';
+
+const maximumForUnsigned32Int = Validators.max(4_294_967_295);
 
 @Component({
   selector: 'app-exercises',
@@ -35,14 +37,16 @@ export class ExercisesPage implements OnInit {
     this.filterForm = this.formBuilder.group({
       creatorIds: this.formBuilder.control([user.id]),
       labels: this.formBuilder.control([]),
-      languageCodes: this.formBuilder.control([])
+      languageCodes: this.formBuilder.control([]),
+      maximumCorrectStreak: this.formBuilder.control(undefined, [maximumForUnsigned32Int])
     });
     this.filter$ = this.filterForm.valueChanges.pipe(
       startWith(this.filterForm.value as ExerciseFilter),
-      distinctUntilChanged((x, y) => _.isEqual(x, y))
+      distinctUntilChanged((x, y) => _.isEqual(x, y)),
+      filter(() => this.filterForm.valid)
     );
     this.filteredExercises$ = this.filter$.pipe(
-      switchMap(filter => this.exercisesService.getFilteredExercises(filter))
+      switchMap(filterValue => this.exercisesService.getFilteredExercises(filterValue))
     );
   }
 
@@ -54,11 +58,12 @@ export class ExercisesPage implements OnInit {
   }
 
   async startStudying() {
-    const filter = this.filterForm.value as ExerciseFilter;
+    const exerciseFilter = this.filterForm.value as ExerciseFilter;
     const trimmedFilter: ExerciseFilter = {
-      creatorIds: filter.creatorIds?.length > 0 ? filter.creatorIds : undefined,
-      labels: filter.labels?.length > 0 ? filter.labels : undefined,
-      languageCodes: filter.languageCodes?.length > 0 ? filter.languageCodes : undefined
+      creatorIds: exerciseFilter.creatorIds?.length > 0 ? exerciseFilter.creatorIds : undefined,
+      labels: exerciseFilter.labels?.length > 0 ? exerciseFilter.labels : undefined,
+      languageCodes: exerciseFilter.languageCodes?.length > 0 ? exerciseFilter.languageCodes : undefined,
+      maximumCorrectStreak: exerciseFilter.maximumCorrectStreak ?? undefined
     };
     await this.router.navigate(['tabs', 'exercises', 'study'], {queryParams: trimmedFilter});
   }

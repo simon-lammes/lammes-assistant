@@ -70,6 +70,7 @@ export interface ExerciseFilter {
   labels?: string[];
   creatorIds?: number[];
   languageCodes?: LanguageCodeIso639_1[];
+  maximumCorrectStreak: number;
 }
 
 /**

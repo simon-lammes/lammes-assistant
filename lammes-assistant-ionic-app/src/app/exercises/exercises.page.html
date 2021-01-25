@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-title>Exercises</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="startStudying()">Study</ion-button>
+      <ion-button *ngIf="filterForm" (click)="startStudying()" [disabled]="filterForm.invalid">Study</ion-button>
       <ion-button (click)="showPopover($event)">
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
       </ion-button>
@@ -21,10 +21,14 @@
                         noSelectionText="No Label Filters"></app-label-selector>
     <ion-item>
       <ion-label>Language</ion-label>
-      <ion-select formControlName="languageCodes" multiple>
+      <ion-select formControlName="languageCodes" multiple placeholder="(optional)">
         <ion-select-option value="en">English</ion-select-option>
         <ion-select-option value="de">German</ion-select-option>
       </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>Maximum correct streak</ion-label>
+      <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number" placeholder="(optional)"></ion-input>
     </ion-item>
 
   </ion-list>
