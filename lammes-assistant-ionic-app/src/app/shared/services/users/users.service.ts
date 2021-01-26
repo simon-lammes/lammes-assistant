@@ -15,12 +15,13 @@ export interface UserFilter {
   query?: string | null;
 }
 
-const userFragment = gql`
+export const userFragment = gql`
   fragment UserFragment on User {
     id,
     username,
     firstName,
-    lastName
+    lastName,
+    settingsUpdatedTimestamp
   }
 `;
 

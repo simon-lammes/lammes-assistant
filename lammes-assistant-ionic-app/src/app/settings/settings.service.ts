@@ -5,7 +5,7 @@ import {Storage} from '@ionic/storage';
 import {distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import _ from 'lodash';
 import {environment} from '../../environments/environment';
-import {User, UsersService} from '../shared/services/users/users.service';
+import {User, userFragment, UsersService} from '../shared/services/users/users.service';
 
 export interface ExerciseCooldown {
   days: number;
@@ -21,13 +21,6 @@ export interface Settings {
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
 }
-
-const userFragment = gql`
-  fragment UserFragment on User {
-    id,
-    settingsUpdatedTimestamp
-  }
-`;
 
 const saveSettingsMutation = gql`
   mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!) {
