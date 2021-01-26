@@ -220,7 +220,8 @@ export class ExercisesService {
   }
 
   getNextExercise(exerciseCooldown: ExerciseCooldown, exerciseFilter: ExerciseFilter) {
-    return this.apollo.query<{ myNextExercise: Exercise }>({
+    // We need to use watchQuery. The user might edit the exercise and thus, the updated exercise should be emitted.
+    return this.apollo.watchQuery<{ myNextExercise: Exercise }>({
       query: gql`
         query MyNextExercise($exerciseCooldown: ExerciseCooldown!, $exerciseFilter: ExerciseFilter!) {
           myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilter) {
@@ -230,9 +231,10 @@ export class ExercisesService {
         ${exerciseFragment}
       `,
       variables: {exerciseFilter, exerciseCooldown},
-      // When we used the cache, we would be "stuck" with the same exercise.
-      fetchPolicy: 'no-cache'
-    }).pipe(
+      // When we only used the cache, we would be "stuck" with the same exercise.
+      // However, we should still use the cache in order to see when the user updated an exercise.
+      fetchPolicy: 'cache-and-network'
+    }).valueChanges.pipe(
       map(({data}) => data.myNextExercise)
     );
   }
