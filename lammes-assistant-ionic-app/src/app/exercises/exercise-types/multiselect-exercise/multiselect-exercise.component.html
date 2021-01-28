@@ -14,17 +14,20 @@
   <ion-list-header>
     <ion-label>Answer Possibilities</ion-label>
   </ion-list-header>
-  <ion-item *ngFor="let answer of usersAnswers; let i = index" [color]="getAnswerColor(answer)">
-    <ion-label class="ion-text-wrap">
-      <app-enriched-markdown [data]="answer.value" [files]="exercise.files"></app-enriched-markdown>
-      <ng-container *ngIf="exerciseResult && answer.explanation">
-        <br>
-        <app-enriched-markdown [data]="answer.explanation"
-                               [files]="exercise.files"></app-enriched-markdown>
-      </ng-container>
-    </ion-label>
-    <ion-checkbox slot="start" [value]="answer.usersEvaluation" (ionChange)="switchUsersEvaluation(i)"></ion-checkbox>
-  </ion-item>
+  <ion-card *ngFor="let answer of usersAnswers; let i = index" (click)="switchUsersEvaluation(i)"
+            [class.selected-answer]="this.usersAnswers[i].usersEvaluation" [class.show-correctness]="exerciseResult"
+            [class.wrong-answer]="!answer.correct" [class.correct-answer]="answer.correct">
+    <ion-card-header>
+      <div style="display: flex; flex-direction: row">
+        <ion-icon style="height: 30pt; width: 30pt" [name]="getAnswerIcon(answer)" [color]="getAnswerIconColor(answer)"></ion-icon>
+        <app-enriched-markdown [data]="answer.value" [files]="exercise. files"></app-enriched-markdown>
+      </div>
+    </ion-card-header>
+    <ion-card-content *ngIf="exerciseResult && answer.explanation">
+      <app-enriched-markdown [data]="answer.explanation"
+                             [files]="exercise.files"></app-enriched-markdown>
+    </ion-card-content>
+  </ion-card>
 </ion-list>
 
 <!-- Submit -->

@@ -31,11 +31,10 @@ export class MultiselectExerciseComponent implements OnChanges {
     });
   }
 
-  getAnswerColor(answer: UserAnswer) {
-    if (!this.exerciseResult) {
-      return undefined;
+  getAnswerIconColor(answer: UserAnswer) {
+    if (!answer.usersEvaluation && answer.correct) {
+      return 'success';
     }
-    return answer.correct ? 'success' : 'danger';
   }
 
   requestNextExercise() {
@@ -45,6 +44,10 @@ export class MultiselectExerciseComponent implements OnChanges {
   }
 
   switchUsersEvaluation(i: number) {
+    // If the user has already evaluated his answers, his answers are immutable.
+    if (this.exerciseResult) {
+      return;
+    }
     this.usersAnswers[i].usersEvaluation = !this.usersAnswers[i].usersEvaluation;
   }
 
@@ -55,5 +58,17 @@ export class MultiselectExerciseComponent implements OnChanges {
       exerciseResult: this.exerciseResult,
       nextExerciseRequested: false
     });
+  }
+
+  getAnswerIcon(answer: UserAnswer) {
+    if (!this.exerciseResult) {
+      return;
+    }
+    if (answer.correct) {
+      return 'checkmark-outline';
+    } else if (answer.usersEvaluation) {
+      return 'close-outline';
+    }
+    return;
   }
 }
