@@ -22,7 +22,8 @@ export const createExercise = mutationField('createExercise', {
     labels: nonNull(list(nonNull(stringArg()))),
     isStatementCorrect: nullable(booleanArg()),
     possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
-    languageCode: nonNull(arg({type: LanguageCodeEnumType}))
+    languageCode: nonNull(arg({type: LanguageCodeEnumType})),
+    orderingItems: nullable(list(nonNull(stringArg())))
   },
   resolve: async (
     root,
@@ -35,7 +36,8 @@ export const createExercise = mutationField('createExercise', {
       files,
       labels,
       possibleAnswers,
-      languageCode
+      languageCode,
+      orderingItems
     }, {jwtPayload, prisma, spacesClient, applicationConfiguration}) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
@@ -91,7 +93,8 @@ export const createExercise = mutationField('createExercise', {
       files,
       labels,
       possibleAnswers,
-      languageCode
+      languageCode,
+      orderingItems
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",

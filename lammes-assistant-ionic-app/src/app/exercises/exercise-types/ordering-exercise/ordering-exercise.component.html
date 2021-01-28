@@ -1,0 +1,49 @@
+<!-- Assignment -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-title>{{exercise.title}}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.assignment" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<ion-reorder-group [disabled]="!!exerciseResult" (ionItemReorder)="reorderAnswerOrder($event)">
+  <ion-item *ngFor="let answer of answerOrder">
+    <ion-label>{{answer}}</ion-label>
+    <ion-reorder slot="end"></ion-reorder>
+  </ion-item>
+</ion-reorder-group>
+
+<!-- Submit -->
+<ng-container *ngIf="!exerciseResult">
+  <ion-button color="primary" style="flex: 1" (click)="submit()" expand="block">
+    Submit
+  </ion-button>
+</ng-container>
+
+<!-- Solution -->
+<ion-card *ngIf="exerciseResult">
+  <ion-card-header>
+    <ion-card-subtitle>
+      {{exerciseResult === 'SUCCESS' ? 'Your order is correct.' : 'Solution'}}
+    </ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list *ngIf="exerciseResult !== 'SUCCESS'">
+      <ion-item *ngFor="let orderItem of exercise.orderingItems">
+        <ion-label>{{orderItem}}</ion-label>
+      </ion-item>
+    </ion-list>
+    <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- Request next exercise -->
+<ng-container *ngIf="exerciseResult">
+  <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()" expand="block">
+    Next Exercise
+  </ion-button>
+</ng-container>
+

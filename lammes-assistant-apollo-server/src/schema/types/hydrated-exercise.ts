@@ -23,8 +23,9 @@ export interface HydratedExercise {
   solution: string;
   files: CustomFile[];
   labels: string[];
-  exerciseType: 'standard' | 'trueOrFalse';
+  exerciseType: 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering';
   isStatementCorrect?: boolean;
   possibleAnswers?: PossibleAnswer[];
+  orderingItems?: string[];
   languageCode: string;
 }

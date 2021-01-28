@@ -23,7 +23,8 @@ export const updateExercise = mutationField("updateExercise", {
     labels: nonNull(list(nonNull(stringArg()))),
     isStatementCorrect: nullable(booleanArg()),
     possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
-    languageCode: nonNull(arg({type: LanguageCodeEnumType}))
+    languageCode: nonNull(arg({type: LanguageCodeEnumType})),
+    orderingItems: nullable(list(nonNull(stringArg())))
   },
   resolve: async (
     root,
@@ -37,7 +38,8 @@ export const updateExercise = mutationField("updateExercise", {
       labels,
       languageCode,
       possibleAnswers,
-      solution
+      solution,
+      orderingItems
     },
     {jwtPayload, prisma, spacesClient, applicationConfiguration}
   ) => {
@@ -65,7 +67,8 @@ export const updateExercise = mutationField("updateExercise", {
       files,
       labels,
       possibleAnswers,
-      languageCode
+      languageCode,
+      orderingItems
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",

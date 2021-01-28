@@ -77,6 +77,15 @@
               </ng-container>
               <ion-button type="button" (click)="addAnswer()">Add Answer</ion-button>
             </ion-list>
+            <!-- Order Items -->
+            <ion-reorder-group *ngSwitchCase="'orderingItems'" formArrayName="orderingItems" disabled="false" (ionItemReorder)="reorderOrderingItems($event)">
+              <ion-item *ngFor="let orderItemControl of getArrayControls('orderingItems')">
+                <ion-input type="text" [formControl]="orderItemControl"
+                           (ionBlur)="trim(orderItemControl)"></ion-input>
+                <ion-reorder slot="end"></ion-reorder>
+              </ion-item>
+              <ion-button type="button" (click)="addOrderingItem()">Add Ordering Item</ion-button>
+            </ion-reorder-group>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
               <ion-list-header>
@@ -114,6 +123,8 @@
     <ng-container [ngSwitch]="exerciseForm.value.exerciseType">
       <app-multiselect-exercise *ngSwitchCase="'multiselect'"
                                 [exercise]="exerciseForm.value"></app-multiselect-exercise>
+      <app-ordering-exercise *ngSwitchCase="'ordering'"
+                             [exercise]="exerciseForm.value"></app-ordering-exercise>
       <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'"
                                   [exercise]="exerciseForm.value"></app-true-or-false-exercise>
       <app-standard-exercise *ngSwitchDefault [exercise]="exerciseForm.value"></app-standard-exercise>

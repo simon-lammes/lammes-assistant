@@ -7,6 +7,7 @@ import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
+import {ItemReorderEventDetail} from '@ionic/core';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -19,7 +20,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems';
   title: string;
   controlName: string;
   /**
@@ -47,13 +48,16 @@ export class SaveExerciseModalPage implements OnInit {
       title: 'Title',
       controlName: 'title',
       type: 'text',
-      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.min(1)])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.minLength(1)])
     },
     {
       title: 'Assignment',
       type: 'textarea',
       controlName: 'assignment',
-      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.assignment ?? '', [Validators.required, Validators.min(1)])
+      controlBuilder: (type, exercise) => this.formBuilder.control(
+        exercise?.assignment ?? '',
+        [Validators.required, Validators.minLength(1)]
+      )
     },
     {
       title: 'Solution',
@@ -72,6 +76,7 @@ export class SaveExerciseModalPage implements OnInit {
       selectOptions: [
         {value: 'standard', displayValue: 'Standard'},
         {value: 'multiselect', displayValue: 'Multi-select'},
+        {value: 'ordering', displayValue: 'Ordering'},
         {value: 'trueOrFalse', displayValue: 'True or False'}
       ],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
@@ -95,6 +100,19 @@ export class SaveExerciseModalPage implements OnInit {
           correct: this.formBuilder.control(answer.correct),
           explanation: this.formBuilder.control(answer.explanation)
         })), [Validators.required]);
+      }
+    },
+    {
+      title: 'Order Items',
+      type: 'orderingItems',
+      controlName: 'orderingItems',
+      exerciseTypes: ['ordering'],
+      controlBuilder: (type, exercise) => {
+        const orderItems = exercise?.orderingItems ?? [''];
+        return this.formBuilder.array(orderItems.map((orderItem) => this.formBuilder.control(
+          orderItem,
+          [Validators.required, Validators.minLength(1)]
+        )));
       }
     },
     {
@@ -129,16 +147,15 @@ export class SaveExerciseModalPage implements OnInit {
   exerciseForm: FormGroup;
   selectedSegment: 'edit' | 'preview' = 'edit';
   /**
-   * The exercise that is being edited by the user. Undefined if a new exercise is created.
-   */
-  @Input()
-  private editedExercise: Exercise;
-
-  /**
    * If an exercise is provided, one must specify whether the user this exercise.
    */
   @Input()
   doesUserOwnEditedExercise = true;
+  /**
+   * The exercise that is being edited by the user. Undefined if a new exercise is created.
+   */
+  @Input()
+  private editedExercise: Exercise;
 
   constructor(
     private modalController: ModalController,
@@ -186,48 +203,6 @@ export class SaveExerciseModalPage implements OnInit {
 
   onSegmentChange({detail: {value}}: CustomEvent) {
     this.selectedSegment = value;
-  }
-
-  /**
-   * This method makes sure that exercise controls are added or removed automatically when the exercise type changes.
-   * It should guarantee that at any point in time only those controls are present that are needed for the current exercise type.
-   */
-  private async setupForm() {
-    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
-    this.exerciseForm = this.formBuilder.group({});
-    this.exerciseForm.valueChanges.pipe(
-      untilDestroyed(this),
-      startWith({exerciseType: editedHydratedExercise?.exerciseType ?? 'standard'}),
-      map(formValue => formValue.exerciseType as ExerciseType),
-      distinctUntilChanged()
-    ).subscribe(exerciseType => {
-      this.allExerciseControls.forEach(optionalControl => {
-        const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
-          || optionalControl.exerciseTypes.includes(exerciseType);
-        const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
-        if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
-          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, editedHydratedExercise));
-        } else if (!isOptionalControlNeededForExerciseType) {
-          this.exerciseForm.removeControl(optionalControl.controlName);
-        }
-      });
-    });
-  }
-
-  private async showHint(message: string, color = 'warning', duration?: number) {
-    const toast = await this.toastController.create({
-      header: message,
-      color,
-      duration,
-      buttons: [
-        {
-          icon: 'close-outline',
-          role: 'cancel'
-        }
-      ],
-      position: 'top'
-    });
-    await toast.present();
   }
 
   async addFile(file: ReadFile) {
@@ -298,5 +273,72 @@ export class SaveExerciseModalPage implements OnInit {
   removeAnswer(i: number) {
     const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
     possibleAnswersArrayControl.removeAt(i);
+  }
+
+  /**
+   * This method makes sure that exercise controls are added or removed automatically when the exercise type changes.
+   * It should guarantee that at any point in time only those controls are present that are needed for the current exercise type.
+   */
+  private async setupForm() {
+    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
+    this.exerciseForm = this.formBuilder.group({});
+    this.exerciseForm.valueChanges.pipe(
+      untilDestroyed(this),
+      startWith({exerciseType: editedHydratedExercise?.exerciseType ?? 'standard'}),
+      map(formValue => formValue.exerciseType as ExerciseType),
+      distinctUntilChanged()
+    ).subscribe(exerciseType => {
+      this.allExerciseControls.forEach(optionalControl => {
+        const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
+          || optionalControl.exerciseTypes.includes(exerciseType);
+        const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
+        if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
+          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, editedHydratedExercise));
+        } else if (!isOptionalControlNeededForExerciseType) {
+          this.exerciseForm.removeControl(optionalControl.controlName);
+        }
+      });
+    });
+  }
+
+  private async showHint(message: string, color = 'warning', duration?: number) {
+    const toast = await this.toastController.create({
+      header: message,
+      color,
+      duration,
+      buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ],
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  addOrderingItem() {
+    const orderingItemsArrayControl = this.exerciseForm.controls.orderingItems as FormArray;
+    orderingItemsArrayControl.push(this.formBuilder.control(''));
+  }
+
+  /**
+   * Refactor once this [pr](https://github.com/angular/angular/issues/27171) is closed.
+   */
+  reorderOrderingItems(event: CustomEvent<ItemReorderEventDetail>) {
+    // I copied this source code from https://github.com/angular/angular/issues/27171
+    // without understanding it because I am sure that it works in this use case.
+    const from = event.detail.from;
+    const to = event.detail.to;
+    const dir = to > from ? 1 : -1;
+    const orderingItemsArrayControl = this.exerciseForm.controls.orderingItems as FormArray;
+    const temp = orderingItemsArrayControl.at(from);
+    for (let i = from; i * dir < to * dir; i = i + dir) {
+      const current = orderingItemsArrayControl.at(i + dir);
+      orderingItemsArrayControl.setControl(i, current);
+    }
+    orderingItemsArrayControl.setControl(to, temp);
+    // Finish the reorder and position the item in the DOM based on where the gesture ended.
+    event.detail.complete();
   }
 }
