@@ -61,19 +61,20 @@
               <ion-list-header>
                 <ion-label>{{exerciseControl.title}}</ion-label>
               </ion-list-header>
-              <ion-item-sliding [formGroup]="answerControl"
-                                *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
-                <ion-item>
-                  <ion-textarea rows="3" formControlName="value"></ion-textarea>
-                  <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
-                </ion-item>
-                <ion-item-options side="end" (ionSwipe)="removeAnswer(i)">
-                  <ion-item-option expandable="true" color="danger" (click)="removeAnswer(i)">
-                    <ion-icon name="trash-outline"></ion-icon>
-                    Remove
-                  </ion-item-option>
-                </ion-item-options>
-              </ion-item-sliding>
+              <ng-container [formGroup]="answerControl"
+                        *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
+                  <ion-item>
+                    <ion-textarea rows="3" formControlName="value"></ion-textarea>
+                    <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
+                    <ion-button slot="end" fill="clear" (click)="removeAnswer(i)">
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Explanation</ion-label>
+                    <ion-textarea rows="3" formControlName="explanation"></ion-textarea>
+                  </ion-item>
+              </ng-container>
               <ion-button type="button" (click)="addAnswer()">Add Answer</ion-button>
             </ion-list>
             <!-- Files -->

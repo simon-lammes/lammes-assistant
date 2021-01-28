@@ -130,6 +130,9 @@ For exercise type "multiselect"
 """
 input PossibleAnswer {
   correct: Boolean!
+
+  """Explains why an answer is correct or incorrect."""
+  explanation: String
   value: String!
 }
 

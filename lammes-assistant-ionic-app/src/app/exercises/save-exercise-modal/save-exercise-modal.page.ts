@@ -29,7 +29,7 @@ interface ExerciseControl {
     value: string;
     displayValue: string;
   }[];
-  controlBuilder: (exercise?: HydratedExercise) => AbstractControl;
+  controlBuilder: (exerciseType: ExerciseType, exercise?: HydratedExercise) => AbstractControl;
 }
 
 /**
@@ -47,19 +47,23 @@ export class SaveExerciseModalPage implements OnInit {
       title: 'Title',
       controlName: 'title',
       type: 'text',
-      controlBuilder: (exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.min(1)])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.min(1)])
     },
     {
       title: 'Assignment',
       type: 'textarea',
       controlName: 'assignment',
-      controlBuilder: exercise => this.formBuilder.control(exercise?.assignment ?? '', [Validators.required, Validators.min(1)])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.assignment ?? '', [Validators.required, Validators.min(1)])
     },
     {
       title: 'Solution',
       type: 'textarea',
       controlName: 'solution',
-      controlBuilder: exercise => this.formBuilder.control(exercise?.solution ?? '', [Validators.required, Validators.min(1)])
+      controlBuilder: (type, exercise) => {
+        // In a multiselect exercise, we do not necessarily need a solution text.
+        const isSolutionRequired = type !== 'multiselect';
+        return this.formBuilder.control(exercise?.solution ?? '', isSolutionRequired ? [Validators.required, Validators.min(1)] : []);
+      }
     },
     {
       title: 'ExerciseType',
@@ -70,25 +74,26 @@ export class SaveExerciseModalPage implements OnInit {
         {value: 'multiselect', displayValue: 'Multi-select'},
         {value: 'trueOrFalse', displayValue: 'True or False'}
       ],
-      controlBuilder: (exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
     },
     {
       title: 'Is statement correct?',
       type: 'checkbox',
       controlName: 'isStatementCorrect',
       exerciseTypes: ['trueOrFalse'],
-      controlBuilder: (exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
     },
     {
       title: 'Possible Answers',
       type: 'possibleAnswers',
       controlName: 'possibleAnswers',
       exerciseTypes: ['multiselect'],
-      controlBuilder: (exercise) => {
+      controlBuilder: (type, exercise) => {
         const possibleAnswers = exercise?.possibleAnswers ?? [];
         return this.formBuilder.array(possibleAnswers.map((answer) => this.formBuilder.group({
           value: this.formBuilder.control(answer.value),
-          correct: this.formBuilder.control(answer.correct)
+          correct: this.formBuilder.control(answer.correct),
+          explanation: this.formBuilder.control(answer.explanation)
         })), [Validators.required]);
       }
     },
@@ -96,7 +101,7 @@ export class SaveExerciseModalPage implements OnInit {
       title: 'Files',
       type: 'files',
       controlName: 'files',
-      controlBuilder: exercise => {
+      controlBuilder: (type, exercise) => {
         const files = exercise?.files ?? [];
         return this.formBuilder.array(files.map((file) => this.formBuilder.group({
           name: this.formBuilder.control(file.name),
@@ -108,7 +113,7 @@ export class SaveExerciseModalPage implements OnInit {
       title: 'Labels',
       type: 'labelSelector',
       controlName: 'labels',
-      controlBuilder: (exercise) => this.formBuilder.control(exercise?.labels ?? [])
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.labels ?? [])
     },
     {
       title: 'Language',
@@ -118,7 +123,7 @@ export class SaveExerciseModalPage implements OnInit {
         {value: 'en', displayValue: 'English'},
         {value: 'de', displayValue: 'German'}
       ],
-      controlBuilder: (exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
     }
   ];
   exerciseForm: FormGroup;
@@ -201,7 +206,7 @@ export class SaveExerciseModalPage implements OnInit {
           || optionalControl.exerciseTypes.includes(exerciseType);
         const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
         if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
-          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(editedHydratedExercise));
+          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, editedHydratedExercise));
         } else if (!isOptionalControlNeededForExerciseType) {
           this.exerciseForm.removeControl(optionalControl.controlName);
         }
@@ -285,7 +290,8 @@ export class SaveExerciseModalPage implements OnInit {
     const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
     possibleAnswersArrayControl.push(this.formBuilder.group({
       value: this.formBuilder.control(''),
-      correct: this.formBuilder.control(false)
+      correct: this.formBuilder.control(false),
+      explanation: this.formBuilder.control('')
     }));
   }
 

@@ -21,6 +21,7 @@ export interface CustomFile {
 export interface PossibleAnswer {
   value: string;
   correct: boolean;
+  explanation: string;
 }
 
 export type LanguageCodeIso639_1 = 'en' | 'de';
@@ -231,9 +232,13 @@ export class ExercisesService {
         ${exerciseFragment}
       `,
       variables: {exerciseFilter, exerciseCooldown},
+      // 'Network-only' is the only fetch policy that worked out so far.
       // When we only used the cache, we would be "stuck" with the same exercise.
       // However, we should still use the cache in order to see when the user updated an exercise.
-      fetchPolicy: 'cache-and-network'
+      // However, if we use the caches value first and replace it with the fresh network value, this leads to a weird flickering because
+      // those two values are not referring to the same exercise. Network-only is perfect for the aforementioned criteria:
+      // 'Save in cache' to recognize changes + 'only use network value' to prevent flickering
+      fetchPolicy: 'network-only'
     }).valueChanges.pipe(
       map(({data}) => data.myNextExercise)
     );

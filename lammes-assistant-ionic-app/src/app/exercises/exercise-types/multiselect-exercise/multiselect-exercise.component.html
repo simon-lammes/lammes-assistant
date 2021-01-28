@@ -17,6 +17,11 @@
   <ion-item *ngFor="let answer of usersAnswers; let i = index" [color]="getAnswerColor(answer)">
     <ion-label class="ion-text-wrap">
       <app-enriched-markdown [data]="answer.value" [files]="exercise.files"></app-enriched-markdown>
+      <ng-container *ngIf="exerciseResult && answer.explanation">
+        <br>
+        <app-enriched-markdown [data]="answer.explanation"
+                               [files]="exercise.files"></app-enriched-markdown>
+      </ng-container>
     </ion-label>
     <ion-checkbox slot="start" [value]="answer.usersEvaluation" (ionChange)="switchUsersEvaluation(i)"></ion-checkbox>
   </ion-item>
@@ -30,7 +35,7 @@
 </ng-container>
 
 <!-- Solution -->
-<ion-card *ngIf="exerciseResult">
+<ion-card *ngIf="exerciseResult && exercise.solution">
   <ion-card-header>
     <ion-card-subtitle>Solution</ion-card-subtitle>
   </ion-card-header>

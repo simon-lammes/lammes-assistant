@@ -6,5 +6,6 @@ export const PossibleAnswer = nonNull(inputObjectType({
   definition(t) {
     t.nonNull.string('value');
     t.nonNull.boolean('correct');
+    t.nullable.string('explanation', {description: 'Explains why an answer is correct or incorrect.'});
   },
 }));
