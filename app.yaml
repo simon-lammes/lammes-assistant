@@ -7,6 +7,7 @@
 # this file. Whenever you update the configuration, make sure this file contains the latest changes you made in
 # the DigitalOcean UI. BTW, it is save to store encryped variables in this file. Those are prefixed with "EV[". Reference:
 # https://www.digitalocean.com/community/questions/how-to-use-environment-values-of-type-secret-on-following-submissions
+# If you want deploy updates from this file, find the id of this project with `doctl apps list` and then run `doctl apps update e81ecf11-79d6-4a35-9dc4-f75244ab2a52 --spec app.yaml`.
 databases:
 - cluster_name: app-36c1bd8a-2972-4e2e-843e-0f9f13c90834
   db_name: lammes_assistant_prod
@@ -21,22 +22,22 @@ services:
 - dockerfile_path: lammes-assistant-apollo-server/Dockerfile
   envs:
   - key: SECRET
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     type: SECRET
     value: EV[1:f2dsvfPBAXCNsFqmAORcilNhXBM9gQS8:LRBjnZueGMQ2QkD+PKSkvIHWiOsDsfwuYEBifMnYEnZtqrLni3DK0jAFDAQ5A2NX75In7K/Ym48QqCKr]
   - key: DATABASE_URL
     scope: RUN_TIME
     value: ${app-36c1bd8a-2972-4e2e-843e-0f9f.DATABASE_URL}
   - key: SPACES_KEY
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     type: SECRET
     value: EV[1:yftFZtt7ajDPBceUYC4ZFXJMzIAStQM5:HdcXgqh8noEHCijpDnms2QAYQXiRz+tbx2VvYSelbkoWXqvr]
   - key: SPACES_SECRET
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     type: SECRET
     value: EV[1:bhLwJ+8jgQALtDINAitP+obvDEDEOI86:inPr0co3g0B7ZDpLOg0z5vQ9yAFC49wfJIZ9hjKUVlxeU8A87bX+MLPQv1e+Rj5e2gfxksbONzNe/iw=]
   - key: SPACES_ENDPOINT
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     value: fra1.digitaloceanspaces.com
   github:
     branch: master
