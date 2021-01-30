@@ -30,7 +30,8 @@ import {TranslateModule} from '@ngx-translate/core';
   imports: [
     CommonModule,
     IonicModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule
   ]
 })
 export class SharedModule { }
