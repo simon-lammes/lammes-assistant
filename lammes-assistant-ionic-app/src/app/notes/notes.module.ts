@@ -8,6 +8,7 @@ import {NotesPageRoutingModule} from './notes-routing.module';
 
 import {NotesPage} from './notes.page';
 import {EditNoteModalPageModule} from './edit-note/edit-note-modal.module';
+import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import {EditNoteModalPageModule} from './edit-note/edit-note-modal.module';
     FormsModule,
     IonicModule,
     NotesPageRoutingModule,
-    EditNoteModalPageModule
+    EditNoteModalPageModule,
+    SharedModule
   ],
   declarations: [NotesPage]
 })

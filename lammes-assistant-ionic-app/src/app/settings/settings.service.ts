@@ -23,6 +23,7 @@ export interface Settings {
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
   theme: 'system' | 'dark' | 'light';
+  preferredLanguageCode: string;
 }
 
 const saveSettingsMutation = gql`

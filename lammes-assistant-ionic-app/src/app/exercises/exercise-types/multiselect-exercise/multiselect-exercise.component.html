@@ -40,7 +40,7 @@
 <!-- Solution -->
 <ion-card *ngIf="exerciseResult && exercise.solution">
   <ion-card-header>
-    <ion-card-subtitle>Solution</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
@@ -50,6 +50,6 @@
 <!-- Request next exercise -->
 <ng-container *ngIf="exerciseResult">
   <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()" expand="block">
-    Next Exercise
+    {{ 'next-exercise' | translate | titlecase }}
   </ion-button>
 </ng-container>

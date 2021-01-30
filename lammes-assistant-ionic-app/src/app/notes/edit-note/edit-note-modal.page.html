@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Edit Note</ion-title>
+    <ion-title>{{ 'edit-note' | translate | titlecase }}</ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="dismissModal()">Close</ion-button>
+      <ion-button (click)="dismissModal()">{{ 'close' | translate | titlecase }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -10,31 +10,31 @@
 <ion-content>
   <form *ngIf="noteForm" [formGroup]="noteForm" (ngSubmit)="saveChanges()">
     <ion-item>
-      <ion-label>Note Title</ion-label>
+      <ion-label>{{ 'note-title' | translate | titlecase }}</ion-label>
       <ion-input type="text" formControlName="title" (ionBlur)="trim('title')"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Description</ion-label>
+      <ion-label>{{ 'description' | translate | titlecase }}</ion-label>
       <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')" rows="4"></ion-textarea>
     </ion-item>
     <ion-item>
-      <ion-label>Include Start Time</ion-label>
+      <ion-label>{{ 'include-start-time' | translate | titlecase }}</ion-label>
       <ion-checkbox slot="end" formControlName="includeStartTimestamp"></ion-checkbox>
     </ion-item>
     <ion-item>
-      <ion-label>Start Time</ion-label>
+      <ion-label>{{ 'start-time' | translate | titlecase }}</ion-label>
       <ion-datetime [disabled]="!includeStartTimestamp" displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="startTimestamp"></ion-datetime>
     </ion-item>
     <ion-item>
-      <ion-label>Set Deadline</ion-label>
+      <ion-label>{{ 'set-deadline' | translate | titlecase }}</ion-label>
       <ion-checkbox slot="end" formControlName="includeDeadlineTimestamp"></ion-checkbox>
     </ion-item>
     <ion-item>
-      <ion-label>Deadline</ion-label>
+      <ion-label>{{ 'deadline' | translate | titlecase }}</ion-label>
       <ion-datetime [disabled]="!includeDeadlineTimestamp" displayFormat="D MMM YYYY H:mm" min="2020" max="2030" formControlName="deadlineTimestamp"></ion-datetime>
     </ion-item>
     <ion-button type="submit" [disabled]="!noteForm.valid" expand="block">
-      Save Changes
+      {{ 'save-changes' | translate | titlecase }}
     </ion-button>
   </form>
 </ion-content>

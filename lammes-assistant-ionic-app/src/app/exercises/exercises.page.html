@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Exercises</ion-title>
+    <ion-title>{{ 'exercises' | translate | titlecase }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="filterForm" (click)="startStudying()" [disabled]="filterForm.invalid">Study</ion-button>
+      <ion-button *ngIf="filterForm" (click)="startStudying()" [disabled]="filterForm.invalid">{{ 'study' | translate | titlecase }}</ion-button>
       <ion-button (click)="showPopover($event)">
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
       </ion-button>
@@ -13,28 +13,28 @@
 <ion-content>
   <ion-list *ngIf="filterForm" [formGroup]="filterForm">
     <ion-list-header>
-      <ion-label>Filter</ion-label>
+      <ion-label>{{ 'filter.noun' | translate | titlecase }}</ion-label>
     </ion-list-header>
-    <app-user-selector heading="Creators" formControlName="creatorIds"
-                       noSelectionText="Showing exercises of all users"></app-user-selector>
-    <app-label-selector heading="Labels" formControlName="labels"
-                        noSelectionText="No Label Filters"></app-label-selector>
+    <app-user-selector heading="{{ 'creators' | translate | titlecase }}" formControlName="creatorIds"
+                       [noSelectionText]="'messages.showing-exercises-of-all-users' | translate"></app-user-selector>
+    <app-label-selector heading="{{ 'labels' | translate | titlecase }}" formControlName="labels"
+                        [noSelectionText]="'messages.no-label-filter' | translate"></app-label-selector>
     <ion-item>
-      <ion-label>Language</ion-label>
-      <ion-select formControlName="languageCodes" multiple placeholder="(optional)">
-        <ion-select-option value="en">English</ion-select-option>
-        <ion-select-option value="de">German</ion-select-option>
+      <ion-label>{{ 'language' | translate | titlecase }}</ion-label>
+      <ion-select formControlName="languageCodes" multiple placeholder="({{ 'optional' | translate | titlecase }})">
+        <ion-select-option value="en">{{ 'language-list.english' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="de">{{ 'language-list.german' | translate | titlecase }}</ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item>
-      <ion-label>Maximum correct streak</ion-label>
-      <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number" placeholder="(optional)"></ion-input>
+      <ion-label>{{ 'maximum-correct-streak' | translate | titlecase }}</ion-label>
+      <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number" placeholder="({{ 'optional' | translate | titlecase }})"></ion-input>
     </ion-item>
 
   </ion-list>
   <ion-list>
     <ion-list-header>
-      <ion-label>Filtered Exercises</ion-label>
+      <ion-label>{{ 'filtered-exercises' | translate | titlecase }}</ion-label>
     </ion-list-header>
     <ion-item-sliding *ngFor="let exercise of filteredExercises$ | async">
       <!-- Actual item -->
@@ -51,7 +51,7 @@
       <ion-item-options side="end" (ionSwipe)="removeExercise(exercise)">
         <ion-item-option expandable="true" color="danger" (click)="removeExercise(exercise)">
           <ion-icon name="trash-outline"></ion-icon>
-          Remove
+          {{ 'remove' | translate | titlecase }}
         </ion-item-option>
       </ion-item-options>
     </ion-item-sliding>

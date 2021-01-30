@@ -26,10 +26,6 @@ export class SettingsPage implements OnInit {
   settingsForm: FormGroup;
   exerciseCooldownTextualRepresentation$: Observable<string>;
 
-  get exerciseCooldownGroup(): FormGroup {
-    return this.settingsForm.controls.exerciseCooldown as FormGroup;
-  }
-
   constructor(
     private authenticationService: AuthenticationService,
     private apollo: Apollo,
@@ -40,14 +36,19 @@ export class SettingsPage implements OnInit {
   ) {
   }
 
+  get exerciseCooldownGroup(): FormGroup {
+    return this.settingsForm.controls.exerciseCooldown as FormGroup;
+  }
+
   async ngOnInit(): Promise<void> {
-    const {exerciseCooldown, theme} = await this.settings$.pipe(first()).toPromise();
+    const settings = await this.settings$.pipe(first()).toPromise();
     this.settingsForm = this.fb.group({
-      theme: this.fb.control(theme),
+      preferredLanguageCode: this.fb.control(settings.preferredLanguageCode),
+      theme: this.fb.control(settings.theme),
       exerciseCooldown: this.fb.group({
-        days: this.fb.control(exerciseCooldown.days),
-        hours: this.fb.control(exerciseCooldown.hours),
-        minutes: this.fb.control(exerciseCooldown.minutes)
+        days: this.fb.control(settings.exerciseCooldown.days),
+        hours: this.fb.control(settings.exerciseCooldown.hours),
+        minutes: this.fb.control(settings.exerciseCooldown.minutes)
       }),
     });
     this.exerciseCooldownTextualRepresentation$ = this.exerciseCooldownGroup.valueChanges.pipe(
@@ -62,7 +63,8 @@ export class SettingsPage implements OnInit {
         return [daysComponent, hoursComponent, minutesComponent].filter(value => value).join(', ');
       })
     );
-    this.settingsForm.valueChanges.pipe(untilDestroyed(this)).subscribe(settings => this.settingsService.saveSettings(settings));
+    this.settingsForm.valueChanges.pipe(untilDestroyed(this)).subscribe(currentSettings =>
+      this.settingsService.saveSettings(currentSettings));
   }
 
   /**
@@ -70,7 +72,7 @@ export class SettingsPage implements OnInit {
    * be removed so that the user can be assured that no further requests can be made from his client device. This is important when
    * the user uses devices that are used multiple people. Furthermore, we want to reset the store/cache because data stored in
    * there is tied to the logged in user and should not be accessible in any way when the user is logged out.
-   * (https://www.apollographql.com/docs/angular/recipes/authentication/#reset-store-on-logout)
+   * (https://www.apollographql.com/docs/angular/recipes/authentication/#refvaset-store-on-logout)
    */
   async logout() {
     await Promise.all([

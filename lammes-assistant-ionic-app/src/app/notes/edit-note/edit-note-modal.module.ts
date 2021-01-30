@@ -6,13 +6,15 @@ import {IonicModule} from '@ionic/angular';
 
 
 import {EditNoteModalPage} from './edit-note-modal.page';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SharedModule
   ],
   declarations: [EditNoteModalPage]
 })

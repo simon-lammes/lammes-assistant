@@ -1,7 +1,7 @@
 <!-- Assignment -->
 <ion-card>
   <ion-card-header>
-    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'assignment' | translate | titlecase }}</ion-card-subtitle>
     <ion-card-title>{{exercise.title}}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
@@ -19,7 +19,7 @@
 <!-- Submit -->
 <ng-container *ngIf="!exerciseResult">
   <ion-button color="primary" style="flex: 1" (click)="submit()" expand="block">
-    Submit
+    {{ 'submit' | translate | titlecase }}
   </ion-button>
 </ng-container>
 
@@ -27,7 +27,7 @@
 <ion-card *ngIf="exerciseResult">
   <ion-card-header>
     <ion-card-subtitle>
-      {{exerciseResult === 'SUCCESS' ? 'Your order is correct.' : 'Solution'}}
+      {{exerciseResult === 'SUCCESS' ? ('order-is-correct' | translate | titlecase) : ('solution' | translate | titlecase)}}
     </ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
@@ -43,7 +43,7 @@
 <!-- Request next exercise -->
 <ng-container *ngIf="exerciseResult">
   <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()" expand="block">
-    Next Exercise
+    {{ 'next-exercise' | translate | titlecase }}
   </ion-button>
 </ng-container>
 

@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {LoginResult, LoginService} from './login.service';
 import {ToastController} from '@ionic/angular';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,8 @@ export class LoginPage implements OnInit {
     private formBuilder: FormBuilder,
     private loginService: LoginService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private translateService: TranslateService
   ) {
   }
 
@@ -40,13 +42,13 @@ export class LoginPage implements OnInit {
         await this.router.navigateByUrl('/tabs');
         break;
       case LoginResult.UserDoesNotExist:
-        await this.showHint('User does not exist.');
+        await this.showHint(await this.translateService.get('messages.user-does-not-exist').toPromise());
         break;
       case LoginResult.WrongPassword:
-        await this.showHint('Wrong password');
+        await this.showHint(await this.translateService.get('messages.wrong-password').toPromise());
         break;
       case LoginResult.UnknownError:
-        await this.showHint('Unknown error during login');
+        await this.showHint(await this.translateService.get('messages.unknown-error').toPromise());
         break;
     }
   }

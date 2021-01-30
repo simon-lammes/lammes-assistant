@@ -1,37 +1,37 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Register</ion-title>
+    <ion-title>{{ 'register' | translate | titlecase }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <form *ngIf="registerForm" [formGroup]="registerForm" (ngSubmit)="register()">
     <ion-item>
-      <ion-label>First Name</ion-label>
+      <ion-label>{{ 'first-name' | translate | titlecase }}</ion-label>
       <ion-input type="text" formControlName="firstName" placeholder="(required)"  (ionBlur)="trim('firstName')"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Last Name</ion-label>
+      <ion-label>{{ 'last-name' | translate | titlecase }}</ion-label>
       <ion-input type="text" formControlName="lastName" placeholder="(required)"  (ionBlur)="trim('lastName')"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Username</ion-label>
+      <ion-label>{{ 'username' | translate | titlecase }}</ion-label>
       <ion-input type="text" formControlName="username" placeholder="(required)" (ionBlur)="removeAllWhitespaces('username')"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Password</ion-label>
+      <ion-label>{{ 'password' | translate | titlecase }}</ion-label>
       <ion-input *ngIf="showPassword" type="text" formControlName="password" (ionBlur)="removeAllWhitespaces('password')"></ion-input>
       <ion-input *ngIf="!showPassword" type="password" formControlName="password" (ionBlur)="removeAllWhitespaces('password')"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Show password</ion-label>
+      <ion-label>{{ 'show-password' | translate | titlecase }}</ion-label>
       <ion-checkbox slot="end" formControlName="showPassword"></ion-checkbox>
     </ion-item>
     <app-validation-feedback [validationAspects]="validationFeedback$ | async"></app-validation-feedback>
     <ion-button type="submit" [disabled]="!registerForm.valid" class="standard-left-right-margin standard-top-margin">Register</ion-button>
     <div style="display: flex" class="standard-left-right-margin">
-      <ion-note style="align-self: center">Already having an account?</ion-note>
-      <ion-button fill="clear" routerLink="/login">Login</ion-button>
+      <ion-note style="align-self: center">{{ 'already-having-account' | translate | titlecase }}</ion-note>
+      <ion-button fill="clear" routerLink="/login">{{ 'login' | translate | titlecase }}</ion-button>
     </div>
   </form>
 </ion-content>

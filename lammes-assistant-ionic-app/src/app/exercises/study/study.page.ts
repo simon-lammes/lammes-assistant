@@ -7,6 +7,7 @@ import {StudyPopoverComponent} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
 import {SettingsService} from '../../settings/settings.service';
 import {isNumeric} from 'rxjs/internal-compatibility';
+import {TranslateService} from '@ngx-translate/core';
 
 export interface ExerciseState {
   exerciseResult?: ExerciseResult;
@@ -32,7 +33,8 @@ export class StudyPage implements OnInit {
     private toastController: ToastController,
     private popoverController: PopoverController,
     private activatedRoute: ActivatedRoute,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private translateService: TranslateService
   ) {
   }
 
@@ -96,7 +98,9 @@ export class StudyPage implements OnInit {
 
   private async showToastForExerciseResult(exerciseResult: ExerciseResult) {
     const toast = await this.toastController.create({
-      header: exerciseResult === 'SUCCESS' ? 'Success' : 'Failure',
+      header: exerciseResult === 'SUCCESS'
+        ? await this.translateService.get('messages.success').toPromise()
+        : await this.translateService.get('messages.failure').toPromise(),
       duration: 2500,
       color: exerciseResult === 'SUCCESS' ? 'success' : 'danger',
       buttons: [

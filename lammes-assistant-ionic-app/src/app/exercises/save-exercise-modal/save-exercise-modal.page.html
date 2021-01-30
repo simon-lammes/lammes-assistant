@@ -1,12 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Save Exercise</ion-title>
+    <ion-title>{{ 'save-exercise' | translate | titlecase }}</ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="dismissModal()">Close</ion-button>
+      <ion-button (click)="dismissModal()">{{ 'close' | translate | titlecase }}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-button *ngIf="exerciseForm" (click)="saveExercise()"
-                  [disabled]="!exerciseForm.valid">{{doesUserOwnEditedExercise ? 'Save' : 'Save Copy'}}</ion-button>
+                  [disabled]="!exerciseForm.valid">{{doesUserOwnEditedExercise ? ('save' | translate | titlecase) : ('save-copy' | translate | titlecase)}}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -15,10 +15,10 @@
   <!-- Segments-->
   <ion-segment mode="md" [value]="'edit'" (ionChange)="onSegmentChange($event)">
     <ion-segment-button value="edit">
-      <ion-label>Edit</ion-label>
+      <ion-label>{{ 'edit' | translate | titlecase }}</ion-label>
     </ion-segment-button>
     <ion-segment-button value="preview">
-      <ion-label>Preview</ion-label>
+      <ion-label>{{ 'preview' | translate | titlecase }}</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -32,34 +32,34 @@
           <ng-container [ngSwitch]="exerciseControl.type">
             <!-- Textarea -->
             <ion-item *ngSwitchCase="'textarea'">
-              <ion-label>{{exerciseControl.title}}</ion-label>
+              <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               <ion-textarea rows="4" [formControlName]="exerciseControl.controlName"></ion-textarea>
             </ion-item>
             <!-- Text -->
             <ion-item *ngSwitchCase="'text'">
-              <ion-label>{{exerciseControl.title}}</ion-label>
+              <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               <ion-input type="text" [formControlName]="exerciseControl.controlName"
                          (ionBlur)="trim(exerciseForm.controls[exerciseControl.controlName])"></ion-input>
             </ion-item>
             <!-- Select -->
             <ion-item *ngSwitchCase="'select'">
-              <ion-label>{{exerciseControl.title}}</ion-label>
+              <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               <ion-select interface="popover" [formControlName]="exerciseControl.controlName">
                 <ion-select-option *ngFor="let selectOption of exerciseControl.selectOptions"
                                    [value]="selectOption.value">
-                  {{selectOption.displayValue}}
+                  {{selectOption.displayValue | async | titlecase}}
                 </ion-select-option>
               </ion-select>
             </ion-item>
             <!-- Checkbox -->
             <ion-item *ngSwitchCase="'checkbox'">
-              <ion-label>{{exerciseControl.title}}</ion-label>
+              <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               <ion-checkbox slot="end" [formControlName]="exerciseControl.controlName"></ion-checkbox>
             </ion-item>
             <!-- Possible Answers -->
             <ion-list *ngSwitchCase="'possibleAnswers'" formArrayName="possibleAnswers">
               <ion-list-header>
-                <ion-label>{{exerciseControl.title}}</ion-label>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               </ion-list-header>
               <ng-container [formGroup]="answerControl"
                         *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
@@ -71,11 +71,11 @@
                     </ion-button>
                   </ion-item>
                   <ion-item>
-                    <ion-label>Explanation</ion-label>
+                    <ion-label>{{ 'explanation' | translate | titlecase }}</ion-label>
                     <ion-textarea rows="3" formControlName="explanation"></ion-textarea>
                   </ion-item>
               </ng-container>
-              <ion-button type="button" (click)="addAnswer()">Add Answer</ion-button>
+              <ion-button type="button" (click)="addAnswer()">{{ 'add-answer' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Order Items -->
             <ion-reorder-group *ngSwitchCase="'orderingItems'" formArrayName="orderingItems" disabled="false" (ionItemReorder)="reorderOrderingItems($event)">
@@ -84,12 +84,12 @@
                            (ionBlur)="trim(orderItemControl)" appIonInputFocus></ion-input>
                 <ion-reorder slot="end"></ion-reorder>
               </ion-item>
-              <ion-button type="button" (click)="addOrderingItem()">Add Ordering Item</ion-button>
+              <ion-button type="button" (click)="addOrderingItem()">{{ 'add-ordering-item' | translate | titlecase }}</ion-button>
             </ion-reorder-group>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
               <ion-list-header>
-                <ion-label>{{exerciseControl.title}}</ion-label>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
               </ion-list-header>
               <ion-item-sliding *ngFor="let fileControl of getArrayControls('files'); let i = index">
                 <!-- Actual item -->
@@ -104,14 +104,14 @@
                 <ion-item-options side="end" (ionSwipe)="removeFile(i)">
                   <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
                     <ion-icon name="trash-outline"></ion-icon>
-                    Remove
+                    {{ 'remove' | translate | titlecase }}
                   </ion-item-option>
                 </ion-item-options>
               </ion-item-sliding>
-              <ion-button type="button" ngxFilePicker (filePick)="addFile($event)">Add File</ion-button>
+              <ion-button type="button" ngxFilePicker (filePick)="addFile($event)">{{ 'add-file' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Labels -->
-            <app-label-selector *ngSwitchCase="'labelSelector'" [heading]="exerciseControl.title"
+            <app-label-selector *ngSwitchCase="'labelSelector'" [heading]="exerciseControl.title | async | titlecase"
                                 [formControlName]="exerciseControl.controlName"></app-label-selector>
           </ng-container>
         </ng-container>

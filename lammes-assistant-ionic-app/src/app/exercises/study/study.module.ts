@@ -9,6 +9,7 @@ import {StudyPageRoutingModule} from './study-routing.module';
 import {StudyPage} from './study.page';
 import {StudyPopoverModule} from './study-popover/study-popover.module';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
     IonicModule,
     StudyPageRoutingModule,
     StudyPopoverModule,
-    ExerciseTypesModule
+    ExerciseTypesModule,
+    SharedModule
   ],
   declarations: [StudyPage]
 })

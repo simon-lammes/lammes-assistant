@@ -9,6 +9,7 @@ import {HomePageRoutingModule} from './home-routing.module';
 import {HomePage} from './home.page';
 import {EditNoteModalPageModule} from '../notes/edit-note/edit-note-modal.module';
 import {MarkdownModule} from 'ngx-markdown';
+import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import {MarkdownModule} from 'ngx-markdown';
     IonicModule,
     HomePageRoutingModule,
     EditNoteModalPageModule,
-    MarkdownModule
+    MarkdownModule,
+    SharedModule
   ],
   declarations: [HomePage]
 })

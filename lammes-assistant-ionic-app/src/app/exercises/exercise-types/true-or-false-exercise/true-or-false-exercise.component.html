@@ -1,7 +1,7 @@
 <!-- Assignment -->
 <ion-card>
   <ion-card-header>
-    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'assignment' | translate | titlecase }}</ion-card-subtitle>
     <ion-card-title>{{exercise.title}}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
@@ -14,11 +14,11 @@
   <!-- Right should come first, because this is what users are used to from Kahoot -->
   <ion-button color="{{getRightOrWrongButtonColor(true)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
               (click)="onEvaluatedStatement(true)">
-    Right
+    {{ 'right' | translate | titlecase }}
   </ion-button>
   <ion-button color="{{getRightOrWrongButtonColor(false)}}" style="flex: 1" [disabled]="trueOrFalseSelection !== undefined"
               (click)="onEvaluatedStatement(false)">
-    Wrong
+    {{ 'wrong' | translate | titlecase }}
   </ion-button>
 </div>
 

@@ -1,9 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="dismissModal()">Close</ion-button>
+      <ion-button (click)="dismissModal()">{{ 'close' | translate | titlecase }}</ion-button>
     </ion-buttons>
-    <ion-title>Exercise Bin</ion-title>
+    <ion-title>{{ 'exercise-bin' | translate | titlecase }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,9 +12,9 @@
     <ion-item *ngFor="let exercise of exercises$ | async">
       <ion-label>
         <h2>{{exercise.title}}</h2>
-        <h3>Removed on {{exercise.markedForDeletionTimestamp | date:'short' }}</h3>
+        <h3>{{ 'removed-on' | translate | titlecase }} {{exercise.markedForDeletionTimestamp | date:'short' }}</h3>
       </ion-label>
-      <ion-button fill="clear" (click)="restoreExercise(exercise)">Restore</ion-button>
+      <ion-button fill="clear" (click)="restoreExercise(exercise)">{{ 'restore' | translate | titlecase }}</ion-button>
     </ion-item>
   </ion-list>
 </ion-content>

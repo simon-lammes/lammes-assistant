@@ -1,23 +1,30 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Settings</ion-title>
+    <ion-title>{{ 'settings' | translate | titlecase }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content *ngIf="settingsForm" [formGroup]="settingsForm">
   <ion-list>
     <ion-item>
-      <ion-label>Theme</ion-label>
+      <ion-label>{{ 'language' | translate | titlecase }}</ion-label>
+      <ion-select interface="popover" formControlName="preferredLanguageCode">
+        <ion-select-option value="en">{{ 'language-list.english' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="de">{{ 'language-list.german' | translate | titlecase }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'theme' | translate | titlecase }}</ion-label>
       <ion-select interface="popover" formControlName="theme">
-        <ion-select-option value="system">System Default</ion-select-option>
-        <ion-select-option value="dark">Dark</ion-select-option>
-        <ion-select-option value="light">Light</ion-select-option>
+        <ion-select-option value="system">{{ 'system-default' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="dark">{{ 'dark' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="light">{{ 'light' | translate | titlecase }}</ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item button (click)="changeExerciseCooldown()">
-      <ion-label>Exercise Cooldown</ion-label>
+      <ion-label>{{ 'exercise-cooldown' | translate | titlecase }}</ion-label>
       <ion-text>{{ exerciseCooldownTextualRepresentation$ | async }}</ion-text>
     </ion-item>
   </ion-list>
-  <ion-button expand="block" color="danger" (click)="logout()">Logout</ion-button>
+  <ion-button expand="block" color="danger" (click)="logout()">{{ 'logout' | translate | titlecase }}</ion-button>
 </ion-content>

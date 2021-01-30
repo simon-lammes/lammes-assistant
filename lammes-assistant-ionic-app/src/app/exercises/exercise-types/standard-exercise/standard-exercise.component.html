@@ -1,7 +1,7 @@
 <!-- Assignment -->
 <ion-card>
   <ion-card-header>
-    <ion-card-subtitle>Assignment</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'assignment' | translate | titlecase }}</ion-card-subtitle>
     <ion-card-title>{{exercise.title}}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
@@ -10,13 +10,13 @@
 </ion-card>
 <ion-button *ngIf="!isSolutionVisible && exercise.exerciseType === 'standard'"
             expand="block" color="primary" (click)="showSolution()">
-  Show solution
+  {{ 'show-solution' | translate | titlecase }}
 </ion-button>
 
 <!-- Solution -->
 <ion-card *ngIf="isSolutionVisible">
   <ion-card-header>
-    <ion-card-subtitle>Solution</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>

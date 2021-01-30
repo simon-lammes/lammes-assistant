@@ -6,6 +6,7 @@ import {TrueOrFalseExerciseComponent} from './true-or-false-exercise/true-or-fal
 import {EnrichedMarkdownModule} from '../../shared/enriched-markdown/enriched-markdown.module';
 import {MultiselectExerciseComponent} from './multiselect-exercise/multiselect-exercise.component';
 import {OrderingExerciseComponent} from './ordering-exercise/ordering-exercise.component';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import {OrderingExerciseComponent} from './ordering-exercise/ordering-exercise.c
   imports: [
     CommonModule,
     IonicModule,
-    EnrichedMarkdownModule
+    EnrichedMarkdownModule,
+    SharedModule
   ]
 })
 export class ExerciseTypesModule { }

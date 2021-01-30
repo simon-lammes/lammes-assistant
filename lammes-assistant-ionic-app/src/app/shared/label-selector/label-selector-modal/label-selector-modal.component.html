@@ -1,15 +1,15 @@
 <ion-header [formGroup]="filterForm">
   <ion-toolbar>
-    <ion-title>Select Labels</ion-title>
+    <ion-title>{{ 'select-labels' | translate | titlecase }}</ion-title>
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">Cancel</ion-button>
+      <ion-button (click)="cancel()">{{ 'cancel' | translate | titlecase }}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="set()">Set</ion-button>
+      <ion-button (click)="set()">{{ 'set.verb' | translate | titlecase }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-searchbar formControlName="query" debounce="400"></ion-searchbar>
+    <ion-searchbar formControlName="query" debounce="400" [placeholder]="'search.noun' | translate | titlecase"></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 

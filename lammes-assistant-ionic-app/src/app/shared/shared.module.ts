@@ -8,6 +8,7 @@ import {UserSelectorModalComponent} from './user-selector/user-selector-modal/us
 import {ReactiveFormsModule} from '@angular/forms';
 import {ValidationFeedbackComponent} from './validation-feedback/validation-feedback.component';
 import {IonInputFocusDirective} from './directives/ion-input-focus.directive';
+import {TranslateModule} from '@ngx-translate/core';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {IonInputFocusDirective} from './directives/ion-input-focus.directive';
     LabelSelectorComponent,
     UserSelectorComponent,
     ValidationFeedbackComponent,
-    IonInputFocusDirective
+    IonInputFocusDirective,
+    TranslateModule
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "keysOnViews": "error",
+    "zombieKeys": "warning",
+    "misprint": "warning",
+    "maxWarning": "0",
+    "misprintCoefficient": "0.9",
+    "ignoredKeys": [],
+    "ignoredMisprintKeys": []
+  },
+  "project": "./src/app/**/*.{html,ts}",
+  "languages": "./src/assets/i18n/*.json"
+}

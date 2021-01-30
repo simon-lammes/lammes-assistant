@@ -10,6 +10,7 @@ import {ExercisesPage} from './exercises.page';
 import {SaveExerciseModalPageModule} from './save-exercise-modal/save-exercise-modal.module';
 import {ExerciseBinModalModule} from './exercise-bin-modal/exercise-bin-modal.module';
 import {SharedModule} from '../shared/shared.module';
+import {ExercisesPopoverModule} from './exercises-popover/exercises-popover.module';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import {SharedModule} from '../shared/shared.module';
     ExercisesPageRoutingModule,
     SaveExerciseModalPageModule,
     ExerciseBinModalModule,
+    ExercisesPopoverModule,
     SharedModule,
     ReactiveFormsModule
   ],

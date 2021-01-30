@@ -1,5 +1,5 @@
 <ion-list>
-  <ion-list-header>Exercises</ion-list-header>
-  <ion-item button (click)="showExerciseBin()">Show exercise bin</ion-item>
-  <ion-item lines="none" detail="false" button (click)="dismissPopover()">Close</ion-item>
+  <ion-list-header>{{ 'exercises' | translate | titlecase }}</ion-list-header>
+  <ion-item button (click)="showExerciseBin()">{{ 'show-exercise-bin' | translate | titlecase }}</ion-item>
+  <ion-item lines="none" detail="false" button (click)="dismissPopover()">{{ 'close' | translate | titlecase }}</ion-item>
 </ion-list>

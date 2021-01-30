@@ -1,19 +1,19 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Notes</ion-title>
+    <ion-title>{{ 'notes' | translate | titlecase }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-segment mode="md" [value]="selectedSegmentOption" (ionChange)="onSegmentChange($event)">
     <ion-segment-button value="deferred">
-      <ion-label>Deferred</ion-label>
+      <ion-label>{{ 'deferred' | translate | titlecase }}</ion-label>
     </ion-segment-button>
     <ion-segment-button value="pending">
-      <ion-label>Pending</ion-label>
+      <ion-label>{{ 'pending' | translate | titlecase }}</ion-label>
     </ion-segment-button>
     <ion-segment-button value="resolved">
-      <ion-label>Resolved</ion-label>
+      <ion-label>{{ 'resolved' | translate | titlecase }}</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -22,14 +22,14 @@
       <ion-item-options side="start" (ionSwipe)="resolveNote(note)">
         <ion-item-option expandable="true" color="success" (click)="resolveNote(note)">
           <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-          Resolve
+          {{ 'resolve' | translate | titlecase }}
         </ion-item-option>
       </ion-item-options>
       <ion-item button (click)="editNote(note)">
         <ion-label>
           <h2>{{note.title}}</h2>
-          <h3 *ngIf="note.startTimestamp">Deferred till {{note.startTimestamp | date:'short' }}</h3>
-          <h3 *ngIf="!note.startTimestamp">No start time</h3>
+          <h3 *ngIf="note.startTimestamp">{{ 'deferred-till' | translate }} {{note.startTimestamp | date:'short' }}</h3>
+          <h3 *ngIf="!note.startTimestamp">{{ 'no-start-time' | translate | titlecase }}</h3>
           <p *ngIf="note.description">{{note.description}}</p>
         </ion-label>
       </ion-item>
@@ -41,7 +41,7 @@
       <ion-item-options side="start" (ionSwipe)="resolveNote(note)">
         <ion-item-option expandable="true" color="success" (click)="resolveNote(note)">
           <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-          Resolve
+          {{ 'resolve' | translate | titlecase }}
         </ion-item-option>
       </ion-item-options>
       <ion-item button (click)="editNote(note)">
@@ -49,13 +49,13 @@
           <h2>{{note.title}}</h2>
           <ng-container [ngSwitch]="getDeadlineStatus(note)">
             <h3 *ngSwitchCase="DeadlineStatus.DueSometime">
-              Due till {{note.deadlineTimestamp | date:'short' }}
+              {{ 'due-till' | translate }} {{note.deadlineTimestamp | date:'short' }}
             </h3>
             <h3 *ngSwitchCase="DeadlineStatus.DueSoon" style="color: var(--ion-color-warning)">
-              Urgently due till {{note.deadlineTimestamp | date:'short' }}
+              {{ 'urgently-due-till' | translate }} {{note.deadlineTimestamp | date:'short' }}
             </h3>
             <h3 *ngSwitchCase="DeadlineStatus.Overdue" style="color: var(--ion-color-danger)">
-              Overdue since {{note.deadlineTimestamp | date:'short' }}
+              {{ 'overdue-since' | translate }} {{note.deadlineTimestamp | date:'short' }}
             </h3>
           </ng-container>
           <p *ngIf="note.description">{{note.description}}</p>
@@ -69,20 +69,20 @@
       <ion-item-options side="start" (ionSwipe)="reopenNote(note)">
         <ion-item-option expandable="true" (click)="reopenNote(note)">
           <ion-icon name="arrow-undo-outline"></ion-icon>
-          Reopen
+          {{ 'reopen' | translate | titlecase }}
         </ion-item-option>
       </ion-item-options>
       <ion-item button (click)="editNote(note)">
         <ion-label>
           <h2>{{note.title}}</h2>
-          <h3>Resolved on {{note.resolvedTimestamp | date:'short' }}</h3>
+          <h3>{{ 'resolved-on' | translate }} {{note.resolvedTimestamp | date:'short' }}</h3>
           <p *ngIf="note.description">{{note.description}}</p>
         </ion-label>
       </ion-item>
       <ion-item-options side="end" (ionSwipe)="deleteNote(note)">
         <ion-item-option expandable="true" color="danger" (click)="deleteNote(note)">
           <ion-icon name="trash-outline"></ion-icon>
-          Delete
+          {{ 'delete' | translate | titlecase }}
         </ion-item-option>
       </ion-item-options>
     </ion-item-sliding>

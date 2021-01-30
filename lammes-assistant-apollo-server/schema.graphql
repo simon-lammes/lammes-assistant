@@ -173,11 +173,17 @@ type Registration {
 
 type Settings {
   exerciseCooldown: ExerciseCooldown!
+
+  """If null, the system default will be used."""
+  preferredLanguageCode: LanguageCode
   theme: Theme!
 }
 
 input SettingsInput {
   exerciseCooldown: ExerciseCooldownInput!
+
+  """If null, the system default will be used."""
+  preferredLanguageCode: LanguageCode
   theme: Theme!
 }
 

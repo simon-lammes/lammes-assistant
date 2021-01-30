@@ -5,10 +5,11 @@ import {RegisterService, RegistrationResult} from './register.service';
 import {ToastController} from '@ionic/angular';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
-import {distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
+import {distinctUntilChanged, first, startWith, switchMap} from 'rxjs/operators';
 import {ValidationAspect} from '../../shared/validation-feedback/validation-feedback.component';
 import {Observable} from 'rxjs';
 import _ from 'lodash';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,8 @@ export class RegisterPage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private customFormsService: CustomFormsService,
-    private applicationConfigurationService: ApplicationConfigurationService
+    private applicationConfigurationService: ApplicationConfigurationService,
+    private translateService: TranslateService
   ) {
   }
 
@@ -44,13 +46,15 @@ export class RegisterPage implements OnInit {
     });
     this.validationFeedback$ = this.registerForm.valueChanges.pipe(
       startWith(this.registerForm.value as {}),
-      map(() => {
+      switchMap(async () => {
         const passwordControl = this.registerForm.controls.password;
         return [
           {
-            description: `Min Password Length: ${configuration.minPasswordLength}`,
+            description: await this.translateService.get('messages.min-password-length', {
+              minPasswordLength: configuration.minPasswordLength
+            }).toPromise(),
             valid: !passwordControl.hasError('required') && !passwordControl.hasError('minlength')
-          }
+          } as ValidationAspect
         ];
       }),
       distinctUntilChanged((x, y) => _.isEqual(x, y))
@@ -70,10 +74,10 @@ export class RegisterPage implements OnInit {
         await this.router.navigateByUrl('/tabs');
         break;
       case RegistrationResult.UsernameAlreadyUsed:
-        await this.showHint('Username already in use.');
+        await this.showHint(await this.translateService.get('messages.username-in-use').toPromise());
         break;
       case RegistrationResult.UnknownError:
-        await this.showHint('Unknown error');
+        await this.showHint(await this.translateService.get('messages.unknown-error').toPromise());
         break;
     }
   }

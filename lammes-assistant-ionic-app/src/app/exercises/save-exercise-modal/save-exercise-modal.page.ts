@@ -8,6 +8,7 @@ import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 import {ItemReorderEventDetail} from '@ionic/core';
+import {TranslateService} from '@ngx-translate/core';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -21,14 +22,14 @@ interface ExerciseControl {
    */
   exerciseTypes?: ExerciseType[];
   type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems';
-  title: string;
+  title: Promise<string>;
   controlName: string;
   /**
    * Only specified for type 'select'.
    */
   selectOptions?: {
     value: string;
-    displayValue: string;
+    displayValue: Promise<string>;
   }[];
   controlBuilder: (exerciseType: ExerciseType, exercise?: Partial<HydratedExercise>) => AbstractControl;
   /**
@@ -50,13 +51,13 @@ interface ExerciseControl {
 export class SaveExerciseModalPage implements OnInit {
   readonly allExerciseControls: ExerciseControl[] = [
     {
-      title: 'Title',
+      title: this.translateService.get('title').toPromise(),
       controlName: 'title',
       type: 'text',
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.title ?? '', [Validators.required, Validators.minLength(1)])
     },
     {
-      title: 'Assignment',
+      title: this.translateService.get('assignment').toPromise(),
       type: 'textarea',
       controlName: 'assignment',
       controlBuilder: (type, exercise) => this.formBuilder.control(
@@ -65,7 +66,7 @@ export class SaveExerciseModalPage implements OnInit {
       )
     },
     {
-      title: 'Solution',
+      title: this.translateService.get('solution').toPromise(),
       type: 'textarea',
       controlName: 'solution',
       controlBuilder: (type, exercise) => {
@@ -75,27 +76,27 @@ export class SaveExerciseModalPage implements OnInit {
       }
     },
     {
-      title: 'ExerciseType',
+      title: this.translateService.get('exercise-type').toPromise(),
       controlName: 'exerciseType',
       type: 'select',
       isLocked: true,
       selectOptions: [
-        {value: 'standard', displayValue: 'Standard'},
-        {value: 'multiselect', displayValue: 'Multi-select'},
-        {value: 'ordering', displayValue: 'Ordering'},
-        {value: 'trueOrFalse', displayValue: 'True or False'}
+        {value: 'standard', displayValue: this.translateService.get('exercise-type-list.standard').toPromise()},
+        {value: 'multiselect', displayValue: this.translateService.get('exercise-type-list.multi-select').toPromise()},
+        {value: 'ordering', displayValue: this.translateService.get('exercise-type-list.ordering').toPromise()},
+        {value: 'trueOrFalse', displayValue: this.translateService.get('exercise-type-list.true-or-false').toPromise()}
       ],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
     },
     {
-      title: 'Is statement correct?',
+      title: this.translateService.get('questions.is-statement-correct').toPromise(),
       type: 'checkbox',
       controlName: 'isStatementCorrect',
       exerciseTypes: ['trueOrFalse'],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.isStatementCorrect ?? false, [Validators.required])
     },
     {
-      title: 'Possible Answers',
+      title: this.translateService.get('possible-answers').toPromise(),
       type: 'possibleAnswers',
       controlName: 'possibleAnswers',
       exerciseTypes: ['multiselect'],
@@ -110,7 +111,7 @@ export class SaveExerciseModalPage implements OnInit {
       }
     },
     {
-      title: 'Order Items',
+      title: this.translateService.get('order-items').toPromise(),
       type: 'orderingItems',
       controlName: 'orderingItems',
       exerciseTypes: ['ordering'],
@@ -123,7 +124,7 @@ export class SaveExerciseModalPage implements OnInit {
       }
     },
     {
-      title: 'Files',
+      title: this.translateService.get('files').toPromise(),
       type: 'files',
       controlName: 'files',
       controlBuilder: (type, exercise) => {
@@ -135,20 +136,20 @@ export class SaveExerciseModalPage implements OnInit {
       }
     },
     {
-      title: 'Labels',
+      title: this.translateService.get('labels').toPromise(),
       isLocked: true,
       type: 'labelSelector',
       controlName: 'labels',
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.labels ?? [])
     },
     {
-      title: 'Language',
+      title: this.translateService.get('language').toPromise(),
       isLocked: true,
       type: 'select',
       controlName: 'languageCode',
       selectOptions: [
-        {value: 'en', displayValue: 'English'},
-        {value: 'de', displayValue: 'German'}
+        {value: 'en', displayValue: this.translateService.get('language-list.english').toPromise()},
+        {value: 'de', displayValue: this.translateService.get('language-list.german').toPromise()}
       ],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
     }
@@ -173,7 +174,8 @@ export class SaveExerciseModalPage implements OnInit {
     private exercisesService: ExercisesService,
     private toastController: ToastController,
     private alertController: AlertController,
-    private applicationConfigurationService: ApplicationConfigurationService
+    private applicationConfigurationService: ApplicationConfigurationService,
+    private translateService: TranslateService
   ) {
   }
 

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title *ngIf="studyProgress$ | async as studyProgress">
-      Study (Completed: {{studyProgress.successCount + studyProgress.failureCount}})
+      {{ 'study' | translate | titlecase }} ({{ 'completed' | translate | titlecase }}: {{studyProgress.successCount + studyProgress.failureCount}})
     </ion-title>
     <ion-buttons slot="end" *ngIf="exercise$ | async as exercise">
       <ion-button (click)="showPopover($event, exercise)">
@@ -26,6 +26,6 @@
 
   <!-- No exercise to show -->
   <ng-container *ngIf="!(hydratedExercise$ | async)">
-    No exercise to study.
+    {{ 'no-exercise-to-study' | translate | titlecase }}
   </ng-container>
 </ion-content>

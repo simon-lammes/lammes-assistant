@@ -9,12 +9,14 @@ import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {GraphQLModule} from './graphql.module';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {IonicStorageModule} from '@ionic/storage';
 import {MarkdownModule} from 'ngx-markdown';
 import {SettingsService} from './settings/settings.service';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 
 @NgModule({
   declarations: [AppComponent],
@@ -31,6 +33,15 @@ import {SettingsService} from './settings/settings.service';
     GraphQLModule,
     HttpClientModule,
     ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (http: HttpClient) => {
+          return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+        },
+        deps: [HttpClient]
+      }
+    })
   ],
   providers: [
     StatusBar,
@@ -41,9 +52,11 @@ import {SettingsService} from './settings/settings.service';
 })
 export class AppModule {
   constructor(
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private translateService: TranslateService
   ) {
     this.setupThemeListener();
+    this.setupLanguageListener();
   }
 
   private setupThemeListener() {
@@ -52,6 +65,14 @@ export class AppModule {
       const useDarkTheme = settings.theme === 'dark'
         || (settings.theme === 'system' && prefersDarkQuery.matches);
       document.body.classList.toggle('dark-theme', useDarkTheme);
+    });
+  }
+
+  private setupLanguageListener() {
+    this.settingsService.currentSettings$.subscribe(settings => {
+      if (settings.preferredLanguageCode) {
+        this.translateService.use(settings.preferredLanguageCode);
+      }
     });
   }
 }

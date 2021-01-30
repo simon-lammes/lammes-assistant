@@ -6,6 +6,7 @@
   "scripts": {
     "start:remote": "ionic serve",
     "start:local": "ionic serve --configuration local",
+    "lint:translations": "npx ngx-translate-lint -c ngx-translate-lint-config.json",
     "build:prod": "ionic build --prod"
   },
   "private": true,
@@ -26,6 +27,8 @@
     "@ionic/angular": "^5.5.2",
     "@ionic/storage": "^2.3.1",
     "@ngneat/until-destroy": "^8.0.3",
+    "@ngx-translate/core": "^13.0.0",
+    "@ngx-translate/http-loader": "^6.0.0",
     "apollo-angular": "^2.1.0",
     "capacitor-secure-storage-plugin": "^0.5.0",
     "graphql": "^15.0.0",
@@ -57,6 +60,7 @@
     "karma-coverage-istanbul-reporter": "^3.0.2",
     "karma-jasmine": "^3.3.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "ngx-translate-lint": "^1.13.1",
     "protractor": "^7.0.0",
     "ts-node": "^8.10.2",
     "tslint": "^6.1.3",
