@@ -6,6 +6,9 @@ type ApplicationConfiguration {
   """Which types of files is the user allowed to create?"""
   allowedFileTypes: [String!]!
 
+  """The default settings that are used when not specified by the user."""
+  defaultSettings: Settings!
+
   """How long the password of new users is required to be"""
   minPasswordLength: Int!
 }
@@ -28,7 +31,13 @@ type Exercise {
   versionTimestamp: DateTime!
 }
 
-input ExerciseCooldown {
+type ExerciseCooldown {
+  days: Int!
+  hours: Int!
+  minutes: Int!
+}
+
+input ExerciseCooldownInput {
   days: Int!
   hours: Int!
   minutes: Int!
@@ -106,7 +115,7 @@ type Mutation {
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
-  saveSettings(settings: Settings!): User
+  saveSettings(settings: SettingsInput!): User
   updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
@@ -151,7 +160,7 @@ type Query {
   me: User
   myDeferredNotes: [Note]
   myExercisesThatAreMarkedForDeletion: [Exercise]
-  myNextExercise(exerciseCooldown: ExerciseCooldown!, exerciseFilter: ExerciseFilter!): Exercise
+  myNextExercise(exerciseCooldown: ExerciseCooldownInput!, exerciseFilter: ExerciseFilter!): Exercise
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note
@@ -162,8 +171,13 @@ type Registration {
   user: User
 }
 
-input Settings {
+type Settings {
   exerciseCooldown: ExerciseCooldown!
+  theme: Theme!
+}
+
+input SettingsInput {
+  exerciseCooldown: ExerciseCooldownInput!
   theme: Theme!
 }
 

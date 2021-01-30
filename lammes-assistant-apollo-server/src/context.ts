@@ -3,6 +3,7 @@ import {ExpressContext} from "apollo-server-express/src/ApolloServer";
 import AWS from "aws-sdk";
 import {environment} from "./environment";
 import {JwtPayload, verifyToken} from "./utils/jwt-utils";
+import {Settings} from "./schema/types/settings";
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,16 @@ const spacesClient = new AWS.S3({
  */
 const defaultApplicationConfiguration: ApplicationConfiguration = {
   minPasswordLength: 6,
-  allowedFileTypes: ['image/jpeg', 'image/png', 'image/svg+xml']
+  allowedFileTypes: ['image/jpeg', 'image/png', 'image/svg+xml'],
+  defaultSettings: {
+    exerciseCooldown: {
+      days: 0,
+      hours: 2,
+      minutes: 0
+    },
+    theme: 'system',
+    settingsUpdatedTimestamp: undefined
+  }
 }
 
 /**
@@ -53,6 +63,7 @@ export interface Context {
 export interface ApplicationConfiguration {
   minPasswordLength: number;
   allowedFileTypes: string[];
+  defaultSettings: Settings;
 }
 
 export function createContext({req}: ExpressContext): Context {

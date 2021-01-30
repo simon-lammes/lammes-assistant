@@ -1,7 +1,7 @@
 import {arg, nonNull, queryField} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
 import {DateTime} from "luxon";
-import {ExerciseCooldownType} from "../../types/exercise-cooldown";
+import {ExerciseCooldownInputType} from "../../types/exercise-cooldown";
 import {ExerciseFilter} from "../../types/exercise-filter";
 import {exerciseObjectType} from "../../types/exercise";
 
@@ -9,7 +9,7 @@ export const myNextExercise = queryField('myNextExercise', {
   type: exerciseObjectType,
   nullable: true,
   args: {
-    exerciseCooldown: nonNull(arg({type: ExerciseCooldownType})),
+    exerciseCooldown: nonNull(arg({type: ExerciseCooldownInputType})),
     exerciseFilter: nonNull(arg({type: ExerciseFilter}))
   },
   resolve: async (

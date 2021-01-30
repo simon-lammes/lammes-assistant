@@ -8,14 +8,5 @@ import {Environment} from './environment-interface';
 export const environment: Environment = {
   production: false,
   uriGraphQl: 'http://localhost:4000',
-  networkRetryDelayMilliseconds: 3000,
-  defaultSettings: {
-    exerciseCooldown: {
-      days: 0,
-      hours: 2,
-      minutes: 0
-    },
-    theme: 'system',
-    settingsUpdatedTimestamp: undefined
-  }
+  networkRetryDelayMilliseconds: 3000
 };

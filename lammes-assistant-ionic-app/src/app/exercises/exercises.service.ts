@@ -225,7 +225,7 @@ export class ExercisesService {
     // We need to use watchQuery. The user might edit the exercise and thus, the updated exercise should be emitted.
     return this.apollo.watchQuery<{ myNextExercise: Exercise }>({
       query: gql`
-        query MyNextExercise($exerciseCooldown: ExerciseCooldown!, $exerciseFilter: ExerciseFilter!) {
+        query MyNextExercise($exerciseCooldown: ExerciseCooldownInput!, $exerciseFilter: ExerciseFilter!) {
           myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilter) {
             ...ExerciseFragment
           }

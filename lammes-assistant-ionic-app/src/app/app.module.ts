@@ -16,7 +16,6 @@ import {IonicStorageModule} from '@ionic/storage';
 import {MarkdownModule} from 'ngx-markdown';
 import {SettingsService} from './settings/settings.service';
 
-
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -50,7 +49,6 @@ export class AppModule {
   private setupThemeListener() {
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     this.settingsService.currentSettings$.subscribe(settings => {
-      console.log('curr settings', settings);
       const useDarkTheme = settings.theme === 'dark'
         || (settings.theme === 'system' && prefersDarkQuery.matches);
       document.body.classList.toggle('dark-theme', useDarkTheme);

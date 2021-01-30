@@ -40,7 +40,7 @@ const filteredUsersQuery = gql`
 })
 export class UsersService {
 
-  readonly currentUser$ = this.authenticationService.isUserAuthenticated$.pipe(
+  readonly currentUser$: Observable<User> = this.authenticationService.isUserAuthenticated$.pipe(
     // This observable depends on the user being authenticated.
     filter(isUserAuthenticated => isUserAuthenticated),
     switchMap(() => this.apollo.watchQuery<{ me: User }>({
