@@ -64,7 +64,7 @@
               <ng-container [formGroup]="answerControl"
                         *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
                   <ion-item>
-                    <ion-textarea rows="3" formControlName="value"></ion-textarea>
+                    <ion-textarea rows="3" formControlName="value" appIonInputFocus></ion-textarea>
                     <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
                     <ion-button slot="end" fill="clear" (click)="removeAnswer(i)">
                       <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
@@ -81,7 +81,7 @@
             <ion-reorder-group *ngSwitchCase="'orderingItems'" formArrayName="orderingItems" disabled="false" (ionItemReorder)="reorderOrderingItems($event)">
               <ion-item *ngFor="let orderItemControl of getArrayControls('orderingItems')">
                 <ion-input type="text" [formControl]="orderItemControl"
-                           (ionBlur)="trim(orderItemControl)"></ion-input>
+                           (ionBlur)="trim(orderItemControl)" appIonInputFocus></ion-input>
                 <ion-reorder slot="end"></ion-reorder>
               </ion-item>
               <ion-button type="button" (click)="addOrderingItem()">Add Ordering Item</ion-button>

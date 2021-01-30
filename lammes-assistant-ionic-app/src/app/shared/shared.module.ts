@@ -7,6 +7,7 @@ import {UserSelectorComponent} from './user-selector/user-selector.component';
 import {UserSelectorModalComponent} from './user-selector/user-selector-modal/user-selector-modal.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {ValidationFeedbackComponent} from './validation-feedback/validation-feedback.component';
+import {IonInputFocusDirective} from './directives/ion-input-focus.directive';
 
 
 @NgModule({
@@ -15,12 +16,14 @@ import {ValidationFeedbackComponent} from './validation-feedback/validation-feed
     LabelSelectorModalComponent,
     UserSelectorComponent,
     UserSelectorModalComponent,
-    ValidationFeedbackComponent
+    ValidationFeedbackComponent,
+    IonInputFocusDirective
   ],
   exports: [
     LabelSelectorComponent,
     UserSelectorComponent,
-    ValidationFeedbackComponent
+    ValidationFeedbackComponent,
+    IonInputFocusDirective
   ],
   imports: [
     CommonModule,

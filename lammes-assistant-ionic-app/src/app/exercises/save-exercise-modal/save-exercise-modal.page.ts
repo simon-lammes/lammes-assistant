@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
-import {Exercise, ExercisesService, ExerciseType, HydratedExercise} from '../exercises.service';
+import {Exercise, ExercisesService, ExerciseType, HydratedExercise, PossibleAnswer} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
@@ -94,7 +94,8 @@ export class SaveExerciseModalPage implements OnInit {
       controlName: 'possibleAnswers',
       exerciseTypes: ['multiselect'],
       controlBuilder: (type, exercise) => {
-        const possibleAnswers = exercise?.possibleAnswers ?? [];
+        const defaultAnswer: PossibleAnswer = {correct: false, value: '', explanation: ''};
+        const possibleAnswers = exercise?.possibleAnswers ?? [defaultAnswer];
         return this.formBuilder.array(possibleAnswers.map((answer) => this.formBuilder.group({
           value: this.formBuilder.control(answer.value),
           correct: this.formBuilder.control(answer.correct),
