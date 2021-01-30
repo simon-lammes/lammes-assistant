@@ -30,7 +30,12 @@ interface ExerciseControl {
     value: string;
     displayValue: string;
   }[];
-  controlBuilder: (exerciseType: ExerciseType, exercise?: HydratedExercise) => AbstractControl;
+  controlBuilder: (exerciseType: ExerciseType, exercise?: Partial<HydratedExercise>) => AbstractControl;
+  /**
+   * If set to true, the value of this control will not be reset when the user saves the exercise and starts creating the next exercise.
+   * This prevents the user from needing to type certain things over and over again.
+   */
+  isLocked?: boolean;
 }
 
 /**
@@ -73,6 +78,7 @@ export class SaveExerciseModalPage implements OnInit {
       title: 'ExerciseType',
       controlName: 'exerciseType',
       type: 'select',
+      isLocked: true,
       selectOptions: [
         {value: 'standard', displayValue: 'Standard'},
         {value: 'multiselect', displayValue: 'Multi-select'},
@@ -130,12 +136,14 @@ export class SaveExerciseModalPage implements OnInit {
     },
     {
       title: 'Labels',
+      isLocked: true,
       type: 'labelSelector',
       controlName: 'labels',
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.labels ?? [])
     },
     {
       title: 'Language',
+      isLocked: true,
       type: 'select',
       controlName: 'languageCode',
       selectOptions: [
@@ -193,7 +201,7 @@ export class SaveExerciseModalPage implements OnInit {
       await this.exercisesService.createExercise(this.exerciseForm.value);
       await Promise.all([
         this.showHint('Exercise created', 'primary', 2000),
-        this.dismissModal()
+        this.setupForm()
       ]);
     }
   }
@@ -276,48 +284,6 @@ export class SaveExerciseModalPage implements OnInit {
     possibleAnswersArrayControl.removeAt(i);
   }
 
-  /**
-   * This method makes sure that exercise controls are added or removed automatically when the exercise type changes.
-   * It should guarantee that at any point in time only those controls are present that are needed for the current exercise type.
-   */
-  private async setupForm() {
-    const editedHydratedExercise = this.editedExercise ? await this.exercisesService.getHydratedExercise(this.editedExercise) : undefined;
-    this.exerciseForm = this.formBuilder.group({});
-    this.exerciseForm.valueChanges.pipe(
-      untilDestroyed(this),
-      startWith({exerciseType: editedHydratedExercise?.exerciseType ?? 'standard'}),
-      map(formValue => formValue.exerciseType as ExerciseType),
-      distinctUntilChanged()
-    ).subscribe(exerciseType => {
-      this.allExerciseControls.forEach(optionalControl => {
-        const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
-          || optionalControl.exerciseTypes.includes(exerciseType);
-        const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
-        if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
-          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, editedHydratedExercise));
-        } else if (!isOptionalControlNeededForExerciseType) {
-          this.exerciseForm.removeControl(optionalControl.controlName);
-        }
-      });
-    });
-  }
-
-  private async showHint(message: string, color = 'warning', duration?: number) {
-    const toast = await this.toastController.create({
-      header: message,
-      color,
-      duration,
-      buttons: [
-        {
-          icon: 'close-outline',
-          role: 'cancel'
-        }
-      ],
-      position: 'top'
-    });
-    await toast.present();
-  }
-
   addOrderingItem() {
     const orderingItemsArrayControl = this.exerciseForm.controls.orderingItems as FormArray;
     orderingItemsArrayControl.push(this.formBuilder.control(''));
@@ -341,5 +307,66 @@ export class SaveExerciseModalPage implements OnInit {
     orderingItemsArrayControl.setControl(to, temp);
     // Finish the reorder and position the item in the DOM based on where the gesture ended.
     event.detail.complete();
+  }
+
+  /**
+   * This method makes sure that exercise controls are added or removed automatically when the exercise type changes.
+   * It should guarantee that at any point in time only those controls are present that are needed for the current exercise type.
+   * It be called in order to 'reset' the form.
+   */
+  private async setupForm() {
+    const currentValue = this.editedExercise
+      ? await this.exercisesService.getHydratedExercise(this.editedExercise)
+      : this.getExerciseLockedValues();
+    this.exerciseForm = this.formBuilder.group({});
+    this.exerciseForm.valueChanges.pipe(
+      untilDestroyed(this),
+      startWith({exerciseType: currentValue?.exerciseType ?? 'standard'}),
+      map(formValue => formValue.exerciseType as ExerciseType),
+      distinctUntilChanged()
+    ).subscribe(exerciseType => {
+      this.allExerciseControls.forEach(optionalControl => {
+        const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
+          || optionalControl.exerciseTypes.includes(exerciseType);
+        const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
+        if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
+          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, currentValue));
+        } else if (!isOptionalControlNeededForExerciseType) {
+          this.exerciseForm.removeControl(optionalControl.controlName);
+        }
+      });
+    });
+  }
+
+  private async showHint(message: string, color = 'warning', duration?: number) {
+    const toast = await this.toastController.create({
+      header: message,
+      color,
+      duration,
+      buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ],
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  /**
+   * When the user saves an exercise and starts on creating the next exercise, there are some values that he/she does not
+   * want to enter again. This method does extract exactly those values.
+   */
+  private getExerciseLockedValues(): Partial<HydratedExercise> | undefined {
+    if (!this.exerciseForm?.value) {
+      return;
+    }
+    const lockedControls = this.allExerciseControls.filter(x => x.isLocked);
+    return lockedControls.map(control => {
+      const key = control.controlName;
+      const value = this.exerciseForm.value[key];
+      return {[key]: value};
+    }).reduce((previousValue, currentValue) => ({...previousValue, ...currentValue}));
   }
 }
