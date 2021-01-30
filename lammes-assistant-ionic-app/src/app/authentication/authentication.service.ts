@@ -3,7 +3,7 @@ import 'capacitor-secure-storage-plugin';
 import {Plugins} from '@capacitor/core';
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, timer} from 'rxjs';
-import {debounce, filter} from 'rxjs/operators';
+import {debounce, filter, map} from 'rxjs/operators';
 import jwt_decode from 'jwt-decode';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {Router} from '@angular/router';
@@ -33,6 +33,7 @@ export class AuthenticationService {
   private readonly JWT_TOKEN_KEY = 'jwt_token';
   private jwtTokenBehaviourSubject = new BehaviorSubject('');
   jwtToken$ = this.jwtTokenBehaviourSubject.asObservable();
+  isUserAuthenticated$ = this.jwtToken$.pipe(map(jwtToken => !!jwtToken));
   /**
    * This property is a workaround for constructors not being able to be asynchronous. This service requires asynchronous
    * initialization logic that is tracked within this promise. If you want to make sure, that this service is already

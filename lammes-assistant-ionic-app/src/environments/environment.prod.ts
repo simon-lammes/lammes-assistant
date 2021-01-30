@@ -11,6 +11,7 @@ export const environment: Environment = {
       hours: 2,
       minutes: 0
     },
+    theme: 'system',
     settingsUpdatedTimestamp: undefined
   }
 };

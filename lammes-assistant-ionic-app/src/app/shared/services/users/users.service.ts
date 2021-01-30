@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {filter, map, switchMap} from 'rxjs/operators';
+import {AuthenticationService} from '../../../authentication/authentication.service';
 
 export interface User {
   id: number;
@@ -39,22 +40,25 @@ const filteredUsersQuery = gql`
 })
 export class UsersService {
 
-  readonly currentUser$ = this.apollo.watchQuery<{ me: User }>({
-    query: gql`
-      query GetCurrentUserQuery {
-        me {
-          ...UserFragment
-        }
-      },
-      ${userFragment}
-    `
-  })
-  .valueChanges.pipe(
+  readonly currentUser$ = this.authenticationService.isUserAuthenticated$.pipe(
+    // This observable depends on the user being authenticated.
+    filter(isUserAuthenticated => isUserAuthenticated),
+    switchMap(() => this.apollo.watchQuery<{ me: User }>({
+      query: gql`
+        query GetCurrentUserQuery {
+          me {
+            ...UserFragment
+          }
+        },
+        ${userFragment}
+      `
+    }).valueChanges),
     map(({data}) => data.me)
   );
 
   constructor(
-    private apollo: Apollo
+    private apollo: Apollo,
+    private authenticationService: AuthenticationService
   ) {
   }
 

@@ -20,11 +20,12 @@ export interface Settings {
    */
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
+  theme: 'system' | 'dark' | 'light';
 }
 
 const saveSettingsMutation = gql`
-  mutation SaveSettingsMutation($exerciseCooldown: ExerciseCooldown!) {
-    saveSettings(exerciseCooldown: $exerciseCooldown) {
+  mutation SaveSettingsMutation($settings: Settings!) {
+    saveSettings(settings: $settings) {
       ...UserFragment
     }
   },
@@ -93,7 +94,7 @@ export class SettingsService {
   async saveSettings(settings: Settings): Promise<any> {
     await this.apollo.mutate<{ saveSettings: User }>({
       mutation: saveSettingsMutation,
-      variables: settings
+      variables: {settings}
     }).toPromise();
   }
 

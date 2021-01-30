@@ -6,6 +6,14 @@
 
 <ion-content *ngIf="settingsForm" [formGroup]="settingsForm">
   <ion-list>
+    <ion-item>
+      <ion-label>Theme</ion-label>
+      <ion-select interface="popover" formControlName="theme">
+        <ion-select-option value="system">System Default</ion-select-option>
+        <ion-select-option value="dark">Dark</ion-select-option>
+        <ion-select-option value="light">Light</ion-select-option>
+      </ion-select>
+    </ion-item>
     <ion-item button (click)="changeExerciseCooldown()">
       <ion-label>Exercise Cooldown</ion-label>
       <ion-text>{{ exerciseCooldownTextualRepresentation$ | async }}</ion-text>

@@ -14,6 +14,8 @@ import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {IonicStorageModule} from '@ionic/storage';
 import {MarkdownModule} from 'ngx-markdown';
+import {SettingsService} from './settings/settings.service';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -39,4 +41,19 @@ import {MarkdownModule} from 'ngx-markdown';
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor(
+    private settingsService: SettingsService
+  ) {
+    this.setupThemeListener();
+  }
+
+  private setupThemeListener() {
+    const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.settingsService.currentSettings$.subscribe(settings => {
+      console.log('curr settings', settings);
+      const useDarkTheme = settings.theme === 'dark'
+        || (settings.theme === 'system' && prefersDarkQuery.matches);
+      document.body.classList.toggle('dark-theme', useDarkTheme);
+    });
+  }
 }

@@ -106,7 +106,7 @@ type Mutation {
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
-  saveSettings(exerciseCooldown: ExerciseCooldown!): User
+  saveSettings(settings: Settings!): User
   updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
@@ -160,6 +160,17 @@ type Query {
 type Registration {
   jwtToken: String
   user: User
+}
+
+input Settings {
+  exerciseCooldown: ExerciseCooldown!
+  theme: Theme!
+}
+
+enum Theme {
+  dark
+  light
+  system
 }
 
 type User {
