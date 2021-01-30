@@ -81,6 +81,10 @@ export class SettingsPage implements OnInit {
     ]);
     // We can only navigate to login once user is logged out. Otherwise a guard should stop this navigation from happening.
     await this.router.navigateByUrl('/login');
+    // Apollo keeps it's 'cache state' although this.apollo.client.clearStore() got called.
+    // This leads to some queries being stale. I have found no good solution so far.
+    // My cheap trick to counteract this behaviour is to trigger a browser refresh.
+    location.reload();
   }
 
   async changeExerciseCooldown() {
