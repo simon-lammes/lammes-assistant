@@ -19,6 +19,7 @@
     "graphql": "^15.4.0",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^1.25.0",
+    "mime-types": "^2.1.28",
     "nexus-plugin-prisma": "^0.26.0"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@
   "already-having-account": "Already having an account?",
   "assignment": "assignment",
   "cancel": "cancel",
+  "change": "change",
   "close": "close",
   "completed": "completed",
   "creators": "creators",
@@ -76,6 +77,7 @@
   "pending": "pending",
   "possible-answers": "possible answers",
   "preview": "preview",
+  "profile": "profile",
   "questions": {
     "is-statement-correct": "Is statement correct?"
   },
@@ -102,6 +104,7 @@
     "verb": "set"
   },
   "set-deadline": "include deadline",
+  "set-profile-image": "set profile picture",
   "settings": "settings",
   "show-exercise-bin": "show exercise bin",
   "show-password": "show password",

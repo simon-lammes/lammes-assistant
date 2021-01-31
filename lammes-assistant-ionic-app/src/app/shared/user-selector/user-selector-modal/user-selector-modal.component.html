@@ -18,11 +18,15 @@
 <ion-content>
   <ion-list>
     <ion-item *ngFor="let user of filteredUsers$ | async">
+      <ion-avatar slot="start">
+        <img *ngIf="user.profilePictureDownloadLink as link" [src]="link" alt="profile picture">
+        <ion-icon *ngIf="!user.profilePictureDownloadLink" style="width: 100%; height: 100%" name="person-outline"></ion-icon>
+      </ion-avatar>
       <ion-label>
         <h2>{{user.username}}</h2>
         <p>{{user.firstName}} {{user.lastName}}</p>
       </ion-label>
-      <ion-checkbox slot="start" [checked]="selectedUserIds.has(user.id)" (ionChange)="onChangeUserSelection($event, user)"></ion-checkbox>
+      <ion-checkbox slot="end" [checked]="selectedUserIds.has(user.id)" (ionChange)="onChangeUserSelection($event, user)"></ion-checkbox>
     </ion-item>
   </ion-list>
 </ion-content>

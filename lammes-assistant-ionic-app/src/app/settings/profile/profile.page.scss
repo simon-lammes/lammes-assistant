@@ -1,0 +1,13 @@
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+
+  ion-avatar {
+    height: 100pt;
+    width: 100pt;
+    margin: auto;
+  }
+}
+
+

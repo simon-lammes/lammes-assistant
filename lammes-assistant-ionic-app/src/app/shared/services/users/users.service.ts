@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
-import {filter, map, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map, switchMap} from 'rxjs/operators';
 import {AuthenticationService} from '../../../authentication/authentication.service';
+import _ from 'lodash';
 
 export interface User {
   id: number;
@@ -10,6 +11,13 @@ export interface User {
   firstName: string;
   lastName: string;
   settingsUpdatedTimestamp: string;
+  profilePictureDownloadLink?: string;
+}
+
+interface PictureInput {
+  content: string;
+  type: string;
+  name: string;
 }
 
 export interface UserFilter {
@@ -22,7 +30,8 @@ export const userFragment = gql`
     username,
     firstName,
     lastName,
-    settingsUpdatedTimestamp
+    settingsUpdatedTimestamp,
+    profilePictureDownloadLink
   }
 `;
 
@@ -56,6 +65,11 @@ export class UsersService {
     map(({data}) => data.me)
   );
 
+  readonly myProfilePicture$ = this.currentUser$.pipe(
+    map(user => user.profilePictureDownloadLink),
+    distinctUntilChanged((x, y) => _.isEqual(x, y))
+  );
+
   constructor(
     private apollo: Apollo,
     private authenticationService: AuthenticationService
@@ -80,5 +94,17 @@ export class UsersService {
     } catch (e) {
       return undefined;
     }
+  }
+
+  setProfilePicture(picture: PictureInput) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation SetProfilePicture($picture: PictureInput!) {
+          setProfilePicture(picture: $picture)
+        }
+      `,
+      refetchQueries: ['GetCurrentUserQuery'],
+      variables: {picture}
+    }).toPromise();
   }
 }

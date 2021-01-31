@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'profile' | translate | titlecase }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="flex-col">
+    <ion-avatar>
+      <img *ngIf="profilePicture$ | async as photo" [src]="photo" alt="profile picture">
+      <ion-icon style="width: 100%; height: 100%" *ngIf="hasUserNoProfilePicture$ | async" name="person-outline"></ion-icon>
+    </ion-avatar>
+    <ion-button ngxFilePicker (filePick)="setProfilePicture($event)" fill="clear">
+      <ng-container *ngIf="profilePicture$ | async">
+        {{ 'change' | translate | titlecase }}
+      </ng-container>
+      <ng-container *ngIf="hasUserNoProfilePicture$ | async">
+        {{ 'set-profile-image' | translate | titlecase }}
+      </ng-container>
+    </ion-button>
+  </div>
+</ion-content>

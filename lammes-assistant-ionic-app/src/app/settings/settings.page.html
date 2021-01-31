@@ -6,6 +6,10 @@
 
 <ion-content *ngIf="settingsForm" [formGroup]="settingsForm">
   <ion-list>
+    <ion-item [routerLink]="['profile']">
+      <ion-label>{{ 'profile' | translate | titlecase }}</ion-label>
+      <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+    </ion-item>
     <ion-item>
       <ion-label>{{ 'language' | translate | titlecase }}</ion-label>
       <ion-select interface="popover" formControlName="preferredLanguageCode">

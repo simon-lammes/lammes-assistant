@@ -5,6 +5,7 @@
   "already-having-account": "Schon registriert?",
   "assignment": "Aufgabenstellung",
   "cancel": "abbrechen",
+  "change": "ändern",
   "close": "schließen",
   "completed": "abgeschlossen",
   "creators": "Ersteller",
@@ -76,6 +77,7 @@
   "pending": "anstehend",
   "possible-answers": "Antwortmöglichkeiten",
   "preview": "Vorschau",
+  "profile": "Profil",
   "questions": {
     "is-statement-correct": "Ist die Aussage richtig?"
   },
@@ -102,6 +104,7 @@
     "verb": "festlegen"
   },
   "set-deadline": "Fälligkeitsdatum setzen",
+  "set-profile-image": "Profilbild setzen",
   "settings": "Einstellungen",
   "show-exercise-bin": "Aufgabenmülleimer anzeigen",
   "show-password": "Passwort anzeigen",

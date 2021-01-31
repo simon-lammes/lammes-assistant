@@ -116,6 +116,11 @@ type Mutation {
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise
   saveSettings(settings: SettingsInput!): User
+
+  """
+  Set the user's profile picture and return a signed download link for it.
+  """
+  setProfilePicture(picture: PictureInput!): String
   updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
 }
 
@@ -133,6 +138,17 @@ type Note {
 
 input NoteWhereUniqueInput {
   id: Int
+}
+
+input PictureInput {
+  """The content of the image encoded in base64."""
+  content: String!
+
+  """the name of the picture"""
+  name: String!
+
+  """the file type of the picture"""
+  type: String!
 }
 
 """
@@ -198,6 +214,7 @@ type User {
   id: Int!
   lastName: String!
   notes(after: NoteWhereUniqueInput, before: NoteWhereUniqueInput, first: Int, last: Int): [Note!]!
+  profilePictureDownloadLink: String
   settingsUpdatedTimestamp: DateTime
   username: String!
 }
