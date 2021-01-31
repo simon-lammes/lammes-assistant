@@ -56,7 +56,7 @@ export class AppModule {
     private translateService: TranslateService
   ) {
     this.setupThemeListener();
-    this.setupLanguageListener();
+    this.setupLanguage();
   }
 
   private setupThemeListener() {
@@ -68,7 +68,8 @@ export class AppModule {
     });
   }
 
-  private setupLanguageListener() {
+  private setupLanguage() {
+    this.translateService.setDefaultLang('en');
     this.settingsService.currentSettings$.subscribe(settings => {
       if (settings.preferredLanguageCode) {
         this.translateService.use(settings.preferredLanguageCode);
