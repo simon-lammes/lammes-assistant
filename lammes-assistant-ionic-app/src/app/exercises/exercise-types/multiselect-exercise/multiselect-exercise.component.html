@@ -15,8 +15,7 @@
     <ion-label>Answer Possibilities</ion-label>
   </ion-list-header>
   <ion-card *ngFor="let answer of usersAnswers; let i = index" (click)="switchUsersEvaluation(i)"
-            [class.selected-answer]="this.usersAnswers[i].usersEvaluation" [class.show-correctness]="exerciseResult"
-            [class.wrong-answer]="!answer.correct" [class.correct-answer]="answer.correct">
+            [color]="determineAnswerColor(i)">
     <ion-card-header>
       <div style="display: flex; flex-direction: row">
         <ion-icon style="height: 30pt; width: 30pt" [name]="getAnswerIcon(answer)" [color]="getAnswerIconColor(answer)"></ion-icon>

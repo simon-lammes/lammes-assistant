@@ -71,4 +71,17 @@ export class MultiselectExerciseComponent implements OnChanges {
     }
     return;
   }
+
+  determineAnswerColor(i: number): string | undefined {
+    const isSelected = this.usersAnswers[i].usersEvaluation;
+    const isCorrect = this.usersAnswers[i].correct;
+    if (isSelected) {
+      if (this.exerciseResult) {
+        return isCorrect ? 'success' : 'danger';
+      } else {
+        return 'medium';
+      }
+    }
+    return undefined;
+  }
 }
