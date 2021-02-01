@@ -6,11 +6,13 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {PickerController, ToastController} from '@ionic/angular';
 import _ from 'lodash';
 import {PickerColumn} from '@ionic/core/dist/types/components/picker/picker-interface';
-import {debounceTime, distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
+import {distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {ExerciseCooldown, Settings, SettingsService} from './settings.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {TranslateService} from '@ngx-translate/core';
+import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
+import {debounceAutomaticSave} from '../shared/operators/debounce-automatic-save';
 
 @UntilDestroy()
 @Component({
@@ -35,7 +37,8 @@ export class SettingsPage implements OnInit {
     private pickerController: PickerController,
     private settingsService: SettingsService,
     private toastController: ToastController,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private applicationConfigurationService: ApplicationConfigurationService
   ) {
   }
 
@@ -74,7 +77,7 @@ export class SettingsPage implements OnInit {
     );
     this.settingsForm.valueChanges.pipe(
       untilDestroyed(this),
-      debounceTime(1500), // TODO parameterize
+      debounceAutomaticSave(await this.applicationConfigurationService.getApplicationConfigurationSnapshot()),
       distinctUntilChanged((x, y) => _.isEqual(x, y))
     ).subscribe(async currentSettings => {
       if (this.settingsForm.valid) {

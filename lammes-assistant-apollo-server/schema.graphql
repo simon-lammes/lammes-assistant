@@ -6,6 +6,11 @@ type ApplicationConfiguration {
   """Which types of files is the user allowed to create?"""
   allowedFileTypes: [String!]!
 
+  """
+  How many seconds should the frontend debounce before saving changes of the user automatically. This behaviour is useful for when we do not want to require the user to press a save button.
+  """
+  automaticSaveDebounceMillis: Int!
+
   """The default settings that are used when not specified by the user."""
   defaultSettings: Settings!
 

@@ -8,6 +8,7 @@ export interface ApplicationConfiguration {
   minPasswordLength: number;
   allowedFileTypes: string[];
   defaultSettings: Settings;
+  automaticSaveDebounceMillis: number;
 }
 
 @Injectable({
@@ -21,6 +22,7 @@ export class ApplicationConfigurationService {
         currentApplicationConfiguration {
           allowedFileTypes,
           minPasswordLength,
+          automaticSaveDebounceMillis,
           defaultSettings {
             theme,
             exerciseCooldown {
