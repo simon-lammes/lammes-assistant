@@ -156,8 +156,8 @@ const getExerciseDownloadLinkQuery = gql`
 `;
 
 const registerExerciseExperienceMutation = gql`
-  mutation RegisterExerciseExperience($exerciseId: Int!, $exerciseResult: ExerciseResult!) {
-    registerExerciseExperience(exerciseId: $exerciseId, exerciseResult: $exerciseResult) {
+  mutation RegisterExerciseExperience($exerciseId: Int!, $exerciseResult: ExerciseResult!, $exerciseCorrectStreakCap: Int) {
+    registerExerciseExperience(exerciseId: $exerciseId, exerciseResult: $exerciseResult, exerciseCorrectStreakCap: $exerciseCorrectStreakCap) {
       ...ExperienceFragment
     }
   },
@@ -293,7 +293,7 @@ export class ExercisesService {
     }
   }
 
-  async registerExerciseExperience(args: { exerciseId: number, exerciseResult: ExerciseResult }) {
+  async registerExerciseExperience(args: { exerciseId: number, exerciseResult: ExerciseResult, exerciseCorrectStreakCap?: number }) {
     await this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
       mutation: registerExerciseExperienceMutation,
       variables: args

@@ -2,14 +2,15 @@ import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from '../authentication/authentication.service';
 import {Apollo} from 'apollo-angular';
 import {Router} from '@angular/router';
-import {FormBuilder, FormGroup} from '@angular/forms';
-import {PickerController} from '@ionic/angular';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {PickerController, ToastController} from '@ionic/angular';
 import _ from 'lodash';
 import {PickerColumn} from '@ionic/core/dist/types/components/picker/picker-interface';
-import {first, map, startWith} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {ExerciseCooldown, Settings, SettingsService} from './settings.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {TranslateService} from '@ngx-translate/core';
 
 @UntilDestroy()
 @Component({
@@ -32,7 +33,9 @@ export class SettingsPage implements OnInit {
     private router: Router,
     private fb: FormBuilder,
     private pickerController: PickerController,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private toastController: ToastController,
+    private translateService: TranslateService
   ) {
   }
 
@@ -50,6 +53,7 @@ export class SettingsPage implements OnInit {
         hours: this.fb.control(settings.exerciseCooldown.hours),
         minutes: this.fb.control(settings.exerciseCooldown.minutes)
       }),
+      exerciseCorrectStreakCap: this.fb.control(settings.exerciseCorrectStreakCap, [Validators.min(0)])
     });
     this.exerciseCooldownTextualRepresentation$ = this.exerciseCooldownGroup.valueChanges.pipe(
       // We want this observable to include the initial value.
@@ -68,8 +72,18 @@ export class SettingsPage implements OnInit {
         }
       })
     );
-    this.settingsForm.valueChanges.pipe(untilDestroyed(this)).subscribe(currentSettings =>
-      this.settingsService.saveSettings(currentSettings));
+    this.settingsForm.valueChanges.pipe(
+      untilDestroyed(this),
+      debounceTime(1500), // TODO parameterize
+      distinctUntilChanged((x, y) => _.isEqual(x, y))
+    ).subscribe(async currentSettings => {
+      if (this.settingsForm.valid) {
+        await this.settingsService.saveSettings(currentSettings);
+        await this.showToast(await this.translateService.get('messages.settings-saved').toPromise(), 'success');
+      } else {
+        await this.showToast(await this.translateService.get('messages.invalid-form').toPromise(), 'danger');
+      }
+    });
   }
 
   /**
@@ -130,5 +144,21 @@ export class SettingsPage implements OnInit {
       ]
     });
     await picker.present();
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger') {
+    const toast = await this.toastController.create({
+      header: message,
+      duration: 2500,
+      color,
+      buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ],
+      position: 'top'
+    });
+    await toast.present();
   }
 }

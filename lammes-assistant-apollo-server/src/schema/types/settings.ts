@@ -10,6 +10,7 @@ export interface Settings {
    */
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
+  exerciseCorrectStreakCap?: number;
   theme: 'system' | 'dark' | 'light';
 }
 
@@ -18,6 +19,7 @@ export const SettingsInputType = inputObjectType({
   name: 'SettingsInput',
   definition(t) {
     t.nonNull.field('exerciseCooldown', {type: ExerciseCooldownInputType});
+    t.nullable.int('exerciseCorrectStreakCap');
     t.nonNull.field('theme', {type: ThemeType});
     t.nullable.field('preferredLanguageCode', {type: LanguageCodeEnumType, description: 'If null, the system default will be used.'});
   },

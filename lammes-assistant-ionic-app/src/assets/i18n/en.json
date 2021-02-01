@@ -26,6 +26,7 @@
   "edit-note": "edit note",
   "exercise-bin": "exercise bin",
   "exercise-cooldown": "exercise cooldown",
+  "exercise-correct-streak-cap": "correct streak cap for exercises",
   "exercise-type": "exercise type",
   "exercise-type-list": {
     "multi-select": "multi-select",
@@ -57,8 +58,10 @@
   "maximum-correct-streak": "maximum correct streak",
   "messages": {
     "failure": "failure",
+    "invalid-form": "invalid values",
     "min-password-length": "Min password length: ${minPasswordLength}.",
     "no-label-filter": "No label filter",
+    "settings-saved": "settings saved",
     "showing-exercises-of-all-users": "Showing exercises of all users",
     "success": "success",
     "unknown-error": "An unknown error occured.",
@@ -69,6 +72,7 @@
   "next-exercise": "next exercise",
   "no-account-yet": "No account yet?",
   "no-exercise-to-study": "No exercise left to study.",
+  "no-limit": "no limit",
   "no-start-time": "no starting time",
   "note-title": "note title",
   "notes": "notes",

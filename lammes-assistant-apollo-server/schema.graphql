@@ -107,7 +107,7 @@ type Mutation {
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
-  registerExerciseExperience(exerciseId: Int!, exerciseResult: ExerciseResult!): Experience
+  registerExerciseExperience(exerciseCorrectStreakCap: Int, exerciseId: Int!, exerciseResult: ExerciseResult!): Experience
 
   """
   Removes an exercise and thereby marks it for deletion. It will be deleted when this action is not reverted within a certain amount of time.
@@ -203,6 +203,7 @@ type Settings {
 
 input SettingsInput {
   exerciseCooldown: ExerciseCooldownInput!
+  exerciseCorrectStreakCap: Int
 
   """If null, the system default will be used."""
   preferredLanguageCode: LanguageCode

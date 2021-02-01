@@ -22,6 +22,7 @@ export interface Settings {
    */
   settingsUpdatedTimestamp?: string;
   exerciseCooldown: ExerciseCooldown;
+  exerciseCorrectStreakCap?: number;
   theme: 'system' | 'dark' | 'light';
   preferredLanguageCode: string;
 }

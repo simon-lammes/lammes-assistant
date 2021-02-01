@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Exercise, ExerciseFilter, ExerciseResult, ExercisesService, HydratedExercise} from '../exercises.service';
-import {map, switchMap} from 'rxjs/operators';
+import {first, map, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent} from './study-popover/study-popover.component';
@@ -89,9 +89,12 @@ export class StudyPage implements OnInit {
 
   private async registerExerciseResult(exerciseId: number, exerciseResult: ExerciseResult) {
     const toastPromise = this.showToastForExerciseResult(exerciseResult);
+    const exerciseCorrectStreakCap = await this.settingsService.currentSettings$.pipe(first()).toPromise()
+      .then(settings => settings.exerciseCorrectStreakCap);
     const registerPromise = this.exercisesService.registerExerciseExperience({
       exerciseId,
-      exerciseResult
+      exerciseResult,
+      exerciseCorrectStreakCap
     });
     await Promise.all([toastPromise, registerPromise]);
   }
