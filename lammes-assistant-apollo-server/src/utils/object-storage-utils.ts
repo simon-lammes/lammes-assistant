@@ -11,6 +11,10 @@ export function getProfilePicturePath(userId: number, fileExtension: string) {
   return `users/${userId}/profile-picture.${fileExtension}`;
 }
 
+export function getHydratedExercisePath(exercise: { id: number }) {
+  return `exercises/${exercise.id}/hydrated-exercise.json`;
+}
+
 export function getSignedUrlForProfilePicture(spacesClient: AWS.S3, key?: string): string | undefined {
   if (!key) {
     return;

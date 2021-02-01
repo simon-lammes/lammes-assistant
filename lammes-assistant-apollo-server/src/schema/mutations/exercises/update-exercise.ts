@@ -6,6 +6,7 @@ import {ExerciseLabelScalarWhereInput} from "@prisma/client";
 import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
+import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
 
 export const updateExercise = mutationField("updateExercise", {
   type: exerciseObjectType,
@@ -41,7 +42,7 @@ export const updateExercise = mutationField("updateExercise", {
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",
-      Key: `exercises/exercise-${exercise.id}.json`,
+      Key: getHydratedExercisePath(exercise),
       Body: JSON.stringify(hydratedExercise),
       ContentType: "application/json",
       ACL: "private"

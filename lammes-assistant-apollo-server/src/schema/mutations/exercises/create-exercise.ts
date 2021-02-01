@@ -4,6 +4,7 @@ import {Exercise} from "@prisma/client";
 import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
+import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
 
 export const createExercise = mutationField('createExercise', {
   type: exerciseObjectType,
@@ -65,7 +66,7 @@ export const createExercise = mutationField('createExercise', {
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",
-      Key: `exercises/exercise-${exercise.id}.json`,
+      Key: getHydratedExercisePath(exercise),
       Body: JSON.stringify(hydratedExercise),
       ContentType: "application/json",
       ACL: "private"

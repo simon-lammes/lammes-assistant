@@ -1,5 +1,6 @@
 import {intArg, nonNull, queryField} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
+import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
 
 export const getExerciseDownloadLink = queryField('getExerciseDownloadLink', {
   type: "String",
@@ -13,7 +14,7 @@ export const getExerciseDownloadLink = queryField('getExerciseDownloadLink', {
     }
     return context.spacesClient.getSignedUrl('getObject', {
       Bucket: "lammes-assistant-space",
-      Key: `exercises/exercise-${exerciseId}.json`,
+      Key: getHydratedExercisePath({id: exerciseId}),
       Expires: 60
     });
   }
