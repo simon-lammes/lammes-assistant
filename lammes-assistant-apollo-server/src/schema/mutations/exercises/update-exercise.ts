@@ -10,6 +10,7 @@ import {PossibleAnswer} from "../../types/possible-answer";
 import {HydratedExercise} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
+import {PromptSolutionInputType} from "../../types/prompt-solution";
 
 export const updateExercise = mutationField("updateExercise", {
   type: exerciseObjectType,
@@ -24,7 +25,8 @@ export const updateExercise = mutationField("updateExercise", {
     isStatementCorrect: nullable(booleanArg()),
     possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
     languageCode: nonNull(arg({type: LanguageCodeEnumType})),
-    orderingItems: nullable(list(nonNull(stringArg())))
+    orderingItems: nullable(list(nonNull(stringArg()))),
+    promptSolutions: nullable(list(nonNull(arg({type: PromptSolutionInputType}))))
   },
   resolve: async (
     root,
@@ -39,7 +41,8 @@ export const updateExercise = mutationField("updateExercise", {
       languageCode,
       possibleAnswers,
       solution,
-      orderingItems
+      orderingItems,
+      promptSolutions
     },
     {jwtPayload, prisma, spacesClient, applicationConfiguration}
   ) => {
@@ -68,7 +71,8 @@ export const updateExercise = mutationField("updateExercise", {
       labels,
       possibleAnswers,
       languageCode,
-      orderingItems
+      orderingItems,
+      promptSolutions
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",

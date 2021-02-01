@@ -2,12 +2,15 @@
   "add-answer": "add answer",
   "add-file": "add file",
   "add-ordering-item": "add ordering item",
+  "add-prompt-solution": "add prompt solution",
   "already-having-account": "Already having an account?",
+  "answer": "answer",
   "assignment": "assignment",
   "cancel": "cancel",
   "change": "change",
   "close": "close",
   "completed": "completed",
+  "correct-answers": "correct answers",
   "creators": "creators",
   "dark": "dark",
   "deadline": "deadline",
@@ -27,6 +30,7 @@
   "exercise-type-list": {
     "multi-select": "multi-select",
     "ordering": "ordering",
+    "prompt": "prompt",
     "standard": "standard",
     "true-or-false": "true or false"
   },

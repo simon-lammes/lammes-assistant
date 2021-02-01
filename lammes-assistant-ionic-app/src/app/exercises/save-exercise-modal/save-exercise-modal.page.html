@@ -64,7 +64,7 @@
               <ng-container [formGroup]="answerControl"
                         *ngFor="let answerControl of getArrayControls('possibleAnswers'); let i = index">
                   <ion-item>
-                    <ion-textarea rows="3" formControlName="value" appIonInputFocus></ion-textarea>
+                    <ion-textarea rows="3" formControlName="value" appIonInputFocus (ionBlur)="trim(answerControl.controls.value, false)"></ion-textarea>
                     <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
                     <ion-button slot="end" fill="clear" (click)="removeAnswer(i)">
                       <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
@@ -76,6 +76,22 @@
                   </ion-item>
               </ng-container>
               <ion-button type="button" (click)="addAnswer()">{{ 'add-answer' | translate | titlecase }}</ion-button>
+            </ion-list>
+            <!-- Prompt Solutions -->
+            <ion-list *ngSwitchCase="'promptSolutions'" formArrayName="promptSolutions">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
+              </ion-list-header>
+              <ng-container [formGroup]="promptSolutionControl"
+                            *ngFor="let promptSolutionControl of getArrayControls('promptSolutions'); let i = index">
+                <ion-item>
+                  <ion-input (ionBlur)="trim(promptSolutionControl.controls.value)" formControlName="value" appIonInputFocus></ion-input>
+                  <ion-button slot="end" fill="clear" (click)="removeAnswerSolution(i)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </ng-container>
+              <ion-button type="button" (click)="addPromptSolution()">{{ 'add-prompt-solution' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Order Items -->
             <ion-reorder-group *ngSwitchCase="'orderingItems'" formArrayName="orderingItems" disabled="false" (ionItemReorder)="reorderOrderingItems($event)">
@@ -127,6 +143,8 @@
                              [exercise]="exerciseForm.value"></app-ordering-exercise>
       <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'"
                                   [exercise]="exerciseForm.value"></app-true-or-false-exercise>
+      <app-prompt-exercise *ngSwitchCase="'prompt'"
+                                  [exercise]="exerciseForm.value"></app-prompt-exercise>
       <app-standard-exercise *ngSwitchDefault [exercise]="exerciseForm.value"></app-standard-exercise>
     </ng-container>
   </ng-container>

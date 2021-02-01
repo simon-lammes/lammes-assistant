@@ -24,4 +24,10 @@ export class CustomFormsService {
     const newValue = value.replace(/[\s]/g, '');
     control.patchValue(newValue);
   }
+
+  trim(control: AbstractControl) {
+    const value = control.value as string;
+    const newValue = value.trim();
+    control.patchValue(newValue);
+  }
 }

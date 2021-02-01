@@ -2,12 +2,15 @@
   "add-answer": "Antwort hinzufügen",
   "add-file": "Datei hinzufügen",
   "add-ordering-item": "Teilstück hinzufügen",
+  "add-prompt-solution": "Abfragelösung hinzufügen",
   "already-having-account": "Schon registriert?",
+  "answer": "Antwort",
   "assignment": "Aufgabenstellung",
   "cancel": "abbrechen",
   "change": "ändern",
   "close": "schließen",
   "completed": "abgeschlossen",
+  "correct-answers": "richtige Antworten",
   "creators": "Ersteller",
   "dark": "dunkel",
   "deadline": "Fälligkeitsdatum",
@@ -27,6 +30,7 @@
   "exercise-type-list": {
     "multi-select": "multi-select",
     "ordering": "Reihenfolge",
+    "prompt": "Abfrage",
     "standard": "standart",
     "true-or-false": "Richtig oder Falsch"
   },

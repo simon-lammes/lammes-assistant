@@ -25,7 +25,7 @@
 <!-- Solution -->
 <ion-card *ngIf="trueOrFalseSelection !== undefined">
   <ion-card-header>
-    <ion-card-subtitle>Solution</ion-card-subtitle>
+    <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
@@ -35,6 +35,6 @@
 <!-- Review and request next exercise -->
 <div style="display: flex" *ngIf="trueOrFalseSelection !== undefined">
   <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()">
-    Next Exercise
+    {{ 'next-exercise' | translate | titlecase }}
   </ion-button>
 </div>

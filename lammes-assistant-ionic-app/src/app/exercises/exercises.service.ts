@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {ExerciseCooldown} from '../settings/settings.service';
 
-export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering';
+export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering' | 'prompt';
 
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
@@ -22,6 +22,10 @@ export interface PossibleAnswer {
   value: string;
   correct: boolean;
   explanation: string;
+}
+
+export interface PromptSolution {
+  value: string;
 }
 
 export type LanguageCodeIso639_1 = 'en' | 'de';
@@ -40,6 +44,7 @@ export interface HydratedExercise {
   exerciseType: ExerciseType;
   isStatementCorrect?: boolean;
   possibleAnswers: PossibleAnswer[];
+  promptSolutions: PromptSolution[];
   files: CustomFile[];
   labels?: string[];
   languageCode: LanguageCodeIso639_1;
@@ -127,8 +132,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode) {
+  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!, $promptSolutions: [PromptSolution!]) {
+    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode, promptSolutions: $promptSolutions) {
       ...ExerciseFragment
     }
   },
@@ -136,8 +141,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode) {
+  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!, $promptSolutions: [PromptSolution!]) {
+    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode, promptSolutions: $promptSolutions) {
       ...ExerciseFragment
     }
   },

@@ -76,6 +76,7 @@ enum ExerciseResult {
 enum ExerciseType {
   multiselect
   ordering
+  prompt
   standard
   trueOrFalse
 }
@@ -100,7 +101,7 @@ enum LanguageCode {
 }
 
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], promptSolutions: [PromptSolution!], solution: String!, title: String!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -121,7 +122,7 @@ type Mutation {
   Set the user's profile picture and return a signed download link for it.
   """
   setProfilePicture(picture: PictureInput!): String
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], solution: String!, title: String!): Exercise
+  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], promptSolutions: [PromptSolution!], solution: String!, title: String!): Exercise
 }
 
 type Note {
@@ -159,6 +160,11 @@ input PossibleAnswer {
 
   """Explains why an answer is correct or incorrect."""
   explanation: String
+  value: String!
+}
+
+input PromptSolution {
+  """one possible answer to the exercise's assignement"""
   value: String!
 }
 

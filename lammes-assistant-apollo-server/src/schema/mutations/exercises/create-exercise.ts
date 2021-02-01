@@ -10,10 +10,12 @@ import {HydratedExercise} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExerciseFiles} from "../../../utils/validators/exercise-validation/exercise-file-validation";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
+import {PromptSolutionInputType} from "../../types/prompt-solution";
 
 export const createExercise = mutationField('createExercise', {
   type: exerciseObjectType,
   args: {
+    // TODO create input type hydrated exercise to clean this mess up. Don't forget update exercise.
     title: nonNull(stringArg()),
     assignment: nonNull(stringArg()),
     solution: nonNull(stringArg()),
@@ -23,7 +25,8 @@ export const createExercise = mutationField('createExercise', {
     isStatementCorrect: nullable(booleanArg()),
     possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
     languageCode: nonNull(arg({type: LanguageCodeEnumType})),
-    orderingItems: nullable(list(nonNull(stringArg())))
+    orderingItems: nullable(list(nonNull(stringArg()))),
+    promptSolutions: nullable(list(nonNull(arg({type: PromptSolutionInputType}))))
   },
   resolve: async (
     root,
@@ -37,7 +40,8 @@ export const createExercise = mutationField('createExercise', {
       labels,
       possibleAnswers,
       languageCode,
-      orderingItems
+      orderingItems,
+      promptSolutions,
     }, {jwtPayload, prisma, spacesClient, applicationConfiguration}) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
@@ -94,7 +98,8 @@ export const createExercise = mutationField('createExercise', {
       labels,
       possibleAnswers,
       languageCode,
-      orderingItems
+      orderingItems,
+      promptSolutions
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",

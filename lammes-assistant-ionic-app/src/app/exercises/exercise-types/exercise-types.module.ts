@@ -7,25 +7,30 @@ import {EnrichedMarkdownModule} from '../../shared/enriched-markdown/enriched-ma
 import {MultiselectExerciseComponent} from './multiselect-exercise/multiselect-exercise.component';
 import {OrderingExerciseComponent} from './ordering-exercise/ordering-exercise.component';
 import {SharedModule} from '../../shared/shared.module';
+import {PromptExerciseComponent} from './prompt-exercise/prompt-exercise.component';
+import {ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
     StandardExerciseComponent,
     TrueOrFalseExerciseComponent,
     MultiselectExerciseComponent,
-    OrderingExerciseComponent
+    OrderingExerciseComponent,
+    PromptExerciseComponent
   ],
   exports: [
     StandardExerciseComponent,
     TrueOrFalseExerciseComponent,
     MultiselectExerciseComponent,
-    OrderingExerciseComponent
+    OrderingExerciseComponent,
+    PromptExerciseComponent
   ],
   imports: [
     CommonModule,
     IonicModule,
     EnrichedMarkdownModule,
-    SharedModule
+    SharedModule,
+    ReactiveFormsModule
   ]
 })
 export class ExerciseTypesModule { }

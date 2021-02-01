@@ -21,7 +21,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems' | 'promptSolutions';
   title: Promise<string>;
   controlName: string;
   /**
@@ -70,8 +70,11 @@ export class SaveExerciseModalPage implements OnInit {
       type: 'textarea',
       controlName: 'solution',
       controlBuilder: (type, exercise) => {
-        // In a multiselect exercise, we do not necessarily need a solution text.
-        const isSolutionRequired = type !== 'multiselect';
+        // For some types of exercises, we do not necessarily need a solution text.
+        const exerciseTypesThatDontRequireSolution: ExerciseType[] = ['multiselect', 'prompt'];
+        const isSolutionRequired = !exerciseTypesThatDontRequireSolution.includes(type);
+        // TODO fix bug: This control needs to be rebuilt so that the changes in validation take effect.
+        console.log(type, isSolutionRequired);
         return this.formBuilder.control(exercise?.solution ?? '', isSolutionRequired ? [Validators.required, Validators.min(1)] : []);
       }
     },
@@ -84,7 +87,8 @@ export class SaveExerciseModalPage implements OnInit {
         {value: 'standard', displayValue: this.translateService.get('exercise-type-list.standard').toPromise()},
         {value: 'multiselect', displayValue: this.translateService.get('exercise-type-list.multi-select').toPromise()},
         {value: 'ordering', displayValue: this.translateService.get('exercise-type-list.ordering').toPromise()},
-        {value: 'trueOrFalse', displayValue: this.translateService.get('exercise-type-list.true-or-false').toPromise()}
+        {value: 'trueOrFalse', displayValue: this.translateService.get('exercise-type-list.true-or-false').toPromise()},
+        {value: 'prompt', displayValue: this.translateService.get('exercise-type-list.prompt').toPromise()}
       ],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
     },
@@ -121,6 +125,23 @@ export class SaveExerciseModalPage implements OnInit {
           orderItem,
           [Validators.required, Validators.minLength(1)]
         )));
+      }
+    },
+    {
+      title: this.translateService.get('prompt-solutions').toPromise(),
+      type: 'promptSolutions',
+      controlName: 'promptSolutions',
+      exerciseTypes: ['prompt'],
+      controlBuilder: (type, exercise) => {
+        const promptSolutions = exercise?.promptSolutions ?? [{value: ''}];
+        return this.formBuilder.array(promptSolutions.map((promptSolution) => {
+          return this.formBuilder.group({
+            value: this.formBuilder.control(
+              promptSolution.value,
+              [Validators.required, Validators.minLength(1)]
+            )
+          });
+        }));
       }
     },
     {
@@ -208,8 +229,12 @@ export class SaveExerciseModalPage implements OnInit {
     }
   }
 
-  trim(formControl: AbstractControl) {
-    this.customFormsService.trimAndRemoveNeighboringWhitespaces(formControl);
+  trim(formControl: AbstractControl, removeUnnecessaryWhitespacesInBetween: boolean = true) {
+    if (removeUnnecessaryWhitespacesInBetween) {
+      this.customFormsService.trimAndRemoveNeighboringWhitespaces(formControl);
+    } else {
+      this.customFormsService.trim(formControl);
+    }
   }
 
   onSegmentChange({detail: {value}}: CustomEvent) {
@@ -370,5 +395,22 @@ export class SaveExerciseModalPage implements OnInit {
       const value = this.exerciseForm.value[key];
       return {[key]: value};
     }).reduce((previousValue, currentValue) => ({...previousValue, ...currentValue}));
+  }
+
+  removeAnswerSolution(index: number) {
+    const promptSolutionsArrayControl = this.exerciseForm.controls.promptSolutions as FormArray;
+    promptSolutionsArrayControl.removeAt(index);
+  }
+
+  // TODO put into exercise control model together with all other add / remove methods!
+  addPromptSolution() {
+    const promptSolutionsArrayControl = this.exerciseForm.controls.promptSolutions as FormArray;
+    const newPromptSolution = this.formBuilder.group({
+      value: this.formBuilder.control(
+        '',
+        [Validators.required, Validators.minLength(1)]
+      )
+    });
+    promptSolutionsArrayControl.push(newPromptSolution);
   }
 }
