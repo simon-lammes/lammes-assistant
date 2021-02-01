@@ -67,7 +67,13 @@ export class StudyPage implements OnInit {
     if (exerciseResult) {
       const toastPromise = this.showToastForExerciseResult(exerciseResult);
       const registerPromise = this.registerExerciseResult(exercise.id, exerciseResult);
-      await Promise.all([toastPromise, registerPromise]);
+      // Scrolling needs to happen after change detection. Therefore, we use setTimeout.
+      const scrollPromise = new Promise((resolve) => {
+        setTimeout(() => {
+          this.ionContent.scrollToBottom(600).then(() => resolve());
+        }, 0);
+      });
+      await Promise.all([toastPromise, registerPromise, scrollPromise]);
     }
     if (nextExerciseRequested) {
       this.nextExerciseRequestedBehaviourSubject.next(true);
