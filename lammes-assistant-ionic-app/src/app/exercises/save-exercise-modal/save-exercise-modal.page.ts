@@ -4,7 +4,7 @@ import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validat
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {Exercise, ExercisesService, ExerciseType, HydratedExercise, PossibleAnswer} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
+import {distinctUntilChanged, map, pairwise, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 import {ItemReorderEventDetail} from '@ionic/core';
@@ -51,6 +51,10 @@ interface ExerciseControl {
    * @param index the index of the child item that is removed
    */
   removeChildControl?: (index: number) => void;
+  /**
+   * Determine whether this control should be rebuilt because something that influences this control potentially changed.
+   */
+  needsToBeRebuilt?: (previousValue?: ExerciseType, newValue?: ExerciseType) => boolean;
 }
 
 /**
@@ -63,6 +67,7 @@ interface ExerciseControl {
   styleUrls: ['./save-exercise-modal.page.scss'],
 })
 export class SaveExerciseModalPage implements OnInit {
+  exerciseForm: FormGroup;
   readonly allExerciseControls: ExerciseControl[] = [
     {
       title: this.translateService.get('title').toPromise(),
@@ -83,12 +88,13 @@ export class SaveExerciseModalPage implements OnInit {
       title: this.translateService.get('solution').toPromise(),
       type: 'textarea',
       controlName: 'solution',
+      needsToBeRebuilt: (previousValue, newValue) => {
+        return previousValue !== newValue;
+      },
       controlBuilder: (type, exercise) => {
         // For some types of exercises, we do not necessarily need a solution text.
         const exerciseTypesThatDontRequireSolution: ExerciseType[] = ['multiselect', 'prompt'];
         const isSolutionRequired = !exerciseTypesThatDontRequireSolution.includes(type);
-        // TODO fix bug: This control needs to be rebuilt so that the changes in validation take effect.
-        console.log(type, isSolutionRequired);
         return this.formBuilder.control(exercise?.solution ?? '', isSolutionRequired ? [Validators.required, Validators.min(1)] : []);
       }
     },
@@ -267,7 +273,6 @@ export class SaveExerciseModalPage implements OnInit {
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
     }
   ];
-  exerciseForm: FormGroup;
   selectedSegment: 'edit' | 'preview' = 'edit';
   /**
    * If an exercise is provided, one must specify whether the user this exercise.
@@ -371,18 +376,24 @@ export class SaveExerciseModalPage implements OnInit {
     this.exerciseForm = this.formBuilder.group({});
     this.exerciseForm.valueChanges.pipe(
       untilDestroyed(this),
-      startWith({exerciseType: currentValue?.exerciseType ?? 'standard'}),
-      map(formValue => formValue.exerciseType as ExerciseType),
-      distinctUntilChanged()
-    ).subscribe(exerciseType => {
+      startWith(null, {exerciseType: currentValue?.exerciseType ?? 'standard'}),
+      map(formValue => formValue?.exerciseType as ExerciseType),
+      distinctUntilChanged(),
+      pairwise()
+    ).subscribe(([previous, exerciseType]) => {
       this.allExerciseControls.forEach(optionalControl => {
         const isOptionalControlNeededForExerciseType = !optionalControl.exerciseTypes
           || optionalControl.exerciseTypes.includes(exerciseType);
         const doesOptionalControlAlreadyExist = !!this.exerciseForm.controls[optionalControl.controlName];
+
+        // Add missing control, remove unwanted control or rebuild control
         if (isOptionalControlNeededForExerciseType && !doesOptionalControlAlreadyExist) {
           this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, currentValue));
         } else if (!isOptionalControlNeededForExerciseType) {
           this.exerciseForm.removeControl(optionalControl.controlName);
+        } else if (optionalControl.needsToBeRebuilt && optionalControl.needsToBeRebuilt(previous, exerciseType)) {
+          this.exerciseForm.removeControl(optionalControl.controlName);
+          this.exerciseForm.addControl(optionalControl.controlName, optionalControl.controlBuilder(exerciseType, currentValue));
         }
       });
     });
