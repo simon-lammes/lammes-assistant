@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {Exercise, ExercisesService, ExerciseType, HydratedExercise, PossibleAnswer} from '../exercises.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
@@ -31,12 +31,26 @@ interface ExerciseControl {
     value: string;
     displayValue: Promise<string>;
   }[];
+  /**
+   * Specifies how this exercise control is build.
+   */
   controlBuilder: (exerciseType: ExerciseType, exercise?: Partial<HydratedExercise>) => AbstractControl;
   /**
    * If set to true, the value of this control will not be reset when the user saves the exercise and starts creating the next exercise.
    * This prevents the user from needing to type certain things over and over again.
    */
   isLocked?: boolean;
+  /**
+   * This method adds a child control to this control. Useful for FormArrays.
+   * @param thisControl A reference to the control that is specified by this object.
+   */
+  addChildControl?: (args?: any) => void;
+  /**
+   * This method removes a child control from this control. Useful for FormArrays.
+   * @param thisControl A reference to the control that is specified by this object.
+   * @param index the index of the child item that is removed
+   */
+  removeChildControl?: (index: number) => void;
 }
 
 /**
@@ -112,6 +126,18 @@ export class SaveExerciseModalPage implements OnInit {
           correct: this.formBuilder.control(answer.correct),
           explanation: this.formBuilder.control(answer.explanation)
         })), [Validators.required]);
+      },
+      addChildControl: () => {
+        const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
+        possibleAnswersArrayControl.push(this.formBuilder.group({
+          value: this.formBuilder.control(''),
+          correct: this.formBuilder.control(false),
+          explanation: this.formBuilder.control('')
+        }));
+      },
+      removeChildControl: index => {
+        const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
+        possibleAnswersArrayControl.removeAt(index);
       }
     },
     {
@@ -125,6 +151,10 @@ export class SaveExerciseModalPage implements OnInit {
           orderItem,
           [Validators.required, Validators.minLength(1)]
         )));
+      },
+      addChildControl: () => {
+        const orderingItemsArrayControl = this.exerciseForm.controls.orderingItems as FormArray;
+        orderingItemsArrayControl.push(this.formBuilder.control(''));
       }
     },
     {
@@ -142,6 +172,20 @@ export class SaveExerciseModalPage implements OnInit {
             )
           });
         }));
+      },
+      addChildControl: () => {
+        const control = this.exerciseForm.controls.promptSolutions as FormArray;
+        const newPromptSolution = this.formBuilder.group({
+          value: this.formBuilder.control(
+            '',
+            [Validators.required, Validators.minLength(1)]
+          )
+        });
+        control.push(newPromptSolution);
+      },
+      removeChildControl: (index: number) => {
+        const control = this.exerciseForm.controls.promptSolutions as FormArray;
+        control.removeAt(index);
       }
     },
     {
@@ -154,6 +198,54 @@ export class SaveExerciseModalPage implements OnInit {
           name: this.formBuilder.control(file.name),
           value: this.formBuilder.control(file.value)
         })));
+      },
+      addChildControl: async (file: ReadFile) => {
+        const {allowedFileTypes} = await this.applicationConfigurationService.getApplicationConfigurationSnapshot();
+        if (!allowedFileTypes.includes(file.type)) {
+          await this.showHint('File type not allowed.');
+          return;
+        }
+        const filesArrayControl = this.exerciseForm.controls.files as FormArray;
+        const alert = await this.alertController.create({
+          header: 'Add File',
+          inputs: [
+            {
+              name: 'name',
+              type: 'text',
+              placeholder: 'Name',
+              value: file.name
+            },
+          ],
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Save',
+              handler: async (result: { name: string }) => {
+                const {name} = result;
+                const doesNameAlreadyExist = filesArrayControl.controls.some(control => control.value.name === name);
+                if (doesNameAlreadyExist) {
+                  await this.showHint('You already have a file with this name.');
+                  return;
+                }
+                filesArrayControl.push(this.formBuilder.control({
+                  name,
+                  value: file.content
+                }));
+              }
+            }
+          ]
+        });
+        await alert.present();
+        // I do not know a nicer way of autofocusing the first input element.
+        const firstInput: any = document.querySelector('ion-alert input');
+        firstInput.focus();
+      },
+      removeChildControl: index => {
+        const filesArrayControl = this.exerciseForm.controls.files as FormArray;
+        filesArrayControl.removeAt(index);
       }
     },
     {
@@ -210,7 +302,7 @@ export class SaveExerciseModalPage implements OnInit {
 
   getArrayControls(formArrayName: string) {
     const filesArrayControl = this.exerciseForm.controls[formArrayName] as FormArray;
-    return filesArrayControl.controls as FormGroup[];
+    return filesArrayControl.controls as FormGroup[] | FormControl[];
   }
 
   async saveExercise() {
@@ -241,79 +333,10 @@ export class SaveExerciseModalPage implements OnInit {
     this.selectedSegment = value;
   }
 
-  async addFile(file: ReadFile) {
-    const {allowedFileTypes} = await this.applicationConfigurationService.getApplicationConfigurationSnapshot();
-    if (!allowedFileTypes.includes(file.type)) {
-      await this.showHint('File type not allowed.');
-      return;
-    }
-    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
-    const alert = await this.alertController.create({
-      header: 'Add File',
-      inputs: [
-        {
-          name: 'name',
-          type: 'text',
-          placeholder: 'Name',
-          value: file.name
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Save',
-          handler: async (result: { name: string }) => {
-            const {name} = result;
-            const doesNameAlreadyExist = filesArrayControl.controls.some(control => control.value.name === name);
-            if (doesNameAlreadyExist) {
-              await this.showHint('You already have a file with this name.');
-              return;
-            }
-            filesArrayControl.push(this.formBuilder.control({
-              name,
-              value: file.content
-            }));
-          }
-        }
-      ]
-    });
-    await alert.present();
-    // I do not know a nicer way of autofocusing the first input element.
-    const firstInput: any = document.querySelector('ion-alert input');
-    firstInput.focus();
-  }
-
   async copyFileReferenceToClipboard(file: { name: string, value: string }) {
     const {name} = file;
     await navigator.clipboard.writeText(`![${name}][${name}]`);
     await this.showHint('File reference copied to clipboard.', 'primary', 1500);
-  }
-
-  removeFile(index: number) {
-    const filesArrayControl = this.exerciseForm.controls.files as FormArray;
-    filesArrayControl.removeAt(index);
-  }
-
-  addAnswer() {
-    const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
-    possibleAnswersArrayControl.push(this.formBuilder.group({
-      value: this.formBuilder.control(''),
-      correct: this.formBuilder.control(false),
-      explanation: this.formBuilder.control('')
-    }));
-  }
-
-  removeAnswer(i: number) {
-    const possibleAnswersArrayControl = this.exerciseForm.controls.possibleAnswers as FormArray;
-    possibleAnswersArrayControl.removeAt(i);
-  }
-
-  addOrderingItem() {
-    const orderingItemsArrayControl = this.exerciseForm.controls.orderingItems as FormArray;
-    orderingItemsArrayControl.push(this.formBuilder.control(''));
   }
 
   /**
@@ -395,22 +418,5 @@ export class SaveExerciseModalPage implements OnInit {
       const value = this.exerciseForm.value[key];
       return {[key]: value};
     }).reduce((previousValue, currentValue) => ({...previousValue, ...currentValue}));
-  }
-
-  removeAnswerSolution(index: number) {
-    const promptSolutionsArrayControl = this.exerciseForm.controls.promptSolutions as FormArray;
-    promptSolutionsArrayControl.removeAt(index);
-  }
-
-  // TODO put into exercise control model together with all other add / remove methods!
-  addPromptSolution() {
-    const promptSolutionsArrayControl = this.exerciseForm.controls.promptSolutions as FormArray;
-    const newPromptSolution = this.formBuilder.group({
-      value: this.formBuilder.control(
-        '',
-        [Validators.required, Validators.minLength(1)]
-      )
-    });
-    promptSolutionsArrayControl.push(newPromptSolution);
   }
 }

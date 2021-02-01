@@ -82,6 +82,7 @@
   "possible-answers": "Antwortmöglichkeiten",
   "preview": "Vorschau",
   "profile": "Profil",
+  "prompt-solutions": "Abfragelösungen",
   "questions": {
     "is-statement-correct": "Ist die Aussage richtig?"
   },

@@ -66,7 +66,7 @@
                   <ion-item>
                     <ion-textarea rows="3" formControlName="value" appIonInputFocus (ionBlur)="trim(answerControl.controls.value, false)"></ion-textarea>
                     <ion-checkbox slot="start" formControlName="correct"></ion-checkbox>
-                    <ion-button slot="end" fill="clear" (click)="removeAnswer(i)">
+                    <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
                       <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
                     </ion-button>
                   </ion-item>
@@ -75,7 +75,7 @@
                     <ion-textarea rows="3" formControlName="explanation"></ion-textarea>
                   </ion-item>
               </ng-container>
-              <ion-button type="button" (click)="addAnswer()">{{ 'add-answer' | translate | titlecase }}</ion-button>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-answer' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Prompt Solutions -->
             <ion-list *ngSwitchCase="'promptSolutions'" formArrayName="promptSolutions">
@@ -86,12 +86,12 @@
                             *ngFor="let promptSolutionControl of getArrayControls('promptSolutions'); let i = index">
                 <ion-item>
                   <ion-input (ionBlur)="trim(promptSolutionControl.controls.value)" formControlName="value" appIonInputFocus></ion-input>
-                  <ion-button slot="end" fill="clear" (click)="removeAnswerSolution(i)">
+                  <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
                     <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
                   </ion-button>
                 </ion-item>
               </ng-container>
-              <ion-button type="button" (click)="addPromptSolution()">{{ 'add-prompt-solution' | translate | titlecase }}</ion-button>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-prompt-solution' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Order Items -->
             <ion-reorder-group *ngSwitchCase="'orderingItems'" formArrayName="orderingItems" disabled="false" (ionItemReorder)="reorderOrderingItems($event)">
@@ -100,7 +100,7 @@
                            (ionBlur)="trim(orderItemControl)" appIonInputFocus></ion-input>
                 <ion-reorder slot="end"></ion-reorder>
               </ion-item>
-              <ion-button type="button" (click)="addOrderingItem()">{{ 'add-ordering-item' | translate | titlecase }}</ion-button>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-ordering-item' | translate | titlecase }}</ion-button>
             </ion-reorder-group>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
@@ -117,14 +117,14 @@
                 </ion-item>
 
                 <!-- Sliding options right side -->
-                <ion-item-options side="end" (ionSwipe)="removeFile(i)">
-                  <ion-item-option expandable="true" color="danger" (click)="removeFile(i)">
+                <ion-item-options side="end" (ionSwipe)="exerciseControl.addChildControl(i)">
+                  <ion-item-option expandable="true" color="danger" (click)="exerciseControl.removeChildControl(i)">
                     <ion-icon name="trash-outline"></ion-icon>
                     {{ 'remove' | translate | titlecase }}
                   </ion-item-option>
                 </ion-item-options>
               </ion-item-sliding>
-              <ion-button type="button" ngxFilePicker (filePick)="addFile($event)">{{ 'add-file' | translate | titlecase }}</ion-button>
+              <ion-button type="button" ngxFilePicker (filePick)="exerciseControl.addChildControl($event)">{{ 'add-file' | translate | titlecase }}</ion-button>
             </ion-list>
             <!-- Labels -->
             <app-label-selector *ngSwitchCase="'labelSelector'" [heading]="exerciseControl.title | async | titlecase"
