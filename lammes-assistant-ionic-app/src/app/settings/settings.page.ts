@@ -60,7 +60,12 @@ export class SettingsPage implements OnInit {
         const daysComponent = days ? `${days} days` : '';
         const hoursComponent = hours ? `${hours} hours` : '';
         const minutesComponent = minutes ? `${minutes} minutes` : '';
-        return [daysComponent, hoursComponent, minutesComponent].filter(value => value).join(', ');
+        const result = [daysComponent, hoursComponent, minutesComponent].filter(value => value).join(', ');
+        if (result.length > 0) {
+          return result;
+        } else {
+          return '0';
+        }
       })
     );
     this.settingsForm.valueChanges.pipe(untilDestroyed(this)).subscribe(currentSettings =>
