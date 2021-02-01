@@ -313,8 +313,8 @@ export class SaveExerciseModalPage implements OnInit {
   async saveExercise() {
     if (this.editedExercise && this.doesUserOwnEditedExercise) {
       await this.exercisesService.updateExercise({
-        ...this.editedExercise,
-        ...this.exerciseForm.value
+        id: this.editedExercise.id,
+        hydratedExerciseInput: this.exerciseForm.value
       });
       await this.dismissModal();
     } else {

@@ -1,3 +1,9 @@
+import {inputObjectType} from "@nexus/schema";
+import {PromptSolutionInputType} from "./prompt-solution";
+import {CustomFile} from "./custom-file";
+import {PossibleAnswer} from "./possible-answer";
+import {ExerciseType} from "./exercise-type";
+
 export interface CustomFile {
   name: string;
   value: string;
@@ -29,3 +35,21 @@ export interface HydratedExercise {
   orderingItems?: string[];
   languageCode: string;
 }
+
+export const HydratedExerciseInputType = inputObjectType({
+  name: 'HydratedExerciseInput',
+  definition(t) {
+    t.nonNull.string('title');
+    t.nonNull.string('assignment');
+    t.nonNull.string('solution');
+    t.nonNull.field('exerciseType', {type: ExerciseType});
+    t.nonNull.list.field('files', {type: CustomFile});
+    t.nonNull.list.nonNull.string('labels');
+    t.nonNull.field('languageCode', {type: 'LanguageCode'});
+    t.nullable.boolean('isStatementCorrect');
+    t.nullable.list.field('possibleAnswers', {type: PossibleAnswer});
+    t.nullable.list.nonNull.string('orderingItems');
+    t.nullable.list.nonNull.field('promptSolutions', {type: PromptSolutionInputType});
+  },
+});
+

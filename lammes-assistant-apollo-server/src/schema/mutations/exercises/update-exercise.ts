@@ -1,48 +1,23 @@
-import {arg, booleanArg, intArg, list, mutationField, nonNull, nullable, stringArg} from "@nexus/schema";
-import {ExerciseType} from "../../types/exercise-type";
-import {LanguageCodeEnumType} from "../../types/language-code";
+import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
 import {generateNotFoundError} from "../../../custom-errors/not-found-error";
 import {generateAuthorizationError} from "../../../custom-errors/authorization-error";
 import {ExerciseLabelScalarWhereInput} from "@prisma/client";
-import {CustomFile} from "../../types/custom-file";
-import {PossibleAnswer} from "../../types/possible-answer";
-import {HydratedExercise} from "../../types/hydrated-exercise";
+import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
-import {PromptSolutionInputType} from "../../types/prompt-solution";
 
 export const updateExercise = mutationField("updateExercise", {
   type: exerciseObjectType,
   args: {
     id: nonNull(intArg()),
-    title: nonNull(stringArg()),
-    assignment: nonNull(stringArg()),
-    solution: nonNull(stringArg()),
-    exerciseType: nonNull(arg({type: ExerciseType})),
-    files: nonNull(list(arg({type: CustomFile}))),
-    labels: nonNull(list(nonNull(stringArg()))),
-    isStatementCorrect: nullable(booleanArg()),
-    possibleAnswers: nullable(list(arg({type: PossibleAnswer}))),
-    languageCode: nonNull(arg({type: LanguageCodeEnumType})),
-    orderingItems: nullable(list(nonNull(stringArg()))),
-    promptSolutions: nullable(list(nonNull(arg({type: PromptSolutionInputType}))))
+    hydratedExerciseInput: nonNull(arg({type: HydratedExerciseInputType}))
   },
   resolve: async (
     root,
     {
-      title,
-      assignment,
-      exerciseType,
-      files,
       id,
-      isStatementCorrect,
-      labels,
-      languageCode,
-      possibleAnswers,
-      solution,
-      orderingItems,
-      promptSolutions
+      hydratedExerciseInput
     },
     {jwtPayload, prisma, spacesClient, applicationConfiguration}
   ) => {
@@ -57,22 +32,12 @@ export const updateExercise = mutationField("updateExercise", {
     if (exercise.creatorId !== userId) {
       throw generateAuthorizationError("You do not own the requested resource.");
     }
-    validateExercise(applicationConfiguration, {files, title});
+    validateExercise(applicationConfiguration, hydratedExerciseInput);
     const versionTimestamp = new Date();
     const hydratedExercise = {
+      ...hydratedExerciseInput,
       id,
-      versionTimestamp: versionTimestamp.toISOString(),
-      title,
-      assignment,
-      solution,
-      exerciseType,
-      isStatementCorrect,
-      files,
-      labels,
-      possibleAnswers,
-      languageCode,
-      orderingItems,
-      promptSolutions
+      versionTimestamp: versionTimestamp.toISOString()
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",
@@ -93,15 +58,15 @@ export const updateExercise = mutationField("updateExercise", {
     })
     const [currentLabels] = await Promise.all([currentLabelsPromise, upload.promise()]);
     // Which labels has the user removed or added to the exercise?
-    const removeLabels = currentLabels.filter(label => !labels.some(x => x === label.title));
-    const addedLabels = labels.filter(label => !currentLabels.some(x => x.title === label));
+    const removeLabels = currentLabels.filter(label => !hydratedExerciseInput.labels.some(x => x === label.title));
+    const addedLabels = hydratedExerciseInput.labels.filter(label => !currentLabels.some(x => x.title === label));
     return prisma.exercise.update({
       where: {
         id
       },
       data: {
-        title,
-        languageCode,
+        title: hydratedExerciseInput.title,
+        languageCode: hydratedExerciseInput.languageCode,
         exerciseLabels: {
           deleteMany: removeLabels.length > 0 ? removeLabels.map(label => {
             return {

@@ -132,8 +132,8 @@ const usersRemovedExercisesQuery = gql`
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!, $promptSolutions: [PromptSolution!]) {
-    createExercise(title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode, promptSolutions: $promptSolutions) {
+  mutation CreateExercise($hydratedExerciseInput: HydratedExerciseInput!) {
+    createExercise(hydratedExerciseInput: $hydratedExerciseInput) {
       ...ExerciseFragment
     }
   },
@@ -141,8 +141,8 @@ const createExerciseMutation = gql`
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $title: String!, $assignment: String!, $solution: String!, $files: [CustomFile!]!, $labels: [String!]!, $exerciseType: ExerciseType!, $isStatementCorrect: Boolean, $possibleAnswers: [PossibleAnswer!], $orderingItems: [String!], $languageCode: LanguageCode!, $promptSolutions: [PromptSolution!]) {
-    updateExercise(id: $id, title: $title, assignment: $assignment, solution: $solution, files: $files, labels: $labels, exerciseType: $exerciseType, isStatementCorrect: $isStatementCorrect, possibleAnswers: $possibleAnswers, orderingItems: $orderingItems, languageCode: $languageCode, promptSolutions: $promptSolutions) {
+  mutation UpdateExercise($id: Int!, $hydratedExerciseInput: HydratedExerciseInput!) {
+    updateExercise(id: $id, hydratedExerciseInput: $hydratedExerciseInput) {
       ...ExerciseFragment
     }
   },
@@ -250,18 +250,21 @@ export class ExercisesService {
     );
   }
 
-  async createExercise(exerciseData: any): Promise<any> {
+  async createExercise(hydratedExerciseInput: any): Promise<any> {
     await this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
-      variables: exerciseData,
+      variables: {hydratedExerciseInput},
       refetchQueries: ['FilteredExercisesQuery']
     }).toPromise();
   }
 
-  async updateExercise(exerciseData: any): Promise<any> {
+  async updateExercise(args: { hydratedExerciseInput, id }): Promise<any> {
     return this.apollo.mutate<{ updateExercise: Exercise }, any>({
       mutation: updateExerciseMutation,
-      variables: exerciseData
+      variables: {
+        id: args.id,
+        hydratedExerciseInput: args.hydratedExerciseInput
+      }
     }).toPromise();
   }
 

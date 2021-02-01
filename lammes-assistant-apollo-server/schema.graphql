@@ -94,6 +94,20 @@ type Experience {
   learnerId: Int!
 }
 
+input HydratedExerciseInput {
+  assignment: String!
+  exerciseType: ExerciseType!
+  files: [CustomFile!]!
+  isStatementCorrect: Boolean
+  labels: [String!]!
+  languageCode: LanguageCode!
+  orderingItems: [String!]
+  possibleAnswers: [PossibleAnswer!]
+  promptSolutions: [PromptSolution!]
+  solution: String!
+  title: String!
+}
+
 type Label {
   id: Int!
   title: String!
@@ -106,7 +120,7 @@ enum LanguageCode {
 }
 
 type Mutation {
-  createExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], promptSolutions: [PromptSolution!], solution: String!, title: String!): Exercise
+  createExercise(hydratedExerciseInput: HydratedExerciseInput!): Exercise
   createNote(description: String, title: String!): Note
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
@@ -127,7 +141,7 @@ type Mutation {
   Set the user's profile picture and return a signed download link for it.
   """
   setProfilePicture(picture: PictureInput!): String
-  updateExercise(assignment: String!, exerciseType: ExerciseType!, files: [CustomFile!]!, id: Int!, isStatementCorrect: Boolean, labels: [String!]!, languageCode: LanguageCode!, orderingItems: [String!], possibleAnswers: [PossibleAnswer!], promptSolutions: [PromptSolution!], solution: String!, title: String!): Exercise
+  updateExercise(hydratedExerciseInput: HydratedExerciseInput!, id: Int!): Exercise
 }
 
 type Note {
