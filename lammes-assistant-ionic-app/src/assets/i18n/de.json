@@ -60,6 +60,7 @@
     "failure": "Fehlschlag",
     "invalid-form": "ungültige Eingabe",
     "min-password-length": "Minimale Passwortlänge: ${minPasswordLength}.",
+    "new-pwa-version": "Es ist eine neue Version dieser App verfügbar. Es wird empfohlen, die Seite neu zu laden.",
     "no-label-filter": "Kein Label filter",
     "settings-saved": "Einstellungen gespeichert",
     "showing-exercises-of-all-users": "Aufgaben von allen Benutzern werden angezeigt.",
@@ -69,6 +70,7 @@
     "username-in-use": "Benutzername ist vergeben.",
     "wrong-password": "Falsches Passwort"
   },
+  "new-version": "neue Version",
   "next-exercise": "Nächste Aufgabe",
   "no-account-yet": "Noch keinen Account?",
   "no-exercise-to-study": "Keine Übungsaufgabe mehr verfügbar.",
@@ -91,6 +93,7 @@
     "is-statement-correct": "Ist die Aussage richtig?"
   },
   "register": "registrieren",
+  "reload": "neu laden",
   "remove": "entfernen",
   "removed-on": "Entfernt am",
   "reopen": "wiedereröffnen",

@@ -60,6 +60,7 @@
     "failure": "failure",
     "invalid-form": "invalid values",
     "min-password-length": "Min password length: ${minPasswordLength}.",
+    "new-pwa-version": "New version of this app is available. It is recommended to reload the application.",
     "no-label-filter": "No label filter",
     "settings-saved": "settings saved",
     "showing-exercises-of-all-users": "Showing exercises of all users",
@@ -69,6 +70,7 @@
     "username-in-use": "Username is taken.",
     "wrong-password": "Wrong password"
   },
+  "new-version": "new version",
   "next-exercise": "next exercise",
   "no-account-yet": "No account yet?",
   "no-exercise-to-study": "No exercise left to study.",
@@ -91,6 +93,7 @@
     "is-statement-correct": "Is statement correct?"
   },
   "register": "register",
+  "reload": "reload",
   "remove": "remove",
   "removed-on": "removed on",
   "reopen": "reopen",
