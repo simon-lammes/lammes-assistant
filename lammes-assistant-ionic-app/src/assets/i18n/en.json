@@ -59,7 +59,7 @@
   "messages": {
     "failure": "failure",
     "invalid-form": "invalid values",
-    "min-password-length": "Min password length: ${minPasswordLength}.",
+    "min-password-length": "Min password length: {{minPasswordLength}}",
     "new-pwa-version": "New version of this app is available. It is recommended to reload the application.",
     "no-label-filter": "No label filter",
     "settings-saved": "settings saved",

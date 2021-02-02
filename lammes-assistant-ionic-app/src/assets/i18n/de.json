@@ -59,7 +59,7 @@
   "messages": {
     "failure": "Fehlschlag",
     "invalid-form": "ungültige Eingabe",
-    "min-password-length": "Minimale Passwortlänge: ${minPasswordLength}.",
+    "min-password-length": "Minimale Passwortlänge: {{minPasswordLength}}",
     "new-pwa-version": "Es ist eine neue Version dieser App verfügbar. Es wird empfohlen, die Seite neu zu laden.",
     "no-label-filter": "Kein Label filter",
     "settings-saved": "Einstellungen gespeichert",
