@@ -54,6 +54,7 @@ model Experience {
   learnerId            Int       @map("learner_id")
   correctStreak        Int       @default(0) @map("correct_streak")
   lastStudiedTimestamp DateTime? @map("last_studied_timestamp")
+  suspendedTimestamp   DateTime? @map("suspended_timestamp")
   exercise             Exercise  @relation("exercisesToExperiences", fields: [exerciseId], references: [id])
   learner              User      @relation("experiencesToUsers", fields: [learnerId], references: [id])
 

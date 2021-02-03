@@ -375,6 +375,21 @@ export class ExercisesService {
     );
   }
 
+  suspendExperience(exerciseId: number) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation SuspendExperience($exerciseId: Int!) {
+          suspendExperience(exerciseId: $exerciseId) {
+            exerciseId
+          }
+        }
+      `,
+      variables: {
+        exerciseId
+      }
+    }).toPromise();
+  }
+
   private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
     return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
       // As the download link is only short-lived (meaning it expires), we should not use a cache.

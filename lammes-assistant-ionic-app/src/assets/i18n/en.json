@@ -69,7 +69,8 @@
     "unknown-error": "An unknown error occured.",
     "user-does-not-exist": "User does not exist.",
     "username-in-use": "Username is taken.",
-    "wrong-password": "Wrong password"
+    "wrong-password": "Wrong password",
+    "experience-suspended": "The exercise will not be shown to you anymore."
   },
   "new-version": "new version",
   "next-exercise": "next exercise",
@@ -91,7 +92,8 @@
   "profile": "profile",
   "prompt-solutions": "prompt solutions",
   "questions": {
-    "is-statement-correct": "Is statement correct?"
+    "is-statement-correct": "Is statement correct?",
+    "suspend-experience": "Do you want to suspend the experience so that the exercise will not be shown to you anymore?"
   },
   "register": "register",
   "reload": "reload",
@@ -131,5 +133,6 @@
   "title": "title",
   "urgently-due-till": "urgently due till",
   "username": "username",
-  "wrong": "wrong"
+  "wrong": "wrong",
+  "suspend-experience": "suspend experience"
 }

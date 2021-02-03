@@ -69,7 +69,8 @@
     "unknown-error": "Ein unbekannter Fehler is aufgetreten.",
     "user-does-not-exist": "Benutzer existiert nicht.",
     "username-in-use": "Benutzername ist vergeben.",
-    "wrong-password": "Falsches Passwort"
+    "wrong-password": "Falsches Passwort",
+    "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt."
   },
   "new-version": "neue Version",
   "next-exercise": "Nächste Aufgabe",
@@ -91,7 +92,8 @@
   "profile": "Profil",
   "prompt-solutions": "Abfragelösungen",
   "questions": {
-    "is-statement-correct": "Ist die Aussage richtig?"
+    "is-statement-correct": "Ist die Aussage richtig?",
+    "suspend-experience": "Möchtest du, dass dir diese Übungsaufgabe nicht mehr angezeigt wird?"
   },
   "register": "registrieren",
   "reload": "neu laden",
@@ -131,5 +133,6 @@
   "title": "Titel",
   "urgently-due-till": "dringend fällig bis",
   "username": "Benutzername",
-  "wrong": "Falsch"
+  "wrong": "Falsch",
+  "suspend-experience": "Erfahrung sperren"
 }

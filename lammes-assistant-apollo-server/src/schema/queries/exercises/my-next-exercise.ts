@@ -61,6 +61,8 @@ export const myNextExercise = queryField('myNextExercise', {
         correctStreak: typeof maximumCorrectStreak === 'number' ? {
           lte: maximumCorrectStreak
         } : undefined,
+        // Suspended means that the user does not want to study the exercise anymore.
+        suspendedTimestamp: null,
         exercise: {
           // We want the displayed exercises not to contain exercises that are marked for deletion.
           markedForDeletionTimestamp: null,

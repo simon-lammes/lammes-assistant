@@ -141,6 +141,9 @@ type Mutation {
   Set the user's profile picture and return a signed download link for it.
   """
   setProfilePicture(picture: PictureInput!): String
+
+  """Manually update an experience entity."""
+  suspendExperience(exerciseId: Int!): Experience
   updateExercise(hydratedExerciseInput: HydratedExerciseInput!, id: Int!): Exercise
 }
 

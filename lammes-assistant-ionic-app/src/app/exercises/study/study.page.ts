@@ -3,7 +3,7 @@ import {Exercise, ExerciseFilter, ExerciseResult, ExercisesService, HydratedExer
 import {first, map, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import {StudyPopoverComponent} from './study-popover/study-popover.component';
+import {StudyPopoverComponent, StudyPopoverResult} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
 import {SettingsService} from '../../settings/settings.service';
 import {isNumeric} from 'rxjs/internal-compatibility';
@@ -76,8 +76,7 @@ export class StudyPage implements OnInit {
       await Promise.all([toastPromise, registerPromise, scrollPromise]);
     }
     if (nextExerciseRequested) {
-      this.nextExerciseRequestedBehaviourSubject.next(true);
-      await this.ionContent.scrollToTop(600);
+      await this.requestNextExercise();
     }
   }
 
@@ -90,7 +89,17 @@ export class StudyPage implements OnInit {
       event,
       translucent: true
     });
-    return await popover.present();
+    await popover.present();
+    const eventDetail = await popover.onDidDismiss();
+    const result = eventDetail.data as StudyPopoverResult;
+    if (result?.gotExperienceSuspended) {
+      await this.requestNextExercise();
+    }
+  }
+
+  private async requestNextExercise() {
+    this.nextExerciseRequestedBehaviourSubject.next(true);
+    await this.ionContent.scrollToTop(600);
   }
 
   private async registerExerciseResult(exerciseId: number, exerciseResult: ExerciseResult) {
