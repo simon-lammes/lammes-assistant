@@ -4,8 +4,8 @@ import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
 import _ from 'lodash';
-import {User, userFragment, UsersService} from '../shared/services/users/users.service';
-import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
+import {User, userFragment, UserService} from '../users/user.service';
+import {ApplicationConfigurationService} from '../application-configuration/application-configuration.service';
 import {combineLatest, Observable} from 'rxjs';
 
 
@@ -49,7 +49,7 @@ export class SettingsService {
 
   readonly currentSettings$: Observable<Settings> = combineLatest([
     this.applicationConfigurationService.defaultSettings$,
-    this.usersService.currentUser$
+    this.userService.currentUser$
   ]).pipe(
     switchMap(async ([defaultSettings, user]) => {
       const settings = await this.getUsersSettings(user);
@@ -77,7 +77,7 @@ export class SettingsService {
     private apollo: Apollo,
     private http: HttpClient,
     private storage: Storage,
-    private usersService: UsersService,
+    private userService: UserService,
     private applicationConfigurationService: ApplicationConfigurationService
   ) {
   }

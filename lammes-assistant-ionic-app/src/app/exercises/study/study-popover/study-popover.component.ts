@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {AlertController, ModalController, PopoverController, ToastController} from '@ionic/angular';
 import {SaveExerciseModalPage} from '../../save-exercise-modal/save-exercise-modal.page';
-import {Exercise, ExercisesService} from '../../exercises.service';
+import {Exercise, ExerciseService} from '../../../shared/services/exercise/exercise.service';
 import {TranslateService} from '@ngx-translate/core';
 
 export interface StudyPopoverResult {
@@ -21,7 +21,7 @@ export class StudyPopoverComponent {
   constructor(
     public popoverController: PopoverController,
     private modalController: ModalController,
-    private exercisesService: ExercisesService,
+    private exerciseService: ExerciseService,
     private translateService: TranslateService,
     private toastController: ToastController,
     private alertController: AlertController
@@ -58,7 +58,7 @@ export class StudyPopoverComponent {
         {
           text: await this.translateService.get('suspend-experience').toPromise(),
           handler: async () => {
-            await this.exercisesService.suspendExperience(this.exercise.id);
+            await this.exerciseService.suspendExperience(this.exercise.id);
             const toastPromise = this.showToast(await this.translateService.get('messages.experience-suspended').toPromise());
             const dismissPromise = this.popoverController.dismiss({gotExperienceSuspended: true} as StudyPopoverResult);
             await Promise.all([toastPromise, dismissPromise]);

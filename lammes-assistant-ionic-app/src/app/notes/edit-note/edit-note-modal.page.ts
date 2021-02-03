@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {take} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {Note, NotesService} from '../notes.service';
+import {Note, NoteService} from '../../shared/services/note/note.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ModalController} from '@ionic/angular';
 
@@ -20,7 +20,7 @@ export class EditNoteModalPage implements OnInit {
   noteForm: FormGroup;
 
   constructor(
-    private notesService: NotesService,
+    private notesService: NoteService,
     private formBuilder: FormBuilder,
     private modalController: ModalController
   ) {

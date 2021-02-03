@@ -2,7 +2,7 @@ import {Component, forwardRef, Input} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ModalController} from '@ionic/angular';
 import {UserSelectorModalComponent} from './user-selector-modal/user-selector-modal.component';
-import {UsersService} from '../services/users/users.service';
+import {UserService} from '../../services/users/user.service';
 
 @Component({
   selector: 'app-user-selector',
@@ -34,7 +34,7 @@ export class UserSelectorComponent implements ControlValueAccessor {
 
   constructor(
     private modalController: ModalController,
-    private usersService: UsersService
+    private userService: UserService
   ) {
   }
 
@@ -75,6 +75,6 @@ export class UserSelectorComponent implements ControlValueAccessor {
     if (this.selectedUserIds.size === 0) {
       return this.noSelectionText;
     }
-    return [...this.selectedUserIds].map(userId => this.usersService.getCachedUserById(userId)?.username ?? userId).join(', ');
+    return [...this.selectedUserIds].map(userId => this.userService.getCachedUserById(userId)?.username ?? userId).join(', ');
   }
 }

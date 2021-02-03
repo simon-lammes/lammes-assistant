@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
-import {Exercise, ExercisesService, ExerciseType, HydratedExercise, PossibleAnswer} from '../exercises.service';
+import {Exercise, ExerciseService, ExerciseType, HydratedExercise, PossibleAnswer} from '../../shared/services/exercise/exercise.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChanged, map, pairwise, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
@@ -292,7 +292,7 @@ export class SaveExerciseModalPage implements OnInit {
     private modalController: ModalController,
     private formBuilder: FormBuilder,
     private customFormsService: CustomFormsService,
-    private exercisesService: ExercisesService,
+    private exerciseService: ExerciseService,
     private toastController: ToastController,
     private alertController: AlertController,
     private applicationConfigurationService: ApplicationConfigurationService,
@@ -315,13 +315,13 @@ export class SaveExerciseModalPage implements OnInit {
 
   async saveExercise() {
     if (this.editedExercise && this.doesUserOwnEditedExercise) {
-      await this.exercisesService.updateExercise({
+      await this.exerciseService.updateExercise({
         id: this.editedExercise.id,
         hydratedExerciseInput: this.exerciseForm.value
       });
       await this.dismissModal();
     } else {
-      await this.exercisesService.createExercise(this.exerciseForm.value);
+      await this.exerciseService.createExercise(this.exerciseForm.value);
       await Promise.all([
         this.showHint('Exercise created', 'primary', 2000),
         this.setupForm()
@@ -374,7 +374,7 @@ export class SaveExerciseModalPage implements OnInit {
    */
   private async setupForm() {
     const currentValue = this.editedExercise
-      ? await this.exercisesService.getHydratedExercise(this.editedExercise)
+      ? await this.exerciseService.getHydratedExercise(this.editedExercise)
       : this.getExerciseLockedValues();
     this.exerciseForm = this.formBuilder.group({});
     this.exerciseForm.valueChanges.pipe(

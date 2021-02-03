@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {CreateNoteData, Note, NotesService} from './notes.service';
+import {CreateNoteData, Note, NoteService} from '../shared/services/note/note.service';
 import {Observable} from 'rxjs';
 import {EditNoteModalPage} from './edit-note/edit-note-modal.page';
 import {AlertController, ModalController} from '@ionic/angular';
@@ -36,7 +36,7 @@ export class NotesPage implements OnInit {
   DeadlineStatus = DeadlineStatus;
 
   constructor(
-    private notesService: NotesService,
+    private notesService: NoteService,
     private alertController: AlertController,
     private modalController: ModalController
   ) {

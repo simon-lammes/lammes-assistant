@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
-import {RegisterService, RegistrationResult} from './register.service';
+import {RegisterService, RegistrationResult} from '../../shared/services/register/register.service';
 import {ToastController} from '@ionic/angular';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 import {distinctUntilChanged, first, startWith, switchMap} from 'rxjs/operators';
-import {ValidationAspect} from '../../shared/validation-feedback/validation-feedback.component';
+import {ValidationAspect} from '../../shared/components/validation-feedback/validation-feedback.component';
 import {Observable} from 'rxjs';
 import _ from 'lodash';
 import {TranslateService} from '@ngx-translate/core';

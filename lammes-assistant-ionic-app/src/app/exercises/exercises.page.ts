@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
-import {Exercise, ExerciseFilter, ExerciseFilterDefinition, ExercisesService} from './exercises.service';
+import {Exercise, ExerciseFilter, ExerciseFilterDefinition, ExerciseService} from '../shared/services/exercise/exercise.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ExercisesPopoverComponent, ExercisesPopoverInput} from './exercises-popover/exercises-popover.component';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {distinctUntilChanged, filter, first, map, shareReplay, startWith, switchMap, take} from 'rxjs/operators';
-import {UsersService} from '../shared/services/users/users.service';
+import {UserService} from '../shared/services/users/user.service';
 import _ from 'lodash';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {debounceFilterQuery} from '../shared/operators/debounce-filter-query';
@@ -36,11 +36,11 @@ export class ExercisesPage implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private exercisesService: ExercisesService,
+    private exerciseService: ExerciseService,
     private router: Router,
     private popoverController: PopoverController,
     private formBuilder: FormBuilder,
-    private usersService: UsersService,
+    private userService: UserService,
     private activatedRoute: ActivatedRoute,
     private applicationConfigurationService: ApplicationConfigurationService
   ) {
@@ -61,7 +61,7 @@ export class ExercisesPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const user = await this.usersService.currentUser$.pipe(first()).toPromise();
+    const user = await this.userService.currentUser$.pipe(first()).toPromise();
     this.selectedExerciseFilterSubject = new BehaviorSubject<ExerciseFilter>(undefined);
     this.selectedExerciseFilter$ = this.selectedExerciseFilterSubject.asObservable();
     this.selectedExerciseFilter$.pipe(untilDestroyed(this)).subscribe(selectedExerciseFilter => {
@@ -98,10 +98,10 @@ export class ExercisesPage implements OnInit {
       // Even in that case we don't want to send the query because this could seem
       // to the user as if the form was correct.
       filter(() => this.filterForm.valid),
-      switchMap(filterValue => this.exercisesService.getFilteredExercises(filterValue))
+      switchMap(filterValue => this.exerciseService.getFilteredExercises(filterValue))
     );
     this.exerciseFilters$ = combineLatest([
-      this.exercisesService.myExerciseFilters$,
+      this.exerciseService.myExerciseFilters$,
       this.selectedExerciseFilter$,
       this.currentFilterDefinition$
     ]).pipe(
@@ -134,7 +134,7 @@ export class ExercisesPage implements OnInit {
   }
 
   async removeExercise(exercise: Exercise) {
-    await this.exercisesService.removeExercise({id: exercise.id});
+    await this.exerciseService.removeExercise({id: exercise.id});
   }
 
   async showPopover(event: any) {
@@ -149,7 +149,7 @@ export class ExercisesPage implements OnInit {
   }
 
   async editExercise(exercise: Exercise) {
-    const user = await this.usersService.currentUser$.pipe(first()).toPromise();
+    const user = await this.userService.currentUser$.pipe(first()).toPromise();
     const modal = await this.modalController.create({
       component: SaveExerciseModalPage,
       componentProps: {
@@ -185,12 +185,12 @@ export class ExercisesPage implements OnInit {
   }
 
   async deleteExerciseFilter(filterToDelete: ExerciseFilter) {
-    await this.exercisesService.deleteExerciseFilter(filterToDelete);
+    await this.exerciseService.deleteExerciseFilter(filterToDelete);
   }
 
   async updateExerciseFilter(filterToUpdate: ExerciseFilter) {
     const updates = await this.currentFilterDefinition$.pipe(first()).toPromise();
-    await this.exercisesService.updateExerciseFilter({
+    await this.exerciseService.updateExerciseFilter({
       ...filterToUpdate,
       exerciseFilterDefinition: updates
     });

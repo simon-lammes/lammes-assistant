@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {distinctUntilChanged, first, map} from 'rxjs/operators';
 import _ from 'lodash';
-import {Settings} from '../../../settings/settings.service';
+import {Settings} from '../settings/settings.service';
 
 export interface ApplicationConfiguration {
   minPasswordLength: number;

@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {map} from 'rxjs/operators';
-import {Note, NotesService} from '../notes/notes.service';
+import {Note, NoteService} from '../shared/services/note/note.service';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {EditNoteModalPage} from '../notes/edit-note/edit-note-modal.page';
 
@@ -10,12 +10,12 @@ import {EditNoteModalPage} from '../notes/edit-note/edit-note-modal.page';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage {
-  noteToReview$ = this.notesService.usersPendingNotes$.pipe(
+  noteToReview$ = this.noteService.usersPendingNotes$.pipe(
     map(pendingNotes => pendingNotes?.length > 0 ? pendingNotes[0] : undefined)
   );
 
   constructor(
-    private notesService: NotesService,
+    private noteService: NoteService,
     private modalController: ModalController,
     private toastController: ToastController,
     private alertController: AlertController
@@ -33,7 +33,7 @@ export class HomePage {
   }
 
   async resolveNote(note: Note) {
-    const apiCallPromise = this.notesService.resolveNote(note);
+    const apiCallPromise = this.noteService.resolveNote(note);
     const toastPromise = this.toastController.create({
       position: 'bottom',
       header: 'Note resolved',
@@ -58,7 +58,7 @@ export class HomePage {
     const dayInMilliseconds = 24 * 60 * 60 * 1000;
     const now = new Date();
     const tomorrow = new Date(now.getTime() + dayInMilliseconds);
-    await this.notesService.editNote({id: note.id, startTimestamp: tomorrow.toISOString()}).toPromise();
+    await this.noteService.editNote({id: note.id, startTimestamp: tomorrow.toISOString()}).toPromise();
   }
 
   /**
@@ -110,7 +110,7 @@ export class HomePage {
               + minutes * 60 * 1000;
             const now = new Date();
             const delayedDate = new Date(now.getTime() + delayInMilliseconds);
-            await this.notesService.editNote({id: note.id, startTimestamp: delayedDate.toISOString()}).toPromise();
+            await this.noteService.editNote({id: note.id, startTimestamp: delayedDate.toISOString()}).toPromise();
           }
         }
       ]

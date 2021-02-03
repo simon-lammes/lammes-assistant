@@ -127,7 +127,7 @@ const editNoteMutation = gql`
 @Injectable({
   providedIn: 'root'
 })
-export class NotesService {
+export class NoteService {
 
   readonly usersDeferredNotes$ = this.apollo.watchQuery<{ myDeferredNotes: Note[] }>({query: usersDeferredNotesQuery}).valueChanges.pipe(
     map(({data}) => data.myDeferredNotes)

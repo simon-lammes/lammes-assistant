@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {AlertController, ModalController, NavParams, PopoverController} from '@ionic/angular';
 import {ExerciseBinModalComponent} from '../exercise-bin-modal/exercise-bin-modal.component';
-import {ExerciseFilterDefinition, ExercisesService} from '../exercises.service';
+import {ExerciseFilterDefinition, ExerciseService} from '../../shared/services/exercise/exercise.service';
 import {TranslateService} from '@ngx-translate/core';
 
 export interface ExercisesPopoverInput {
@@ -20,7 +20,7 @@ export class ExercisesPopoverComponent {
     public popoverController: PopoverController,
     private modalController: ModalController,
     private navParams: NavParams,
-    private exercisesService: ExercisesService,
+    private exerciseService: ExerciseService,
     private alertController: AlertController,
     private translateService: TranslateService
   ) {
@@ -60,7 +60,7 @@ export class ExercisesPopoverComponent {
         {
           text: await this.translateService.get('save').toPromise(),
           handler: async ({title}: {title: string}) => {
-            await this.exercisesService.createExerciseFilter(title, this.input.exerciseFilterDefinition);
+            await this.exerciseService.createExerciseFilter(title, this.input.exerciseFilterDefinition);
             await this.popoverController.dismiss();
           }
         }

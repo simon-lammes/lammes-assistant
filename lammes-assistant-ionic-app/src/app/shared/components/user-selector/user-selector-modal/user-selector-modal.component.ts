@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {User, UserFilter, UsersService} from '../../services/users/users.service';
+import {User, UserFilter, UserService} from '../../../services/users/user.service';
 import {ModalController} from '@ionic/angular';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
@@ -21,7 +21,7 @@ export class UserSelectorModalComponent implements OnInit {
   selectedUserIds: Set<number>;
 
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private modalController: ModalController,
     private fb: FormBuilder
   ) {
@@ -34,7 +34,7 @@ export class UserSelectorModalComponent implements OnInit {
     });
     this.filter$ = this.filterForm.valueChanges.pipe(startWith(this.filterForm.value as UserFilter));
     this.filteredUsers$ = this.filter$.pipe(
-      switchMap(filter => this.usersService.getFilteredUsers(filter))
+      switchMap(filter => this.userService.getFilteredUsers(filter))
     );
   }
 

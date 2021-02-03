@@ -26,7 +26,7 @@ const matchAnythingOtherThanDigitsAndLowercaseCharactersAndDashes = /[^a-z0-9-]/
 @Injectable({
   providedIn: 'root'
 })
-export class LabelsService {
+export class LabelService {
 
   constructor(
     private apollo: Apollo

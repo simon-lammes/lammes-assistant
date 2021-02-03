@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Exercise, ExercisesService} from '../exercises.service';
+import {Exercise, ExerciseService} from '../../shared/services/exercise/exercise.service';
 import {ModalController} from '@ionic/angular';
 
 @Component({
@@ -12,7 +12,7 @@ export class ExerciseBinModalComponent {
   exercises$ = this.exerciseService.usersExercisesThatAreMarkedForDeletion$;
 
   constructor(
-    private exerciseService: ExercisesService,
+    private exerciseService: ExerciseService,
     private modalController: ModalController
   ) {
   }

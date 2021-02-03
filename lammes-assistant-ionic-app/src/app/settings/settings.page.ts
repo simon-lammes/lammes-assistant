@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AuthenticationService} from '../authentication/authentication.service';
+import {AuthenticationService} from '../shared/services/authentication/authentication.service';
 import {Apollo} from 'apollo-angular';
 import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {PickerColumn} from '@ionic/core/dist/types/components/picker/picker-interface';
 import {distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {ExerciseCooldown, Settings, SettingsService} from './settings.service';
+import {ExerciseCooldown, Settings, SettingsService} from '../shared/services/settings/settings.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {TranslateService} from '@ngx-translate/core';
 import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';

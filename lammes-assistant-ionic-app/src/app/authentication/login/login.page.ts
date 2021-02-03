@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
-import {LoginResult, LoginService} from './login.service';
+import {LoginResult, LoginService} from '../../shared/services/login/login.service';
 import {ToastController} from '@ionic/angular';
 import {TranslateService} from '@ngx-translate/core';
 

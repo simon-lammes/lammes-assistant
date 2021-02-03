@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, filter, map, switchMap} from 'rxjs/operators';
-import {AuthenticationService} from '../../../authentication/authentication.service';
+import {AuthenticationService} from '../authentication/authentication.service';
 import _ from 'lodash';
 
 export interface User {
@@ -47,7 +47,7 @@ const filteredUsersQuery = gql`
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService {
+export class UserService {
 
   readonly currentUser$: Observable<User> = this.authenticationService.isUserAuthenticated$.pipe(
     // This observable depends on the user being authenticated.

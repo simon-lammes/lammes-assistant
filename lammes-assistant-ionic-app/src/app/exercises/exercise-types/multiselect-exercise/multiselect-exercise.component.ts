@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import _ from 'lodash';
-import {ExerciseResult, HydratedExercise, PossibleAnswer} from '../../exercises.service';
+import {ExerciseResult, HydratedExercise, PossibleAnswer} from '../../../shared/services/exercise/exercise.service';
 import {ExerciseState} from '../../study/study.page';
 
 interface UserAnswer extends PossibleAnswer {

@@ -1,11 +1,17 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Exercise, ExerciseFilterDefinition, ExerciseResult, ExercisesService, HydratedExercise} from '../exercises.service';
+import {
+  Exercise,
+  ExerciseFilterDefinition,
+  ExerciseResult,
+  ExerciseService,
+  HydratedExercise
+} from '../../shared/services/exercise/exercise.service';
 import {first, map, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent, StudyPopoverResult} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
-import {SettingsService} from '../../settings/settings.service';
+import {SettingsService} from '../../shared/services/settings/settings.service';
 import {isNumeric} from 'rxjs/internal-compatibility';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -21,7 +27,7 @@ export interface ExerciseState {
 })
 export class StudyPage implements OnInit {
   @ViewChild(IonContent) ionContent: IonContent;
-  studyProgress$ = this.exercisesService.studyProgress$;
+  studyProgress$ = this.exerciseService.studyProgress$;
   exerciseFilter$: Observable<ExerciseFilterDefinition>;
   exercise$: Observable<Exercise>;
   hydratedExercise$: Observable<HydratedExercise>;
@@ -29,7 +35,7 @@ export class StudyPage implements OnInit {
   nextExerciseRequested$ = this.nextExerciseRequestedBehaviourSubject.asObservable();
 
   constructor(
-    private exercisesService: ExercisesService,
+    private exerciseService: ExerciseService,
     private toastController: ToastController,
     private popoverController: PopoverController,
     private activatedRoute: ActivatedRoute,
@@ -56,11 +62,11 @@ export class StudyPage implements OnInit {
       this.exerciseFilter$
     ]).pipe(
       switchMap(([, exerciseCooldown, exerciseFilter]) => {
-        return this.exercisesService.getNextExercise(exerciseCooldown, exerciseFilter);
+        return this.exerciseService.getNextExercise(exerciseCooldown, exerciseFilter);
       })
     );
     this.hydratedExercise$ = this.exercise$.pipe(
-      switchMap(exercise => this.exercisesService.getHydratedExercise(exercise))
+      switchMap(exercise => this.exerciseService.getHydratedExercise(exercise))
     );
   }
 
@@ -107,7 +113,7 @@ export class StudyPage implements OnInit {
     const toastPromise = this.showToastForExerciseResult(exerciseResult);
     const exerciseCorrectStreakCap = await this.settingsService.currentSettings$.pipe(first()).toPromise()
       .then(settings => settings.exerciseCorrectStreakCap);
-    const registerPromise = this.exercisesService.registerExerciseExperience({
+    const registerPromise = this.exerciseService.registerExerciseExperience({
       exerciseId,
       exerciseResult,
       exerciseCorrectStreakCap

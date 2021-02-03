@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ModalController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {distinctUntilChanged, map, startWith, switchMap} from 'rxjs/operators';
-import {LabelFilter, LabelsService} from '../../services/labels/labels.service';
+import {LabelFilter, LabelService} from '../../../services/label/label.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ export class LabelSelectorModalComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private fb: FormBuilder,
-    private labelsService: LabelsService
+    private labelService: LabelService
   ) {
   }
   @Input()
@@ -47,7 +47,7 @@ export class LabelSelectorModalComponent implements OnInit {
       distinctUntilChanged()
     );
     this.filteredLabels$ = this.filter$.pipe(
-      switchMap(filter => this.labelsService.getFilteredLabels(filter))
+      switchMap(filter => this.labelService.getFilteredLabels(filter))
     );
     this.allDisplayedLabels$ = combineLatest([
       this.filteredLabels$,
@@ -58,7 +58,7 @@ export class LabelSelectorModalComponent implements OnInit {
         if (!filterQuery) {
           return [...selectedLabels, ...filteredLabels.filter(filteredLabel => !selectedLabels.has(filteredLabel))];
         } else {
-          const newLabel = this.labelsService.validLabelFromFilterQuery(filterQuery);
+          const newLabel = this.labelService.validLabelFromFilterQuery(filterQuery);
           if (newLabel && !filteredLabels.includes(newLabel)) {
             return [newLabel, ...filteredLabels];
           } else {

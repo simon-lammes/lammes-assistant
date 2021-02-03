@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {CustomFile} from '../../exercises/exercises.service';
+import {CustomFile} from '../../services/exercise/exercise.service';
 
 /**
  * This component is about enriching markdown with base64 images.

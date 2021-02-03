@@ -3,7 +3,7 @@ import {APOLLO_OPTIONS} from 'apollo-angular';
 import {ApolloClientOptions, ApolloLink, InMemoryCache} from '@apollo/client/core';
 import {HttpLink} from 'apollo-angular/http';
 import {environment} from '../environments/environment';
-import {AuthenticationService} from './authentication/authentication.service';
+import {AuthenticationService} from './shared/services/authentication/authentication.service';
 import {setContext} from '@apollo/client/link/context';
 
 export function createApollo(httpLink: HttpLink, authenticationService: AuthenticationService): ApolloClientOptions<any> {

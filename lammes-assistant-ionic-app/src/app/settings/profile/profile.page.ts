@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {ReadFile} from 'ngx-file-helpers';
-import {UsersService} from '../../shared/services/users/users.service';
+import {UserService} from '../../shared/services/users/user.service';
 import {map} from 'rxjs/operators';
 
 @Component({
@@ -9,18 +9,18 @@ import {map} from 'rxjs/operators';
   styleUrls: ['./profile.page.scss'],
 })
 export class ProfilePage {
-  profilePicture$ = this.usersService.myProfilePicture$;
+  profilePicture$ = this.userService.myProfilePicture$;
   hasUserNoProfilePicture$ = this.profilePicture$.pipe(
     map(profilePicture => !profilePicture)
   );
 
   constructor(
-    private usersService: UsersService
+    private userService: UserService
   ) {
   }
 
   async setProfilePicture(event: ReadFile) {
-    await this.usersService.setProfilePicture({
+    await this.userService.setProfilePicture({
       content: event.content,
       name: event.name,
       type: event.type

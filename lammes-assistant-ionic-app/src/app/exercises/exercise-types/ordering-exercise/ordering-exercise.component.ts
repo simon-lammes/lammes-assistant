@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {ExerciseResult, HydratedExercise} from '../../exercises.service';
+import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
 import {ExerciseState} from '../../study/study.page';
 import _ from 'lodash';
 import {ItemReorderEventDetail} from '@ionic/core';

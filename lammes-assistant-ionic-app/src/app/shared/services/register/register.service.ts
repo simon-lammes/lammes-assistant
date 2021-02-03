@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {AuthenticationService} from '../authentication.service';
+import {AuthenticationService} from '../authentication/authentication.service';
 import {GraphQLError} from 'graphql';
 
 const registerMutation = gql`

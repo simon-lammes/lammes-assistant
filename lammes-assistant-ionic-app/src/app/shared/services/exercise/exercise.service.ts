@@ -232,7 +232,7 @@ const myExerciseFilters = gql`
 @Injectable({
   providedIn: 'root'
 })
-export class ExercisesService {
+export class ExerciseService {
 
   readonly usersExercisesThatAreMarkedForDeletion$ = this.apollo.watchQuery<{ myExercisesThatAreMarkedForDeletion: Exercise[] }>({
     query: usersRemovedExercisesQuery

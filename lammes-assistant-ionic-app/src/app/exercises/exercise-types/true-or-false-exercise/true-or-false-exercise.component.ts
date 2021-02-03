@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {HydratedExercise} from '../../exercises.service';
+import {HydratedExercise} from '../../../shared/services/exercise/exercise.service';
 import {ExerciseState} from '../../study/study.page';
 
 @Component({
