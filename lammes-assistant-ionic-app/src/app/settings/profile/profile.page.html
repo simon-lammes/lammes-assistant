@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>{{ 'profile' | translate | titlecase }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/tabs', 'settings']">{{ 'back' | translate }}</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

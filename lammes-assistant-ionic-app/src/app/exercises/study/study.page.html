@@ -8,6 +8,9 @@
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
       </ion-button>
     </ion-buttons>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/tabs', 'exercises']">{{ 'back' | translate }}</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
