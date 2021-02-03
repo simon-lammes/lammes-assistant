@@ -122,6 +122,9 @@ export class SaveExerciseModalPage implements OnInit {
     {
       title: this.translateService.get('possible-answers').toPromise(),
       type: 'possibleAnswers',
+      // Sometimes you are making quiz exercises where all of the questions have
+      // the same answer possibilities. Therefore, this lock is very convenient in some cases.
+      isLocked: true,
       controlName: 'possibleAnswers',
       exerciseTypes: ['multiselect'],
       controlBuilder: (type, exercise) => {
