@@ -37,6 +37,7 @@
     "standard": "standard",
     "true-or-false": "true or false"
   },
+  "exercise-types": "exercise types",
   "exercises": "exercises",
   "explanation": "explanation",
   "files": "files",
@@ -77,6 +78,7 @@
   "next-exercise": "next exercise",
   "no-account-yet": "No account yet?",
   "no-exercise-to-study": "No exercise left to study.",
+  "no-exercise-type-filter": "no exercise type filter",
   "no-limit": "no limit",
   "no-start-time": "no starting time",
   "note-title": "note title",

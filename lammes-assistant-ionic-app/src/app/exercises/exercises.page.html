@@ -40,6 +40,16 @@
       </ion-select>
     </ion-item>
     <ion-item>
+      <ion-label>{{ 'exercise-type' | translate | titlecase }}</ion-label>
+      <ion-select formControlName="exerciseTypes" multiple placeholder="({{ 'no-exercise-type-filter' | translate }})">
+        <ion-select-option value="standard">{{ 'exercise-type-list.standard' | translate }}</ion-select-option>
+        <ion-select-option value="multiselect">{{ 'exercise-type-list.multi-select' | translate }}</ion-select-option>
+        <ion-select-option value="ordering">{{ 'exercise-type-list.ordering' | translate }}</ion-select-option>
+        <ion-select-option value="trueOrFalse">{{ 'exercise-type-list.true-or-false' | translate }}</ion-select-option>
+        <ion-select-option value="prompt">{{ 'exercise-type-list.prompt' | translate }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
       <ion-label>{{ 'maximum-correct-streak' | translate | titlecase }}</ion-label>
       <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number" placeholder="({{ 'optional' | translate | titlecase }})"></ion-input>
     </ion-item>

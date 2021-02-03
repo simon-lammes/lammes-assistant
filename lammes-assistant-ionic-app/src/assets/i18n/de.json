@@ -37,6 +37,7 @@
     "standard": "standart",
     "true-or-false": "Richtig oder Falsch"
   },
+  "exercise-types": "Aufgabentypen",
   "exercises": "Übungsaufgaben",
   "explanation": "Erklärung",
   "files": "Dateien",
@@ -77,6 +78,7 @@
   "next-exercise": "Nächste Aufgabe",
   "no-account-yet": "Noch keinen Account?",
   "no-exercise-to-study": "Keine Übungsaufgabe mehr verfügbar.",
+  "no-exercise-type-filter": "kein Filter nach Aufgabentyp",
   "no-limit": "keine Begrenzung",
   "no-start-time": "ohne Startzeit",
   "note-title": "Notiztitel",

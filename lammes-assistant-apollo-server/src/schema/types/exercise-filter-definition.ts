@@ -1,4 +1,4 @@
-import {inputObjectType, objectType} from "@nexus/schema";
+import {arg, inputObjectType, nonNull, objectType} from "@nexus/schema";
 
 export const exerciseFilterObjectType = objectType({
   name: 'ExerciseFilter',
@@ -17,5 +17,6 @@ export const ExerciseFilterDefinition = inputObjectType({
     t.nullable.list.nonNull.string('labels');
     t.nullable.list.nonNull.field('languageCodes', {type: 'LanguageCode'});
     t.nullable.int('maximumCorrectStreak');
+    t.nullable.list.nonNull.field('exerciseTypes', {type: 'ExerciseType'});
   },
 });

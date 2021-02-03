@@ -6,10 +6,10 @@ export const exerciseObjectType = objectType({
     t.model.id();
     t.model.title();
     t.model.creatorId();
-    t.model.creator();
     t.model.versionTimestamp();
     t.model.markedForDeletionTimestamp();
     t.model.exerciseLabels();
     t.model.languageCode();
+    t.model.exerciseType();
   }
 });

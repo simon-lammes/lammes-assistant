@@ -83,6 +83,7 @@ export interface ExerciseFilterDefinition {
   labels?: string[];
   creatorIds?: number[];
   languageCodes?: LanguageCodeIso639_1[];
+  exerciseTypes?: ExerciseType[];
   maximumCorrectStreak: number;
 }
 

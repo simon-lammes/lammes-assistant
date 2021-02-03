@@ -25,6 +25,7 @@ export const createExercise = mutationField('createExercise', {
     const exercise: Exercise = await prisma.exercise.create({
       data: {
         title: hydratedExerciseInput.title,
+        exerciseType: hydratedExerciseInput.exerciseType,
         versionTimestamp: versionTimestamp.toISOString(),
         creator: {
           connect: {id: userId}

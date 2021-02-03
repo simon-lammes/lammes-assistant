@@ -67,6 +67,7 @@ export const updateExercise = mutationField("updateExercise", {
       },
       data: {
         title: hydratedExerciseInput.title,
+        exerciseType: hydratedExerciseInput.exerciseType,
         languageCode: hydratedExerciseInput.languageCode,
         exerciseLabels: {
           deleteMany: removeLabels.length > 0 ? removeLabels.map(label => {

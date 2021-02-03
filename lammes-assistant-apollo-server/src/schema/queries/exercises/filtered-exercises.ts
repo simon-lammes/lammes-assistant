@@ -11,7 +11,7 @@ export const filteredExercises = queryField('filteredExercises', {
   },
   resolve: (
     root,
-    {exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak}},
+    {exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak, exerciseTypes}},
     {jwtPayload, prisma}
   ) => {
     const userId = jwtPayload?.userId;
@@ -34,6 +34,9 @@ export const filteredExercises = queryField('filteredExercises', {
         } : undefined,
         languageCode: languageCodes && languageCodes.length > 0 ? {
           in: languageCodes
+        } : undefined,
+        exerciseType: exerciseTypes && exerciseTypes.length > 0 ? {
+          in: exerciseTypes
         } : undefined,
         // Match exercises whose experience either fit the 'maximumCorrectStreak' filter or does not yet exist for the user.
         OR: [

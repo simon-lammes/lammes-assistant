@@ -45,7 +45,8 @@ export class StudyPage implements OnInit {
           labels: params.getAll('labels'),
           creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
           languageCodes: params.getAll('languageCodes'),
-          maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined
+          maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined,
+          exerciseTypes: params.getAll('exerciseTypes')
         } as ExerciseFilterDefinition;
       })
     );

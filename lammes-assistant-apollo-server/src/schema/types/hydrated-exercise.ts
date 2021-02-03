@@ -42,7 +42,7 @@ export const HydratedExerciseInputType = inputObjectType({
     t.nonNull.string('title');
     t.nonNull.string('assignment');
     t.nonNull.string('solution');
-    t.nonNull.field('exerciseType', {type: ExerciseType});
+    t.nonNull.field('exerciseType', {type: "ExerciseType"});
     t.nonNull.list.field('files', {type: CustomFile});
     t.nonNull.list.nonNull.string('labels');
     t.nonNull.field('languageCode', {type: 'LanguageCode'});

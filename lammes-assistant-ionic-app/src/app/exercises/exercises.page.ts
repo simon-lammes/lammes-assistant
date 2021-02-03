@@ -51,7 +51,8 @@ export class ExercisesPage implements OnInit {
       creatorIds: exerciseFilter.creatorIds?.length > 0 ? exerciseFilter.creatorIds : undefined,
       labels: exerciseFilter.labels?.length > 0 ? exerciseFilter.labels : undefined,
       languageCodes: exerciseFilter.languageCodes?.length > 0 ? exerciseFilter.languageCodes : undefined,
-      maximumCorrectStreak: exerciseFilter.maximumCorrectStreak ?? undefined
+      maximumCorrectStreak: exerciseFilter.maximumCorrectStreak ?? undefined,
+      exerciseTypes: exerciseFilter.exerciseTypes ?? undefined
     };
     return trimmedFilter;
   }
@@ -69,6 +70,7 @@ export class ExercisesPage implements OnInit {
           creatorIds: filterDef?.creatorIds ?? [user.id],
           labels: filterDef?.labels ?? [],
           languageCodes: filterDef?.languageCodes,
+          exerciseTypes: filterDef?.exerciseTypes ?? [],
           maximumCorrectStreak: filterDef?.maximumCorrectStreak
         });
       } else {
@@ -76,6 +78,7 @@ export class ExercisesPage implements OnInit {
           creatorIds: this.formBuilder.control(filterDef?.creatorIds ?? [user.id]),
           labels: this.formBuilder.control(filterDef?.labels ?? []),
           languageCodes: this.formBuilder.control(filterDef?.languageCodes),
+          exerciseTypes: this.formBuilder.control(filterDef?.exerciseTypes ?? []),
           maximumCorrectStreak: this.formBuilder.control(filterDef?.maximumCorrectStreak, [Validators.min(0), maximumForSigned32Int])
         });
       }

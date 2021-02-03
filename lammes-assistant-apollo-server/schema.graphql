@@ -26,9 +26,9 @@ input CustomFile {
 scalar DateTime
 
 type Exercise {
-  creator: User!
   creatorId: Int!
   exerciseLabels(after: ExerciseLabelWhereUniqueInput, before: ExerciseLabelWhereUniqueInput, first: Int, last: Int): [ExerciseLabel!]!
+  exerciseType: ExerciseType!
   id: Int!
   languageCode: LanguageCode!
   markedForDeletionTimestamp: DateTime
@@ -57,6 +57,7 @@ type ExerciseFilter {
 
 input ExerciseFilterDefinition {
   creatorIds: [Int!]
+  exerciseTypes: [ExerciseType!]
   labels: [String!]
   languageCodes: [LanguageCode!]
   maximumCorrectStreak: Int
