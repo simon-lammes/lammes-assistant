@@ -1,13 +1,13 @@
 import {arg, nonNull, queryField} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
-import {ExerciseFilter} from "../../types/exercise-filter";
+import {ExerciseFilterDefinition} from "../../types/exercise-filter-definition";
 import {exerciseObjectType} from "../../types/exercise";
 
 export const filteredExercises = queryField('filteredExercises', {
   type: exerciseObjectType,
   list: true,
   args: {
-    exerciseFilter: nonNull(arg({type: ExerciseFilter}))
+    exerciseFilter: nonNull(arg({type: ExerciseFilterDefinition}))
   },
   resolve: (
     root,

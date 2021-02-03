@@ -11,6 +11,19 @@
 </ion-header>
 
 <ion-content>
+  <div class="exercise-filter-row">
+    <ion-card class="exercise-filter-card" *ngFor="let filter of exerciseFilters$ | async" (click)="selectFilter(filter)">
+      <ion-card-header>
+        <ion-card-title>{{filter.title}}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ng-container *ngIf="filter.isSelected">
+          <ion-button expand="block" fill="clear" [disabled]="filter.isUnchanged" (click)="updateExerciseFilter(filter)">{{ 'save-changes' | translate }}</ion-button>
+          <ion-button expand="block" fill="clear" color="danger" (click)="deleteExerciseFilter(filter)">{{ 'delete' | translate }}</ion-button>
+        </ng-container>
+      </ion-card-content>
+    </ion-card>
+  </div>
   <ion-list *ngIf="filterForm" [formGroup]="filterForm">
     <ion-list-header>
       <ion-label>{{ 'filter.noun' | translate | titlecase }}</ion-label>

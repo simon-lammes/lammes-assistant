@@ -2,7 +2,7 @@ import {arg, nonNull, queryField} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
 import {DateTime} from "luxon";
 import {ExerciseCooldownInputType} from "../../types/exercise-cooldown";
-import {ExerciseFilter} from "../../types/exercise-filter";
+import {ExerciseFilterDefinition} from "../../types/exercise-filter-definition";
 import {exerciseObjectType} from "../../types/exercise";
 
 export const myNextExercise = queryField('myNextExercise', {
@@ -10,7 +10,7 @@ export const myNextExercise = queryField('myNextExercise', {
   nullable: true,
   args: {
     exerciseCooldown: nonNull(arg({type: ExerciseCooldownInputType})),
-    exerciseFilter: nonNull(arg({type: ExerciseFilter}))
+    exerciseFilter: nonNull(arg({type: ExerciseFilterDefinition}))
   },
   resolve: async (
     root,

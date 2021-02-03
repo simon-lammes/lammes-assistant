@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id                       Int          @id @default(autoincrement())
-  firstName                String       @map("first_name")
-  lastName                 String       @map("last_name")
-  hashedPassword           String       @map("hashed_password")
-  username                 String       @unique
-  settingsUpdatedTimestamp DateTime?    @map("settings_updated_timestamp")
-  exercises                Exercise[]   @relation("exercisesToUsers")
-  experiences              Experience[] @relation("experiencesToUsers")
-  notes                    Note[]       @relation("notesToUsers")
+  id                       Int              @id @default(autoincrement())
+  firstName                String           @map("first_name")
+  lastName                 String           @map("last_name")
+  hashedPassword           String           @map("hashed_password")
+  username                 String           @unique
+  settingsUpdatedTimestamp DateTime?        @map("settings_updated_timestamp")
+  exerciseFilters          ExerciseFilter[] @relation("exerciseFiltersToUsers")
+  exercises                Exercise[]       @relation("exercisesToUsers")
+  experiences              Experience[]     @relation("experiencesToUsers")
+  notes                    Note[]           @relation("notesToUsers")
 
   @@map("users")
 }
@@ -78,6 +79,16 @@ model Label {
   exerciseLabels ExerciseLabel[]
 
   @@map("labels")
+}
+
+model ExerciseFilter {
+  id                       Int    @id @default(autoincrement())
+  title                    String
+  creatorId                Int    @map("creator_id")
+  exerciseFilterDefinition Json   @map("exercise_filter_definition")
+  creator                  User   @relation("exerciseFiltersToUsers", fields: [creatorId], references: [id])
+
+  @@map("exercise_filter")
 }
 
 enum LanguageCode {

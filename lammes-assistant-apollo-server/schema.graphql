@@ -48,7 +48,14 @@ input ExerciseCooldownInput {
   minutes: Int!
 }
 
-input ExerciseFilter {
+type ExerciseFilter {
+  creatorId: Int!
+  exerciseFilterDefinition: Json!
+  id: Int!
+  title: String!
+}
+
+input ExerciseFilterDefinition {
   creatorIds: [Int!]
   labels: [String!]
   languageCodes: [LanguageCode!]
@@ -108,6 +115,8 @@ input HydratedExerciseInput {
   title: String!
 }
 
+scalar Json
+
 type Label {
   id: Int!
   title: String!
@@ -121,7 +130,9 @@ enum LanguageCode {
 
 type Mutation {
   createExercise(hydratedExerciseInput: HydratedExerciseInput!): Exercise
+  createExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, title: String!): ExerciseFilter
   createNote(description: String, title: String!): Note
+  deleteExerciseFilter(id: Int!): ExerciseFilter
   deleteNote(noteId: Int!): Note
   editNote(deadlineTimestamp: String, description: String, id: Int!, startTimestamp: String, title: String): Note
   login(password: String!, username: String!): String
@@ -145,6 +156,7 @@ type Mutation {
   """Manually update an experience entity."""
   suspendExperience(exerciseId: Int!): Experience
   updateExercise(hydratedExerciseInput: HydratedExerciseInput!, id: Int!): Exercise
+  updateExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, id: Int!, title: String!): ExerciseFilter
 }
 
 type Note {
@@ -192,7 +204,7 @@ input PromptSolution {
 
 type Query {
   currentApplicationConfiguration: ApplicationConfiguration
-  filteredExercises(exerciseFilter: ExerciseFilter!): [Exercise]
+  filteredExercises(exerciseFilter: ExerciseFilterDefinition!): [Exercise]
   filteredLabels(query: String): [Label]
   filteredUsers(query: String): [User]
   getExerciseDownloadLink(exerciseId: Int!): String
@@ -203,8 +215,9 @@ type Query {
   """Returns the user object that belongs to user making the request."""
   me: User
   myDeferredNotes: [Note]
+  myExerciseFilters: [ExerciseFilter]
   myExercisesThatAreMarkedForDeletion: [Exercise]
-  myNextExercise(exerciseCooldown: ExerciseCooldownInput!, exerciseFilter: ExerciseFilter!): Exercise
+  myNextExercise(exerciseCooldown: ExerciseCooldownInput!, exerciseFilter: ExerciseFilterDefinition!): Exercise
   myPendingNotes: [Note]
   myResolvedNotes: [Note]
   note(id: Int!): Note

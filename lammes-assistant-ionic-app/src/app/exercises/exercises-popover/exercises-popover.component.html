@@ -1,5 +1,6 @@
 <ion-list>
   <ion-list-header>{{ 'exercises' | translate | titlecase }}</ion-list-header>
+  <ion-item button (click)="saveExerciseFilter()">{{ 'save-exercise-filter' | translate | titlecase }}</ion-item>
   <ion-item button (click)="showExerciseBin()">{{ 'show-exercise-bin' | translate | titlecase }}</ion-item>
   <ion-item lines="none" detail="false" button (click)="dismissPopover()">{{ 'close' | translate | titlecase }}</ion-item>
 </ion-list>

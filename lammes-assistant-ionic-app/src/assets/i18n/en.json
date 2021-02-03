@@ -12,6 +12,7 @@
   "close": "close",
   "completed": "completed",
   "correct-answers": "correct answers",
+  "create-exercise-filter": "create exercise filter",
   "creators": "creators",
   "dark": "dark",
   "deadline": "deadline",
@@ -58,6 +59,7 @@
   "logout": "logout",
   "maximum-correct-streak": "maximum correct streak",
   "messages": {
+    "experience-suspended": "The exercise will not be shown to you anymore.",
     "failure": "failure",
     "invalid-form": "invalid values",
     "min-password-length": "Min password length: {{minPasswordLength}}",
@@ -69,8 +71,7 @@
     "unknown-error": "An unknown error occured.",
     "user-does-not-exist": "User does not exist.",
     "username-in-use": "Username is taken.",
-    "wrong-password": "Wrong password",
-    "experience-suspended": "The exercise will not be shown to you anymore."
+    "wrong-password": "Wrong password"
   },
   "new-version": "new version",
   "next-exercise": "next exercise",
@@ -110,6 +111,7 @@
   "save-changes": "save changes",
   "save-copy": "save copy",
   "save-exercise": "save exercise",
+  "save-exercise-filter": "save exercise filter",
   "search": {
     "noun": "search"
   },
@@ -128,11 +130,11 @@
   "start-time": "start time",
   "study": "study",
   "submit": "submit",
+  "suspend-experience": "suspend experience",
   "system-default": "system-default",
   "theme": "theme",
   "title": "title",
   "urgently-due-till": "urgently due till",
   "username": "username",
-  "wrong": "wrong",
-  "suspend-experience": "suspend experience"
+  "wrong": "wrong"
 }

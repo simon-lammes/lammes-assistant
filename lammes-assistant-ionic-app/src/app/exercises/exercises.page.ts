@@ -1,17 +1,22 @@
 import {Component, OnInit} from '@angular/core';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {SaveExerciseModalPage} from './save-exercise-modal/save-exercise-modal.page';
-import {Exercise, ExerciseFilter, ExercisesService} from './exercises.service';
+import {Exercise, ExerciseFilter, ExerciseFilterDefinition, ExercisesService} from './exercises.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ExercisesPopoverComponent} from './exercises-popover/exercises-popover.component';
+import {ExercisesPopoverComponent, ExercisesPopoverInput} from './exercises-popover/exercises-popover.component';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {distinctUntilChanged, filter, first, startWith, switchMap} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
+import {distinctUntilChanged, filter, first, map, shareReplay, startWith, switchMap, take} from 'rxjs/operators';
 import {UsersService} from '../shared/services/users/users.service';
 import _ from 'lodash';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
-const maximumForUnsigned32Int = Validators.max(4_294_967_295);
+const maximumForSigned32Int = Validators.max(2_147_483_647);
+
+interface SelectableExerciseFilter extends ExerciseFilter {
+  isSelected: boolean;
+  isUnchanged: boolean;
+}
 
 @UntilDestroy()
 @Component({
@@ -20,8 +25,11 @@ const maximumForUnsigned32Int = Validators.max(4_294_967_295);
   styleUrls: ['./exercises.page.scss'],
 })
 export class ExercisesPage implements OnInit {
+  selectedExerciseFilterSubject: BehaviorSubject<ExerciseFilter>;
+  selectedExerciseFilter$: Observable<ExerciseFilter>;
+  exerciseFilters$: Observable<SelectableExerciseFilter[]>;
   filteredExercises$: Observable<Exercise[]>;
-  validFilter$: Observable<any>;
+  currentFilterDefinition$: Observable<ExerciseFilterDefinition>;
   filterForm: FormGroup;
 
   constructor(
@@ -38,8 +46,8 @@ export class ExercisesPage implements OnInit {
   /**
    * Removes all parts of the filter that have no effect.
    */
-  private static trimFilter(exerciseFilter: ExerciseFilter) {
-    const trimmedFilter: ExerciseFilter = {
+  private static trimFilter(exerciseFilter: ExerciseFilterDefinition) {
+    const trimmedFilter: ExerciseFilterDefinition = {
       creatorIds: exerciseFilter.creatorIds?.length > 0 ? exerciseFilter.creatorIds : undefined,
       labels: exerciseFilter.labels?.length > 0 ? exerciseFilter.labels : undefined,
       languageCodes: exerciseFilter.languageCodes?.length > 0 ? exerciseFilter.languageCodes : undefined,
@@ -50,19 +58,53 @@ export class ExercisesPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const user = await this.usersService.currentUser$.pipe(first()).toPromise();
-    this.filterForm = this.formBuilder.group({
-      creatorIds: this.formBuilder.control([user.id]),
-      labels: this.formBuilder.control([]),
-      languageCodes: this.formBuilder.control([]),
-      maximumCorrectStreak: this.formBuilder.control(undefined, [maximumForUnsigned32Int])
+    this.selectedExerciseFilterSubject = new BehaviorSubject<ExerciseFilter>(undefined);
+    this.selectedExerciseFilter$ = this.selectedExerciseFilterSubject.asObservable();
+    this.selectedExerciseFilter$.pipe(untilDestroyed(this)).subscribe(selectedExerciseFilter => {
+      const filterDef = selectedExerciseFilter?.exerciseFilterDefinition;
+      // If the form already exists, we do only patch values but not recreate it because
+      // that would mess up all listeners we have on the existing form.
+      if (this.filterForm) {
+        this.filterForm.patchValue({
+          creatorIds: filterDef?.creatorIds ?? [user.id],
+          labels: filterDef?.labels ?? [],
+          languageCodes: filterDef?.languageCodes,
+          maximumCorrectStreak: filterDef?.maximumCorrectStreak
+        });
+      } else {
+        this.filterForm = this.formBuilder.group({
+          creatorIds: this.formBuilder.control(filterDef?.creatorIds ?? [user.id]),
+          labels: this.formBuilder.control(filterDef?.labels ?? []),
+          languageCodes: this.formBuilder.control(filterDef?.languageCodes),
+          maximumCorrectStreak: this.formBuilder.control(filterDef?.maximumCorrectStreak, [Validators.min(0), maximumForSigned32Int])
+        });
+      }
     });
-    this.validFilter$ = this.filterForm.valueChanges.pipe(
-      startWith(this.filterForm.value as ExerciseFilter),
+    this.currentFilterDefinition$ = this.filterForm.valueChanges.pipe(
+      startWith(this.filterForm.value as ExerciseFilterDefinition),
       distinctUntilChanged((x, y) => _.isEqual(x, y)),
-      filter(() => this.filterForm.valid)
+      filter(() => this.filterForm.valid),
+      shareReplay(1)
     );
-    this.filteredExercises$ = this.validFilter$.pipe(
+    this.filteredExercises$ = this.currentFilterDefinition$.pipe(
       switchMap(filterValue => this.exercisesService.getFilteredExercises(filterValue))
+    );
+    this.exerciseFilters$ = combineLatest([
+      this.exercisesService.myExerciseFilters$,
+      this.selectedExerciseFilter$,
+      this.currentFilterDefinition$
+    ]).pipe(
+      map(([exerciseFilters, selected, current]) => {
+        return exerciseFilters.map(exerciseFilter => {
+          const isSelected = exerciseFilter.id === selected?.id;
+          const isUnchanged = isSelected && _.isEqual(exerciseFilter.exerciseFilterDefinition, current);
+          return {
+            ...exerciseFilter,
+            isSelected,
+            isUnchanged
+          } as SelectableExerciseFilter;
+        });
+      })
     );
     this.setupAutomaticUpdateOfUrlQueryParams();
   }
@@ -75,7 +117,7 @@ export class ExercisesPage implements OnInit {
   }
 
   async startStudying() {
-    const exerciseFilter = this.filterForm.value as ExerciseFilter;
+    const exerciseFilter = this.filterForm.value as ExerciseFilterDefinition;
     const trimmedFilter = ExercisesPage.trimFilter(exerciseFilter);
     await this.router.navigate(['tabs', 'exercises', 'study'], {queryParams: trimmedFilter});
   }
@@ -85,8 +127,10 @@ export class ExercisesPage implements OnInit {
   }
 
   async showPopover(event: any) {
+    const validFilter = await this.currentFilterDefinition$.pipe(take(1)).toPromise();
     const popover = await this.popoverController.create({
       component: ExercisesPopoverComponent,
+      componentProps: {exerciseFilterDefinition: validFilter} as ExercisesPopoverInput,
       event,
       translucent: true
     });
@@ -110,7 +154,7 @@ export class ExercisesPage implements OnInit {
    * [GitHub](https://docs.github.com/en/github/managing-your-work-on-github/sharing-filters).
    */
   private setupAutomaticUpdateOfUrlQueryParams() {
-    this.validFilter$.pipe(untilDestroyed(this)).subscribe(async currentFilter => {
+    this.currentFilterDefinition$.pipe(untilDestroyed(this)).subscribe(async currentFilter => {
       const trimmedFilter = ExercisesPage.trimFilter(currentFilter);
       await this.router.navigate(
         [],
@@ -119,6 +163,25 @@ export class ExercisesPage implements OnInit {
           queryParams: trimmedFilter,
           queryParamsHandling: 'merge'
         });
+    });
+  }
+
+  selectFilter(selectedFilter: ExerciseFilter) {
+    if (this.selectedExerciseFilterSubject.value?.id === selectedFilter.id) {
+      return;
+    }
+    this.selectedExerciseFilterSubject.next(selectedFilter);
+  }
+
+  async deleteExerciseFilter(filterToDelete: ExerciseFilter) {
+    await this.exercisesService.deleteExerciseFilter(filterToDelete);
+  }
+
+  async updateExerciseFilter(filterToUpdate: ExerciseFilter) {
+    const updates = await this.currentFilterDefinition$.pipe(first()).toPromise();
+    await this.exercisesService.updateExerciseFilter({
+      ...filterToUpdate,
+      exerciseFilterDefinition: updates
     });
   }
 }

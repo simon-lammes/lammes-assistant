@@ -12,6 +12,7 @@
   "close": "schließen",
   "completed": "abgeschlossen",
   "correct-answers": "richtige Antworten",
+  "create-exercise-filter": "Aufgabefilter erstellen",
   "creators": "Ersteller",
   "dark": "dunkel",
   "deadline": "Fälligkeitsdatum",
@@ -58,6 +59,7 @@
   "logout": "abmelden",
   "maximum-correct-streak": "maximale Erfolgsserie",
   "messages": {
+    "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt.",
     "failure": "Fehlschlag",
     "invalid-form": "ungültige Eingabe",
     "min-password-length": "Minimale Passwortlänge: {{minPasswordLength}}",
@@ -69,8 +71,7 @@
     "unknown-error": "Ein unbekannter Fehler is aufgetreten.",
     "user-does-not-exist": "Benutzer existiert nicht.",
     "username-in-use": "Benutzername ist vergeben.",
-    "wrong-password": "Falsches Passwort",
-    "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt."
+    "wrong-password": "Falsches Passwort"
   },
   "new-version": "neue Version",
   "next-exercise": "Nächste Aufgabe",
@@ -110,6 +111,7 @@
   "save-changes": "Änderungen speichern",
   "save-copy": "Kopie speichern",
   "save-exercise": "Übungsaufgabe speichern",
+  "save-exercise-filter": "Aufgabenfilter speichern",
   "search": {
     "noun": "Suche"
   },
@@ -128,11 +130,11 @@
   "start-time": "Startzeit",
   "study": "Üben",
   "submit": "einreichen",
+  "suspend-experience": "Erfahrung sperren",
   "system-default": "Systemstandard",
   "theme": "Erscheinungsbild",
   "title": "Titel",
   "urgently-due-till": "dringend fällig bis",
   "username": "Benutzername",
-  "wrong": "Falsch",
-  "suspend-experience": "Erfahrung sperren"
+  "wrong": "Falsch"
 }

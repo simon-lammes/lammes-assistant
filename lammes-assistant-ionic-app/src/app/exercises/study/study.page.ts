@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Exercise, ExerciseFilter, ExerciseResult, ExercisesService, HydratedExercise} from '../exercises.service';
+import {Exercise, ExerciseFilterDefinition, ExerciseResult, ExercisesService, HydratedExercise} from '../exercises.service';
 import {first, map, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
@@ -22,7 +22,7 @@ export interface ExerciseState {
 export class StudyPage implements OnInit {
   @ViewChild(IonContent) ionContent: IonContent;
   studyProgress$ = this.exercisesService.studyProgress$;
-  exerciseFilter$: Observable<ExerciseFilter>;
+  exerciseFilter$: Observable<ExerciseFilterDefinition>;
   exercise$: Observable<Exercise>;
   hydratedExercise$: Observable<HydratedExercise>;
   private nextExerciseRequestedBehaviourSubject = new BehaviorSubject(true);
@@ -46,7 +46,7 @@ export class StudyPage implements OnInit {
           creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
           languageCodes: params.getAll('languageCodes'),
           maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined
-        } as ExerciseFilter;
+        } as ExerciseFilterDefinition;
       })
     );
     this.exercise$ = combineLatest([

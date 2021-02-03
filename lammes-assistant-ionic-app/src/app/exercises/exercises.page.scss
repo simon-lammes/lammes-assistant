@@ -1,0 +1,8 @@
+.exercise-filter-row {
+  display: flex;
+  overflow-x: auto;
+
+  ion-card.exercise-filter-card {
+    min-width: 200pt;
+  }
+}

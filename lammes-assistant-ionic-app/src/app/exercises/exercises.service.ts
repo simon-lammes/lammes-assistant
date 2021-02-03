@@ -70,10 +70,16 @@ export interface Experience {
   exercise: Exercise;
 }
 
+export interface ExerciseFilter {
+  id: number;
+  title: string;
+  exerciseFilterDefinition: ExerciseFilterDefinition;
+}
+
 /**
  * The user might want to filter for specific exercises.
  */
-export interface ExerciseFilter {
+export interface ExerciseFilterDefinition {
   labels?: string[];
   creatorIds?: number[];
   languageCodes?: LanguageCodeIso639_1[];
@@ -120,6 +126,14 @@ const experienceFragment = gql`
     }
   },
   ${exerciseFragment}
+`;
+
+const exerciseFilterFragment = gql`
+  fragment ExerciseFilterFragment on ExerciseFilter {
+    id,
+    title,
+    exerciseFilterDefinition
+  }
 `;
 
 const usersRemovedExercisesQuery = gql`
@@ -205,6 +219,15 @@ function complementHydratedExerciseWithDefaultValues() {
   };
 }
 
+const myExerciseFilters = gql`
+  query MyExerciseFilters {
+    myExerciseFilters {
+      ...ExerciseFilterFragment
+    }
+  },
+  ${exerciseFilterFragment}
+`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -215,6 +238,13 @@ export class ExercisesService {
   }).valueChanges.pipe(
     map(({data}) => data.myExercisesThatAreMarkedForDeletion)
   );
+
+  readonly myExerciseFilters$ = this.apollo.watchQuery<{ myExerciseFilters: ExerciseFilter[] }>({
+    query: myExerciseFilters,
+  }).valueChanges.pipe(
+    map(({data}) => data.myExerciseFilters)
+  );
+
   // Study Progress
   private readonly studyProgressBehaviourSubject = new BehaviorSubject({failureCount: 0, successCount: 0} as StudyProgress);
   readonly studyProgress$ = this.studyProgressBehaviourSubject.asObservable();
@@ -226,18 +256,18 @@ export class ExercisesService {
   ) {
   }
 
-  getNextExercise(exerciseCooldown: ExerciseCooldown, exerciseFilter: ExerciseFilter) {
+  getNextExercise(exerciseCooldown: ExerciseCooldown, exerciseFilterDefinition: ExerciseFilterDefinition) {
     // We need to use watchQuery. The user might edit the exercise and thus, the updated exercise should be emitted.
     return this.apollo.watchQuery<{ myNextExercise: Exercise }>({
       query: gql`
-        query MyNextExercise($exerciseCooldown: ExerciseCooldownInput!, $exerciseFilter: ExerciseFilter!) {
-          myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilter) {
+        query MyNextExercise($exerciseCooldown: ExerciseCooldownInput!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+          myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilterDefinition) {
             ...ExerciseFragment
           }
         },
         ${exerciseFragment}
       `,
-      variables: {exerciseFilter, exerciseCooldown},
+      variables: {exerciseFilterDefinition, exerciseCooldown},
       // 'Network-only' is the only fetch policy that worked out so far.
       // When we only used the cache, we would be "stuck" with the same exercise.
       // However, we should still use the cache in order to see when the user updated an exercise.
@@ -348,17 +378,17 @@ export class ExercisesService {
     }).toPromise();
   }
 
-  getFilteredExercises(exerciseFilter: ExerciseFilter) {
+  getFilteredExercises(exerciseFilterDefinition: ExerciseFilterDefinition) {
     return this.apollo.watchQuery<{ filteredExercises: Exercise[] }>({
       query: gql`
-        query FilteredExercisesQuery($exerciseFilter: ExerciseFilter!) {
-          filteredExercises(exerciseFilter: $exerciseFilter) {
+        query FilteredExercisesQuery($exerciseFilterDefinition: ExerciseFilterDefinition!) {
+          filteredExercises(exerciseFilter: $exerciseFilterDefinition) {
             ...ExerciseFragment
           }
         },
         ${exerciseFragment}
       `,
-      variables: {exerciseFilter},
+      variables: {exerciseFilterDefinition},
       // When user changed exercise resources, this query needs to update.
       // Solely using refetchQueries would not suffice because this targets only single queries.
       // However, there could be thousand caches of this query, all with different input variables.
@@ -402,5 +432,54 @@ export class ExercisesService {
     }).valueChanges.pipe(
       map(({data}) => data.getExerciseDownloadLink)
     );
+  }
+
+  async createExerciseFilter(title: string, exerciseFilterDefinition: ExerciseFilterDefinition) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation CreateExerciseFilter($title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+          createExerciseFilter(title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
+            ...ExerciseFilterFragment
+          }
+        },
+        ${exerciseFilterFragment}
+      `,
+      refetchQueries: ['MyExerciseFilters'],
+      variables: {title, exerciseFilterDefinition}
+    }).toPromise();
+  }
+
+  async updateExerciseFilter(filter: ExerciseFilter) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation UpdateExerciseFilter($id: Int!, $title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+          updateExerciseFilter(id: $id, title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
+            ...ExerciseFilterFragment
+          }
+        },
+        ${exerciseFilterFragment}
+      `,
+      refetchQueries: ['MyExerciseFilters'],
+      variables: filter
+    }).toPromise();
+  }
+
+  async deleteExerciseFilter(filterToDelete: ExerciseFilter) {
+    return this.apollo.mutate<{deleteExerciseFilter: ExerciseFilter}>({
+      mutation: gql`
+        mutation DeleteExerciseFilter($id: Int!) {
+          deleteExerciseFilter(id: $id) {
+            id
+          }
+        }
+      `,
+      variables: {id: filterToDelete.id},
+      update: (cache, mutationResult) => {
+        const idOfDeleted = mutationResult.data.deleteExerciseFilter.id;
+        const oldCache = cache.readQuery({query: myExerciseFilters}) as {myExerciseFilters: ExerciseFilter[]};
+        const newValue = oldCache.myExerciseFilters.filter(x => x.id !== idOfDeleted);
+        cache.writeQuery({query: myExerciseFilters, data: {myExerciseFilters: newValue}});
+      }
+    }).toPromise();
   }
 }
