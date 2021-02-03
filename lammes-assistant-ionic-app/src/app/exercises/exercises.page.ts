@@ -10,6 +10,8 @@ import {distinctUntilChanged, filter, first, map, shareReplay, startWith, switch
 import {UsersService} from '../shared/services/users/users.service';
 import _ from 'lodash';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {debounceFilterQuery} from '../shared/operators/debounce-filter-query';
+import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
 
 const maximumForSigned32Int = Validators.max(2_147_483_647);
 
@@ -39,7 +41,8 @@ export class ExercisesPage implements OnInit {
     private popoverController: PopoverController,
     private formBuilder: FormBuilder,
     private usersService: UsersService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private applicationConfigurationService: ApplicationConfigurationService
   ) {
   }
 
@@ -90,6 +93,11 @@ export class ExercisesPage implements OnInit {
       shareReplay(1)
     );
     this.filteredExercises$ = this.currentFilterDefinition$.pipe(
+      debounceFilterQuery(this.applicationConfigurationService.applicationConfiguration$),
+      // There might be valid value in this pipe but the filter form might be invalid.
+      // Even in that case we don't want to send the query because this could seem
+      // to the user as if the form was correct.
+      filter(() => this.filterForm.valid),
       switchMap(filterValue => this.exercisesService.getFilteredExercises(filterValue))
     );
     this.exerciseFilters$ = combineLatest([

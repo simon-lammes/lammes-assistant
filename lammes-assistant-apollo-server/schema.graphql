@@ -7,12 +7,17 @@ type ApplicationConfiguration {
   allowedFileTypes: [String!]!
 
   """
-  How many seconds should the frontend debounce before saving changes of the user automatically. This behaviour is useful for when we do not want to require the user to press a save button.
+  How many milliseconds should the frontend debounce before saving changes of the user automatically. This behaviour is useful for when we do not want to require the user to press a save button.
   """
   automaticSaveDebounceMillis: Int!
 
   """The default settings that are used when not specified by the user."""
   defaultSettings: Settings!
+
+  """
+  How many milliseconds should the frontend debounce before sending any filter query to the backend.
+  """
+  filterQueryDebounceMillis: Int!
 
   """How long the password of new users is required to be"""
   minPasswordLength: Int!

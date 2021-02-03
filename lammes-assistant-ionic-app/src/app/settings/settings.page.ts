@@ -77,7 +77,7 @@ export class SettingsPage implements OnInit {
     );
     this.settingsForm.valueChanges.pipe(
       untilDestroyed(this),
-      debounceAutomaticSave(await this.applicationConfigurationService.getApplicationConfigurationSnapshot()),
+      debounceAutomaticSave(this.applicationConfigurationService.applicationConfiguration$),
       distinctUntilChanged((x, y) => _.isEqual(x, y))
     ).subscribe(async currentSettings => {
       if (this.settingsForm.valid) {

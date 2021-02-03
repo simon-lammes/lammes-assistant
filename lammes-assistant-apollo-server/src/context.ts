@@ -21,6 +21,7 @@ const defaultApplicationConfiguration: ApplicationConfiguration = {
   minPasswordLength: 6,
   allowedFileTypes: ['image/jpeg', 'image/png', 'image/svg+xml'],
   automaticSaveDebounceMillis: 1500,
+  filterQueryDebounceMillis: 1000,
   defaultSettings: {
     exerciseCooldown: {
       days: 0,
@@ -66,6 +67,7 @@ export interface ApplicationConfiguration {
   allowedFileTypes: string[];
   defaultSettings: Settings;
   automaticSaveDebounceMillis: number;
+  filterQueryDebounceMillis: number;
 }
 
 export function createContext({req}: ExpressContext): Context {
