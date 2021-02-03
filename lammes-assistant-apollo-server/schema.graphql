@@ -31,14 +31,14 @@ input CustomFile {
 scalar DateTime
 
 type Exercise {
-  creatorId: Int!
+  creatorId: Int
   exerciseLabels(after: ExerciseLabelWhereUniqueInput, before: ExerciseLabelWhereUniqueInput, first: Int, last: Int): [ExerciseLabel!]!
-  exerciseType: ExerciseType!
-  id: Int!
-  languageCode: LanguageCode!
+  exerciseType: ExerciseType
+  id: Int
+  languageCode: LanguageCode
   markedForDeletionTimestamp: DateTime
-  title: String!
-  versionTimestamp: DateTime!
+  title: String
+  versionTimestamp: DateTime
 }
 
 type ExerciseCooldown {
@@ -54,10 +54,10 @@ input ExerciseCooldownInput {
 }
 
 type ExerciseFilter {
-  creatorId: Int!
-  exerciseFilterDefinition: Json!
-  id: Int!
-  title: String!
+  creatorId: Int
+  exerciseFilterDefinition: Json
+  id: Int
+  title: String
 }
 
 input ExerciseFilterDefinition {
@@ -68,19 +68,19 @@ input ExerciseFilterDefinition {
   maximumCorrectStreak: Int
 }
 
-input ExerciseIdLabelIdCompoundUniqueInput {
-  exerciseId: Int!
-  labelId: Int!
+type ExerciseLabel {
+  exerciseId: Int
+  label: Label
+  labelId: Int
 }
 
-type ExerciseLabel {
+input ExerciseLabelExerciseIdLabelIdCompoundUniqueInput {
   exerciseId: Int!
-  label: Label!
   labelId: Int!
 }
 
 input ExerciseLabelWhereUniqueInput {
-  exerciseId_labelId: ExerciseIdLabelIdCompoundUniqueInput
+  exerciseId_labelId: ExerciseLabelExerciseIdLabelIdCompoundUniqueInput
 }
 
 """
@@ -100,11 +100,11 @@ enum ExerciseType {
 }
 
 type Experience {
-  correctStreak: Int!
-  exercise: Exercise!
-  exerciseId: Int!
+  correctStreak: Int
+  exercise: Exercise
+  exerciseId: Int
   lastStudiedTimestamp: DateTime
-  learnerId: Int!
+  learnerId: Int
 }
 
 input HydratedExerciseInput {
@@ -124,8 +124,8 @@ input HydratedExerciseInput {
 scalar Json
 
 type Label {
-  id: Int!
-  title: String!
+  id: Int
+  title: String
 }
 
 """We use ISO 639-1."""
@@ -166,15 +166,15 @@ type Mutation {
 }
 
 type Note {
-  creator: User!
-  creatorId: Int!
+  creator: User
+  creatorId: Int
   deadlineTimestamp: DateTime
   description: String
-  id: Int!
+  id: Int
   resolvedTimestamp: DateTime
   startTimestamp: DateTime
-  title: String!
-  updatedTimestamp: DateTime!
+  title: String
+  updatedTimestamp: DateTime
 }
 
 input NoteWhereUniqueInput {
@@ -258,11 +258,11 @@ enum Theme {
 }
 
 type User {
-  firstName: String!
-  id: Int!
-  lastName: String!
+  firstName: String
+  id: Int
+  lastName: String
   notes(after: NoteWhereUniqueInput, before: NoteWhereUniqueInput, first: Int, last: Int): [Note!]!
   profilePictureDownloadLink: String
   settingsUpdatedTimestamp: DateTime
-  username: String!
+  username: String
 }
