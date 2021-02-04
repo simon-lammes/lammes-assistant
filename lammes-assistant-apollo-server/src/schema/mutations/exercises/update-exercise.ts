@@ -2,7 +2,6 @@ import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
 import {AuthenticationError} from "apollo-server";
 import {generateNotFoundError} from "../../../custom-errors/not-found-error";
 import {generateAuthorizationError} from "../../../custom-errors/authorization-error";
-import {ExerciseLabelScalarWhereInput} from "@prisma/client";
 import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-exercise";
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
@@ -74,7 +73,7 @@ export const updateExercise = mutationField("updateExercise", {
             return {
               exerciseId: id,
               labelId: label.id
-            } as ExerciseLabelScalarWhereInput;
+            };
           }) : undefined,
           create: addedLabels.map(label => {
             return {

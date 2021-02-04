@@ -26,6 +26,13 @@ export interface Note {
   deadlineTimestamp?: string;
   updatedTimestamp: string;
 }
+export interface NoteInput {
+  title?: string;
+  description?: string;
+  startTimestamp?: string;
+  deadlineTimestamp?: string;
+}
+
 
 /**
  * Specifies which data we want when querying or mutating notes. We want to ask for the same fields in every query
@@ -80,8 +87,8 @@ const fetchNoteQuery = gql`
 `;
 
 const createNoteMutation = gql`
-    mutation CreateNote($title: String!, $description: String) {
-        createNote(title: $title, description: $description) {
+    mutation CreateNote($noteInput: NoteInput!) {
+        createNote(noteInput: $noteInput) {
             ...NoteFragment
         }
     }
@@ -116,8 +123,8 @@ const deleteNoteMutation = gql`
 `;
 
 const editNoteMutation = gql`
-    mutation EditNote($id: Int!, $title: String, $description: String, $startTimestamp: String, $deadlineTimestamp: String) {
-        editNote(id: $id, title: $title, description: $description, startTimestamp: $startTimestamp, deadlineTimestamp: $deadlineTimestamp) {
+    mutation EditNote($id: Int!, $noteInput: NoteInput!) {
+        editNote(id: $id, noteInput: $noteInput) {
             ...NoteFragment
         }
     }
@@ -154,7 +161,7 @@ export class NoteService {
    * https://www.apollographql.com/docs/angular/features/cache-updates/
    * and I highly recommend this video https://www.youtube.com/watch?v=zWhVAN4Tg6M
    */
-  async createNote(data: CreateNoteData) {
+  async createNote(data: { noteInput: NoteInput }) {
     await this.apollo.mutate({
       mutation: createNoteMutation,
       variables: data,
@@ -209,10 +216,10 @@ export class NoteService {
     );
   }
 
-  editNote(args: { id: number, text?: string, description?: string, startTimestamp?: string | null }) {
+  editNote(args: { id: number, noteInput: NoteInput }) {
     return this.apollo.mutate<{ editNote: Note }>({
       mutation: editNoteMutation,
-      variables: {...args},
+      variables: args,
       update: (cache, mutationResult) => {
         this.updateCacheAfterNoteChanged(cache, mutationResult.data.editNote);
       }

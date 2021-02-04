@@ -7,7 +7,7 @@ import {IonicModule} from '@ionic/angular';
 import {HomePageRoutingModule} from './home-routing.module';
 
 import {HomePage} from './home.page';
-import {EditNoteModalPageModule} from '../notes/edit-note/edit-note-modal.module';
+import {SaveNoteModalPageModule} from '../notes/save-note/save-note-modal.module';
 import {MarkdownModule} from 'ngx-markdown';
 import {SharedModule} from '../shared/shared.module';
 
@@ -17,7 +17,7 @@ import {SharedModule} from '../shared/shared.module';
     FormsModule,
     IonicModule,
     HomePageRoutingModule,
-    EditNoteModalPageModule,
+    SaveNoteModalPageModule,
     MarkdownModule,
     SharedModule
   ],

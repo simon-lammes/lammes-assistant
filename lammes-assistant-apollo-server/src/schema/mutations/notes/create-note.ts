@@ -1,22 +1,26 @@
-import {mutationField, nonNull, nullable, stringArg} from "@nexus/schema";
-import {AuthenticationError} from "apollo-server";
-import {noteObjectType} from "../../types/note";
+import {arg, mutationField, nonNull} from "@nexus/schema";
+import {ApolloError, AuthenticationError} from "apollo-server";
+import {NoteInput, noteObjectType} from "../../types/note";
 
 export const createNote = mutationField("createNote", {
   type: noteObjectType,
   args: {
-    title: nonNull(stringArg()),
-    description: nullable(stringArg())
+    noteInput: nonNull(arg({type: NoteInput}))
   },
-  resolve: async (_, {title, description}, {jwtPayload, prisma}) => {
+  resolve: async (_, {noteInput: {title, deadlineTimestamp, description, startTimestamp}}, {jwtPayload, prisma}) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
       throw new AuthenticationError('You can only create notes when you are authenticated.');
+    }
+    if (!title) {
+      throw new ApolloError('Title required');
     }
     return prisma.note.create({
       data: {
         title,
         description,
+        deadlineTimestamp,
+        startTimestamp,
         creator: {
           connect: {id: userId}
         }

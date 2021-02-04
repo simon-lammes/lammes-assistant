@@ -5,7 +5,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {IonicModule} from '@ionic/angular';
 
 
-import {EditNoteModalPage} from './edit-note-modal.page';
+import {SaveNoteModalPage} from './save-note-modal-page.component';
 import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
@@ -16,6 +16,6 @@ import {SharedModule} from '../../shared/shared.module';
     ReactiveFormsModule,
     SharedModule
   ],
-  declarations: [EditNoteModalPage]
+  declarations: [SaveNoteModalPage]
 })
-export class EditNoteModalPageModule {}
+export class SaveNoteModalPageModule {}

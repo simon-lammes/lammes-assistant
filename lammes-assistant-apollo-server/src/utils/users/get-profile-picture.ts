@@ -1,6 +1,9 @@
 import {S3} from "aws-sdk";
 
-export async function getProfilePicture(spacesClient: AWS.S3, userId: number): Promise<S3.Object | undefined> {
+export async function getProfilePicture(spacesClient: AWS.S3, userId?: number | null): Promise<S3.Object | undefined> {
+  if (!userId) {
+    return undefined;
+  }
   const picturesListResult = await spacesClient.listObjectsV2({
     Bucket: 'lammes-assistant-space',
     Prefix: `users/${userId}/profile-picture`

@@ -7,7 +7,7 @@ import {IonicModule} from '@ionic/angular';
 import {NotesPageRoutingModule} from './notes-routing.module';
 
 import {NotesPage} from './notes.page';
-import {EditNoteModalPageModule} from './edit-note/edit-note-modal.module';
+import {SaveNoteModalPageModule} from './save-note/save-note-modal.module';
 import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
@@ -16,7 +16,7 @@ import {SharedModule} from '../shared/shared.module';
     FormsModule,
     IonicModule,
     NotesPageRoutingModule,
-    EditNoteModalPageModule,
+    SaveNoteModalPageModule,
     SharedModule
   ],
   declarations: [NotesPage]

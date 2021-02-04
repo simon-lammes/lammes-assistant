@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {Note, NoteService} from '../shared/services/note/note.service';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
-import {EditNoteModalPage} from '../notes/edit-note/edit-note-modal.page';
+import {SaveNoteModalPage} from '../notes/save-note/save-note-modal-page.component';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +24,7 @@ export class HomePage {
 
   async editNote(note: Note) {
     const modal = await this.modalController.create({
-      component: EditNoteModalPage,
+      component: SaveNoteModalPage,
       componentProps: {
         noteId: note.id
       }
@@ -58,7 +58,10 @@ export class HomePage {
     const dayInMilliseconds = 24 * 60 * 60 * 1000;
     const now = new Date();
     const tomorrow = new Date(now.getTime() + dayInMilliseconds);
-    await this.noteService.editNote({id: note.id, startTimestamp: tomorrow.toISOString()}).toPromise();
+    await this.noteService.editNote({
+      id: note.id,
+      noteInput: {startTimestamp: tomorrow.toISOString()}
+    }).toPromise();
   }
 
   /**
@@ -110,7 +113,10 @@ export class HomePage {
               + minutes * 60 * 1000;
             const now = new Date();
             const delayedDate = new Date(now.getTime() + delayInMilliseconds);
-            await this.noteService.editNote({id: note.id, startTimestamp: delayedDate.toISOString()}).toPromise();
+            await this.noteService.editNote({
+              id: note.id,
+              noteInput: {startTimestamp: delayedDate.toISOString()}
+            }).toPromise();
           }
         }
       ]

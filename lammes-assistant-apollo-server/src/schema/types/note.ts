@@ -1,4 +1,4 @@
-import {objectType} from "@nexus/schema";
+import {inputObjectType, objectType} from "@nexus/schema";
 
 export const noteObjectType = objectType({
   name: 'Note',
@@ -12,5 +12,15 @@ export const noteObjectType = objectType({
     t.model.resolvedTimestamp();
     t.model.creatorId();
     t.model.creator();
+  },
+});
+
+export const NoteInput = inputObjectType({
+  name: 'NoteInput',
+  definition(t) {
+    t.nullable.string('title');
+    t.nullable.string('description');
+    t.nullable.string('startTimestamp');
+    t.nullable.string('deadlineTimestamp');
   },
 });

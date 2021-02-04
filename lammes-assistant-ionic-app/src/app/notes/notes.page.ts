@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {CreateNoteData, Note, NoteService} from '../shared/services/note/note.service';
+import {Note, NoteService} from '../shared/services/note/note.service';
 import {Observable} from 'rxjs';
-import {EditNoteModalPage} from './edit-note/edit-note-modal.page';
+import {SaveNoteModalPage} from './save-note/save-note-modal-page.component';
 import {AlertController, ModalController} from '@ionic/angular';
 
 /**
@@ -49,37 +49,13 @@ export class NotesPage implements OnInit {
   }
 
   async createNote() {
-    const alert = await this.alertController.create({
-      header: 'Create Note',
-      inputs: [
-        {
-          name: 'title',
-          type: 'text',
-          placeholder: 'Title'
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          placeholder: 'Description (optional)'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Save',
-          handler: (result: CreateNoteData) => {
-            this.notesService.createNote(result);
-          }
-        }
-      ]
+    const modal = await this.modalController.create({
+      component: SaveNoteModalPage,
+      componentProps: {
+        noteId: undefined
+      }
     });
-    await alert.present();
-    // I do not know a nicer way of autofocusing the first input element.
-    const firstInput: any = document.querySelector('ion-alert input');
-    firstInput.focus();
+    await modal.present();
   }
 
   onSegmentChange($event: any) {
@@ -116,7 +92,7 @@ export class NotesPage implements OnInit {
 
   async editNote(note: Note) {
     const modal = await this.modalController.create({
-      component: EditNoteModalPage,
+      component: SaveNoteModalPage,
       componentProps: {
         noteId: note.id
       }
