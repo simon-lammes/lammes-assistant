@@ -21,6 +21,8 @@
       <ion-label>{{ 'description' | translate | titlecase }}</ion-label>
       <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')" rows="4"></ion-textarea>
     </ion-item>
+    <app-label-selector [heading]="'labels' | translate | titlecase"
+                        formControlName="labels"></app-label-selector>
     <ion-item>
       <ion-label>{{ 'include-start-time' | translate | titlecase }}</ion-label>
       <ion-checkbox slot="end" formControlName="includeStartTimestamp"></ion-checkbox>

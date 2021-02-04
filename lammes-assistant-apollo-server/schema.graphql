@@ -171,6 +171,7 @@ type Note {
   deadlineTimestamp: DateTime
   description: String
   id: Int
+  noteLabels(after: NoteLabelWhereUniqueInput, before: NoteLabelWhereUniqueInput, first: Int, last: Int): [NoteLabel!]!
   resolvedTimestamp: DateTime
   startTimestamp: DateTime
   title: String
@@ -180,8 +181,24 @@ type Note {
 input NoteInput {
   deadlineTimestamp: String
   description: String
+  labels: [String!]
   startTimestamp: String
   title: String
+}
+
+type NoteLabel {
+  label: Label
+  labelId: Int
+  noteId: Int
+}
+
+input NoteLabelNoteIdLabelIdCompoundUniqueInput {
+  labelId: Int!
+  noteId: Int!
+}
+
+input NoteLabelWhereUniqueInput {
+  noteId_labelId: NoteLabelNoteIdLabelIdCompoundUniqueInput
 }
 
 input NoteWhereUniqueInput {

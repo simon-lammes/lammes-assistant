@@ -7,7 +7,11 @@ export const createNote = mutationField("createNote", {
   args: {
     noteInput: nonNull(arg({type: NoteInput}))
   },
-  resolve: async (_, {noteInput: {title, deadlineTimestamp, description, startTimestamp}}, {jwtPayload, prisma}) => {
+  resolve: async (
+    _,
+    {noteInput: {title, deadlineTimestamp, description, startTimestamp, labels}},
+    {jwtPayload, prisma}
+  ) => {
     const userId = jwtPayload?.userId;
     if (!userId) {
       throw new AuthenticationError('You can only create notes when you are authenticated.');
@@ -21,6 +25,22 @@ export const createNote = mutationField("createNote", {
         description,
         deadlineTimestamp,
         startTimestamp,
+        noteLabels: {
+          create: labels?.map(label => {
+            return {
+              label: {
+                connectOrCreate: {
+                  where: {
+                    title: label,
+                  },
+                  create: {
+                    title: label
+                  }
+                }
+              }
+            };
+          })
+        },
         creator: {
           connect: {id: userId}
         }

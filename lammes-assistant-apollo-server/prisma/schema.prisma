@@ -23,15 +23,16 @@ model User {
 }
 
 model Note {
-  id                Int       @id @default(autoincrement())
+  id                Int         @id @default(autoincrement())
   title             String
-  updatedTimestamp  DateTime  @default(now()) @map("updated_timestamp")
-  creatorId         Int       @map("creator_id")
-  resolvedTimestamp DateTime? @map("resolved_timestamp")
+  updatedTimestamp  DateTime    @default(now()) @map("updated_timestamp")
+  creatorId         Int         @map("creator_id")
+  resolvedTimestamp DateTime?   @map("resolved_timestamp")
   description       String?
-  startTimestamp    DateTime? @default(now()) @map("start_timestamp")
-  deadlineTimestamp DateTime? @map("deadline_timestamp")
-  creator           User      @relation("notesToUsers", fields: [creatorId], references: [id])
+  startTimestamp    DateTime?   @default(now()) @map("start_timestamp")
+  deadlineTimestamp DateTime?   @map("deadline_timestamp")
+  creator           User        @relation("notesToUsers", fields: [creatorId], references: [id])
+  noteLabels        NoteLabel[] @relation("noteLabelToNote")
 
   @@map("notes")
 }
@@ -78,6 +79,7 @@ model Label {
   id             Int             @id @default(autoincrement())
   title          String          @unique
   exerciseLabels ExerciseLabel[]
+  noteLabels     NoteLabel[]     @relation("noteLabelToLabel")
 
   @@map("labels")
 }
@@ -90,6 +92,16 @@ model ExerciseFilter {
   creator                  User   @relation("exerciseFiltersToUsers", fields: [creatorId], references: [id])
 
   @@map("exercise_filter")
+}
+
+model NoteLabel {
+  noteId  Int   @map("note_id")
+  labelId Int   @map("label_id")
+  label   Label @relation("noteLabelToLabel", fields: [labelId], references: [id])
+  note    Note  @relation("noteLabelToNote", fields: [noteId], references: [id])
+
+  @@id([noteId, labelId])
+  @@map("note_labels")
 }
 
 enum LanguageCode {

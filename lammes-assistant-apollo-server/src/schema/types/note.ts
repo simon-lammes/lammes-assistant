@@ -12,6 +12,7 @@ export const noteObjectType = objectType({
     t.model.resolvedTimestamp();
     t.model.creatorId();
     t.model.creator();
+    t.model.noteLabels();
   },
 });
 
@@ -22,5 +23,6 @@ export const NoteInput = inputObjectType({
     t.nullable.string('description');
     t.nullable.string('startTimestamp');
     t.nullable.string('deadlineTimestamp');
+    t.nullable.list.nonNull.string('labels');
   },
 });

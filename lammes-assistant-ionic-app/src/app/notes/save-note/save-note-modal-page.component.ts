@@ -65,6 +65,7 @@ export class SaveNoteModalPage implements OnInit {
       id: [note?.id],
       title: this.formBuilder.control(note?.title ?? '', [Validators.required, Validators.min(1)]),
       description: [note?.description ?? ''],
+      labels: this.formBuilder.control(note?.noteLabels?.map(noteLabel => noteLabel.label.title) ?? []),
       includeStartTimestamp: this.formBuilder.control(note ? !!note.startTimestamp : true),
       startTimestamp: this.formBuilder.control(note ? note.startTimestamp : new Date().toISOString()),
       includeDeadlineTimestamp: this.formBuilder.control(!!note?.deadlineTimestamp),
@@ -87,6 +88,7 @@ export class SaveNoteModalPage implements OnInit {
     return {
       title: value.title,
       description: value.description,
+      labels: value.labels,
       startTimestamp: this.includeStartTimestamp ? value.startTimestamp : null,
       deadlineTimestamp: this.includeDeadlineTimestamp ? value.deadlineTimestamp : null
     };

@@ -21,14 +21,22 @@ export interface Note {
   id: number;
   title: string;
   description?: string;
+  noteLabels: {
+    label: {
+      id: string;
+      title: string;
+    };
+  }[];
   resolvedTimestamp?: string;
   startTimestamp?: string;
   deadlineTimestamp?: string;
   updatedTimestamp: string;
 }
+
 export interface NoteInput {
   title?: string;
   description?: string;
+  labels?: string[];
   startTimestamp?: string;
   deadlineTimestamp?: string;
 }
@@ -39,96 +47,101 @@ export interface NoteInput {
  * so that our cache for all queries can be updated with all required fields.
  */
 const noteFragment = gql`
-    fragment NoteFragment on Note {
-        id,
-        title,
-        description,
-        resolvedTimestamp,
-        startTimestamp,
-        updatedTimestamp,
-        deadlineTimestamp
+  fragment NoteFragment on Note {
+    id,
+    title,
+    description,
+    resolvedTimestamp,
+    startTimestamp,
+    updatedTimestamp,
+    deadlineTimestamp,
+    noteLabels {
+      label {
+        title
+      }
     }
+  }
 `;
 
 const usersDeferredNotesQuery = gql`
-    query UsersDeferredNotes {
-        myDeferredNotes {
-            ...NoteFragment
-        }
+  query UsersDeferredNotes {
+    myDeferredNotes {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const usersPendingNotesQuery = gql`
-    query UsersPendingNotes {
-        myPendingNotes {
-            ...NoteFragment
-        }
+  query UsersPendingNotes {
+    myPendingNotes {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const usersResolvedNotesQuery = gql`
-    query UsersResolvedNotes {
-        myResolvedNotes {
-            ...NoteFragment
-        }
+  query UsersResolvedNotes {
+    myResolvedNotes {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const fetchNoteQuery = gql`
-    query FetchNote($noteId: Int!) {
-        note(id: $noteId) {
-            ...NoteFragment
-        }
+  query FetchNote($noteId: Int!) {
+    note(id: $noteId) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const createNoteMutation = gql`
-    mutation CreateNote($noteInput: NoteInput!) {
-        createNote(noteInput: $noteInput) {
-            ...NoteFragment
-        }
+  mutation CreateNote($noteInput: NoteInput!) {
+    createNote(noteInput: $noteInput) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const resolveNotesMutation = gql`
-    mutation ResolveNotes($noteId: Int!) {
-        resolveNote(noteId: $noteId) {
-            ...NoteFragment
-        }
+  mutation ResolveNotes($noteId: Int!) {
+    resolveNote(noteId: $noteId) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const reopenNoteMutation = gql`
-    mutation ReopenNote($noteId: Int!) {
-        reopenNote(noteId: $noteId) {
-            ...NoteFragment
-        }
+  mutation ReopenNote($noteId: Int!) {
+    reopenNote(noteId: $noteId) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const deleteNoteMutation = gql`
-    mutation DeleteNote($noteId: Int!) {
-        deleteNote(noteId: $noteId) {
-            ...NoteFragment
-        }
+  mutation DeleteNote($noteId: Int!) {
+    deleteNote(noteId: $noteId) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 const editNoteMutation = gql`
-    mutation EditNote($id: Int!, $noteInput: NoteInput!) {
-        editNote(id: $id, noteInput: $noteInput) {
-            ...NoteFragment
-        }
+  mutation EditNote($id: Int!, $noteInput: NoteInput!) {
+    editNote(id: $id, noteInput: $noteInput) {
+      ...NoteFragment
     }
-    ${noteFragment}
+  }
+  ${noteFragment}
 `;
 
 @Injectable({
