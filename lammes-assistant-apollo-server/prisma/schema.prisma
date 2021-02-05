@@ -8,16 +8,17 @@ datasource db {
 }
 
 model User {
-  id                       Int              @id @default(autoincrement())
-  firstName                String           @map("first_name")
-  lastName                 String           @map("last_name")
-  hashedPassword           String           @map("hashed_password")
-  username                 String           @unique
-  settingsUpdatedTimestamp DateTime?        @map("settings_updated_timestamp")
-  exerciseFilters          ExerciseFilter[] @relation("exerciseFiltersToUsers")
-  exercises                Exercise[]       @relation("exercisesToUsers")
-  experiences              Experience[]     @relation("experiencesToUsers")
-  notes                    Note[]           @relation("notesToUsers")
+  id                       Int               @id @default(autoincrement())
+  firstName                String            @map("first_name")
+  lastName                 String            @map("last_name")
+  hashedPassword           String            @map("hashed_password")
+  username                 String            @unique
+  settingsUpdatedTimestamp DateTime?         @map("settings_updated_timestamp")
+  exerciseFilters          ExerciseFilter[]  @relation("exerciseFiltersToUsers")
+  exercises                Exercise[]        @relation("exercisesToUsers")
+  experiences              Experience[]      @relation("experiencesToUsers")
+  groupMemberships         GroupMembership[] @relation("groupMembershipsToUsers")
+  notes                    Note[]            @relation("notesToUsers")
 
   @@map("users")
 }
@@ -102,6 +103,25 @@ model NoteLabel {
 
   @@id([noteId, labelId])
   @@map("note_labels")
+}
+
+model GroupMembership {
+  memberId Int   @map("member_id")
+  groupId  Int   @map("group_id")
+  group    Group @relation("groupMembershipsToGroups", fields: [groupId], references: [id])
+  user     User  @relation("groupMembershipsToUsers", fields: [memberId], references: [id])
+
+  @@id([memberId, groupId])
+  @@map("group_memberships")
+}
+
+model Group {
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  description      String?
+  groupMemberships GroupMembership[] @relation("groupMembershipsToGroups")
+
+  @@map("groups")
 }
 
 enum LanguageCode {

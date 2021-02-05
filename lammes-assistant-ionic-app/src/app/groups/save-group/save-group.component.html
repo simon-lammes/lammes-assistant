@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ (isEditingExistingGroup ? 'edit-group' : 'create-group') | translate | titlecase }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismissModal()">{{ 'close' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="groupForm" (click)="saveGroup()"
+                  [disabled]="!groupForm.valid">{{ 'save' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list [formGroup]="groupForm">
+    <ion-item>
+      <ion-label>{{ 'name' | translate | titlecase }}</ion-label>
+      <ion-input formControlName="name" (ionBlur)="trim(groupForm.controls.description, true)"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>{{ 'description' | translate | titlecase }}</ion-label>
+      <ion-textarea formControlName="description" (ionBlur)="trim(groupForm.controls.description)" rows="4"></ion-textarea>
+    </ion-item>
+  </ion-list>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

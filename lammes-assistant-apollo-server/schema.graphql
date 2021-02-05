@@ -107,6 +107,17 @@ type Experience {
   learnerId: Int
 }
 
+type Group {
+  description: String
+  id: Int
+  name: String
+}
+
+input GroupInput {
+  description: String
+  name: String!
+}
+
 input HydratedExerciseInput {
   assignment: String!
   exerciseType: ExerciseType!
@@ -137,9 +148,11 @@ enum LanguageCode {
 type Mutation {
   createExercise(hydratedExerciseInput: HydratedExerciseInput!): Exercise
   createExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, title: String!): ExerciseFilter
+  createGroup(group: GroupInput!): Group
   createNote(noteInput: NoteInput!): Note
   deleteExerciseFilter(id: Int!): ExerciseFilter
   deleteNote(noteId: Int!): Note
+  editGroup(group: GroupInput!, id: Int!): Group
   editNote(id: Int!, noteInput: NoteInput!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration
@@ -253,6 +266,7 @@ type Query {
   myExerciseFilters: [ExerciseFilter]
   myExercisesThatAreMarkedForDeletion: [Exercise]
   myFilteredNotes(filter: NoteFilterDefinition!): [Note]
+  myGroups: [Group]
   myNextExercise(exerciseCooldown: ExerciseCooldownInput!, exerciseFilter: ExerciseFilterDefinition!): Exercise
   myNoteToReview: Note
   myPendingNotes: [Note] @deprecated(reason: "Deprecated in favor of myFilteredNotes because that endpoint will be more flexible")
