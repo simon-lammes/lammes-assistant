@@ -1,22 +1,24 @@
 import {Component, OnInit} from '@angular/core';
-import {Note, NoteService} from '../shared/services/note/note.service';
-import {Observable} from 'rxjs';
+import {Note, NoteFilter, NoteService} from '../shared/services/note/note.service';
+import {Observable, of} from 'rxjs';
 import {SaveNoteModalPage} from './save-note/save-note-modal-page.component';
 import {AlertController, ModalController} from '@ionic/angular';
-
-/**
- * These are the options the user can choose by clicking on a segment.
- */
-type SegmentOption = 'deferred' | 'pending' | 'resolved';
+import {FormBuilder, FormGroup} from '@angular/forms';
+import {filter, startWith, switchMap} from 'rxjs/operators';
+import {debounceFilterQuery} from '../shared/operators/debounce-filter-query';
+import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
 
 /**
  * The status of a notes deadline.
  */
-enum DeadlineStatus {
-  NoDeadlineSpecified,
+enum UrgencyStatus {
+  Deferred,
+  NoStartTimeOrDeadline,
   DueSometime,
   DueSoon,
   Overdue,
+  ReadyToStart,
+  Resolved
 }
 
 @Component({
@@ -25,27 +27,38 @@ enum DeadlineStatus {
   styleUrls: ['./notes.page.scss'],
 })
 export class NotesPage implements OnInit {
-  deferredNotes$: Observable<Note[]>;
-  pendingNotes$: Observable<Note[]>;
-  resolvedNotes$: Observable<Note[]>;
-  selectedSegmentOption: SegmentOption = 'pending';
+  filterForm: FormGroup;
+  currentValidFilter$: Observable<NoteFilter>;
+  filteredNotes$: Observable<Note[]>;
 
   /**
    * This is member variable only exists, so that this enum can be used inside the html template.
    */
-  DeadlineStatus = DeadlineStatus;
+  UrgencyStatus = UrgencyStatus;
 
   constructor(
-    private notesService: NoteService,
+    private noteService: NoteService,
+    private applicationConfigurationService: ApplicationConfigurationService,
     private alertController: AlertController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private fb: FormBuilder
   ) {
   }
 
   ngOnInit() {
-    this.deferredNotes$ = this.notesService.usersDeferredNotes$;
-    this.pendingNotes$ = this.notesService.usersPendingNotes$;
-    this.resolvedNotes$ = this.notesService.usersResolvedNotes$;
+    this.filteredNotes$ = of([]);
+    this.filterForm = this.fb.group({
+      labels: this.fb.control([]),
+      noteStatus: this.fb.control([])
+    });
+    this.currentValidFilter$ = this.filterForm.valueChanges.pipe(
+      startWith(this.filterForm.value as NoteFilter),
+      filter(() => this.filterForm.valid)
+    );
+    this.filteredNotes$ = this.currentValidFilter$.pipe(
+      debounceFilterQuery(this.applicationConfigurationService.applicationConfiguration$),
+      switchMap(currentFilter => this.noteService.fetchFilteredNotes(currentFilter))
+    );
   }
 
   async createNote() {
@@ -58,36 +71,47 @@ export class NotesPage implements OnInit {
     await modal.present();
   }
 
-  onSegmentChange($event: any) {
-    this.selectedSegmentOption = $event.detail.value;
-  }
-
-  getDeadlineStatus(note: Note): DeadlineStatus {
-    if (!note.deadlineTimestamp) {
-      return DeadlineStatus.NoDeadlineSpecified;
+  getUrgencyStatus(note: Note): UrgencyStatus {
+    if (note.resolvedTimestamp) {
+      return UrgencyStatus.Resolved;
     }
-    const timeLeftInMilliseconds = new Date(note.deadlineTimestamp).getTime() - new Date().getTime();
-    if (timeLeftInMilliseconds <= 0) {
-      return DeadlineStatus.Overdue;
+
+    // Test for the most urgent cases first and move on to less urgent cases.
+    const startTime = note.startTimestamp ? new Date(note.startTimestamp) : undefined;
+    const deadline = note.deadlineTimestamp ? new Date(note.deadlineTimestamp) : undefined;
+    const now = new Date();
+    const timeLeftInMilliseconds = deadline ? deadline.getTime() - now.getTime() : undefined;
+    if (timeLeftInMilliseconds && timeLeftInMilliseconds < 0) {
+      return UrgencyStatus.Overdue;
     }
     // We consider deadlines urgent that are within 24 hours.
     // This should be made configurable in the future.
-    if (timeLeftInMilliseconds < 24 * 60 * 60 * 1000) {
-      return DeadlineStatus.DueSoon;
+    if (timeLeftInMilliseconds && timeLeftInMilliseconds < 24 * 60 * 60 * 1000) {
+      return UrgencyStatus.DueSoon;
     }
-    return DeadlineStatus.DueSometime;
+    if (note.deadlineTimestamp) {
+      return UrgencyStatus.DueSometime;
+    } else if (startTime) {
+      if (startTime.getTime() < now.getTime()) {
+        return UrgencyStatus.ReadyToStart;
+      } else {
+        return UrgencyStatus.Deferred;
+      }
+    } else {
+      return UrgencyStatus.NoStartTimeOrDeadline;
+    }
   }
 
   async resolveNote(note: Note) {
-    await this.notesService.resolveNote(note);
+    await this.noteService.resolveNote(note);
   }
 
   async reopenNote(note: Note) {
-    await this.notesService.reopenNote(note);
+    await this.noteService.reopenNote(note);
   }
 
   async deleteNote(note: Note) {
-    await this.notesService.deleteNote(note);
+    await this.noteService.deleteNote(note);
   }
 
   async editNote(note: Note) {

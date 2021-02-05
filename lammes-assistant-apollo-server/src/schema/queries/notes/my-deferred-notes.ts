@@ -4,6 +4,7 @@ import {noteObjectType} from "../../types/note";
 
 export const myDeferredNotes = queryField('myDeferredNotes', {
   type: noteObjectType,
+  deprecation: "Deprecated in favor of myFilteredNotes because that endpoint will be more flexible",
   list: true,
   resolve: (root, args, context) => {
     const userId = context.jwtPayload?.userId;

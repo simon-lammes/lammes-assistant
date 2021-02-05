@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {map} from 'rxjs/operators';
 import {Note, NoteService} from '../shared/services/note/note.service';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {SaveNoteModalPage} from '../notes/save-note/save-note-modal-page.component';
@@ -10,9 +9,7 @@ import {SaveNoteModalPage} from '../notes/save-note/save-note-modal-page.compone
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage {
-  noteToReview$ = this.noteService.usersPendingNotes$.pipe(
-    map(pendingNotes => pendingNotes?.length > 0 ? pendingNotes[0] : undefined)
-  );
+  noteToReview$ = this.noteService.myNoteToReview$;
 
   constructor(
     private noteService: NoteService,

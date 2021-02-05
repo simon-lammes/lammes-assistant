@@ -178,6 +178,11 @@ type Note {
   updatedTimestamp: DateTime
 }
 
+input NoteFilterDefinition {
+  labels: [String!]
+  noteStatus: [String!]
+}
+
 input NoteInput {
   deadlineTimestamp: String
   description: String
@@ -244,12 +249,14 @@ type Query {
 
   """Returns the user object that belongs to user making the request."""
   me: User
-  myDeferredNotes: [Note]
+  myDeferredNotes: [Note] @deprecated(reason: "Deprecated in favor of myFilteredNotes because that endpoint will be more flexible")
   myExerciseFilters: [ExerciseFilter]
   myExercisesThatAreMarkedForDeletion: [Exercise]
+  myFilteredNotes(filter: NoteFilterDefinition!): [Note]
   myNextExercise(exerciseCooldown: ExerciseCooldownInput!, exerciseFilter: ExerciseFilterDefinition!): Exercise
-  myPendingNotes: [Note]
-  myResolvedNotes: [Note]
+  myNoteToReview: Note
+  myPendingNotes: [Note] @deprecated(reason: "Deprecated in favor of myFilteredNotes because that endpoint will be more flexible")
+  myResolvedNotes: [Note] @deprecated(reason: "Deprecated in favor of myFilteredNotes because that endpoint will be more flexible")
   note(id: Int!): Note
 }
 
