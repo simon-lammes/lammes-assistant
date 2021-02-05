@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ 'edit-note' | translate | titlecase }}</ion-title>
+    <ion-title>{{ noteId ? ('edit-note' | translate | titlecase) : ('create-note' | translate | titlecase)  }}</ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="dismissModal()">{{ 'close' | translate | titlecase }}</ion-button>
     </ion-buttons>

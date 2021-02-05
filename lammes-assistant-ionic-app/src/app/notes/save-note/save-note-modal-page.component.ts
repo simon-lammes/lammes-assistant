@@ -2,7 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {take} from 'rxjs/operators';
 import {NoteInput, NoteService} from '../../shared/services/note/note.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ModalController} from '@ionic/angular';
+import {ModalController, ToastController} from '@ionic/angular';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-save-note-modal',
@@ -19,7 +20,9 @@ export class SaveNoteModalPage implements OnInit {
   constructor(
     private notesService: NoteService,
     private formBuilder: FormBuilder,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private toastController: ToastController,
+    private translateService: TranslateService
   ) {
   }
 
@@ -76,10 +79,16 @@ export class SaveNoteModalPage implements OnInit {
   async saveNote() {
     if (this.noteId) {
       await this.notesService.editNote({id: this.noteId, noteInput: this.getNoteInputFromForm()}).toPromise();
-      await this.modalController.dismiss();
+      await Promise.all([
+        this.modalController.dismiss(),
+        this.showHint(await this.translateService.get('messages.note-updated').toPromise())
+      ]);
     } else {
       await this.notesService.createNote({noteInput: this.getNoteInputFromForm()});
-      await this.modalController.dismiss();
+      await Promise.all([
+        this.modalController.dismiss(),
+        this.showHint(await this.translateService.get('messages.note-created').toPromise())
+      ]);
     }
   }
 
@@ -92,5 +101,21 @@ export class SaveNoteModalPage implements OnInit {
       startTimestamp: this.includeStartTimestamp ? value.startTimestamp : null,
       deadlineTimestamp: this.includeDeadlineTimestamp ? value.deadlineTimestamp : null
     };
+  }
+
+  private async showHint(message: string) {
+    const toast = await this.toastController.create({
+      header: message,
+      duration: 1500,
+      color: 'success',
+      buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ],
+      position: 'top'
+    });
+    await toast.present();
   }
 }
