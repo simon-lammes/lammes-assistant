@@ -63,6 +63,7 @@
   "login": "Login",
   "logout": "abmelden",
   "maximum-correct-streak": "maximale Erfolgsserie",
+  "members": "Mitglieder",
   "messages": {
     "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt.",
     "failure": "Fehlschlag",

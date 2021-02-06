@@ -63,6 +63,7 @@
   "login": "login",
   "logout": "logout",
   "maximum-correct-streak": "maximum correct streak",
+  "members": "members",
   "messages": {
     "experience-suspended": "The exercise will not be shown to you anymore.",
     "failure": "failure",

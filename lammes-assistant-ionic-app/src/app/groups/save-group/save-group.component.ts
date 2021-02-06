@@ -4,11 +4,14 @@ import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/form
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {Group, GroupService} from '../../shared/services/group/group.service';
 import {TranslateService} from '@ngx-translate/core';
+import {Observable} from 'rxjs';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 
 export interface SaveGroupModalInput {
-  editedGroup?: Group;
+  editedGroupId?: number;
 }
 
+@UntilDestroy()
 @Component({
   selector: 'app-save-group',
   templateUrl: './save-group.component.html',
@@ -16,6 +19,7 @@ export interface SaveGroupModalInput {
 })
 export class SaveGroupComponent implements OnInit {
   groupForm: FormGroup;
+  editedGroup$: Observable<Group | undefined>;
 
   @Input()
   input?: SaveGroupModalInput;
@@ -31,13 +35,16 @@ export class SaveGroupComponent implements OnInit {
   }
 
   get isEditingExistingGroup(): boolean {
-    return !!this.input?.editedGroup;
+    return !!this.input?.editedGroupId;
   }
 
   ngOnInit() {
-    this.groupForm = this.fb.group({
-      name: this.fb.control(this.input?.editedGroup?.name ?? '', [Validators.required]),
-      description: this.fb.control(this.input?.editedGroup?.description ?? '')
+    this.editedGroup$ = this.groupService.fetchGroupById(this.input?.editedGroupId);
+    this.editedGroup$.pipe(untilDestroyed(this)).subscribe(group => {
+      this.groupForm = this.fb.group({
+        name: this.fb.control(group?.name ?? '', [Validators.required]),
+        description: this.fb.control(group?.description ?? '')
+      });
     });
   }
 
@@ -55,7 +62,7 @@ export class SaveGroupComponent implements OnInit {
 
   async saveGroup() {
     if (this.isEditingExistingGroup) {
-      await this.groupService.editGroup(this.input.editedGroup.id, this.groupForm.value);
+      await this.groupService.editGroup(this.input.editedGroupId, this.groupForm.value);
       await this.showHint(await this.translateService.get('messages.group-edited').toPromise(), 'success', 1500);
     } else {
       await this.groupService.createGroup(this.groupForm.value);

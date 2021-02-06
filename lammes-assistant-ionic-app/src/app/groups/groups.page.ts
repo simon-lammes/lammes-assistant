@@ -1,14 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {SaveGroupComponent, SaveGroupModalInput} from './save-group/save-group.component';
+import {Component} from '@angular/core';
+import {SaveGroupComponent} from './save-group/save-group.component';
 import {ModalController} from '@ionic/angular';
-import {Group, GroupService} from '../shared/services/group/group.service';
+import {GroupService} from '../shared/services/group/group.service';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.page.html',
   styleUrls: ['./groups.page.scss'],
 })
-export class GroupsPage implements OnInit {
+export class GroupsPage {
   myGroups$ = this.groupService.myGroups$;
 
   constructor(
@@ -17,24 +17,9 @@ export class GroupsPage implements OnInit {
   ) {
   }
 
-  ngOnInit() {
-  }
-
   async createGroup() {
     const modal = await this.modalController.create({
       component: SaveGroupComponent
-    });
-    await modal.present();
-  }
-
-  async editGroup(editedGroup: Group) {
-    const modal = await this.modalController.create({
-      component: SaveGroupComponent,
-      componentProps: {
-        input: {
-          editedGroup
-        } as SaveGroupModalInput
-      }
     });
     await modal.present();
   }

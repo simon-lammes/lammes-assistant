@@ -6,7 +6,7 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let group of myGroups$ | async" button (click)="editGroup(group)">
+    <ion-item *ngFor="let group of myGroups$ | async" button [routerLink]="[group.id]">
       <ion-label>{{ group.name }}</ion-label>
     </ion-item>
   </ion-list>

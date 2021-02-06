@@ -2,6 +2,7 @@ import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
 import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
 import {groupInputType, groupObjectType} from "../../types/group";
 import {generateNotFoundError} from "../../../custom-errors/not-found-error";
+import {validateMembership} from "../../../utils/validators/group-validation/validate-membership";
 
 export const editGroup = mutationField('editGroup', {
   type: groupObjectType,
@@ -15,19 +16,7 @@ export const editGroup = mutationField('editGroup', {
     {jwtPayload, prisma}
   ) => {
     const userId = validateAuthenticated(jwtPayload);
-    const isUserMember = prisma.group.count({
-      where: {
-        id,
-        groupMemberships: {
-          some: {
-            memberId: userId
-          }
-        }
-      }
-    }).then(count => count > 0);
-    if (!isUserMember) {
-      throw generateNotFoundError('Either the group does not exist or you are not a member of that group.');
-    }
+    validateMembership(prisma, id, userId);
     return prisma.group.update({
       where: {
         id

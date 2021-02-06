@@ -109,6 +109,7 @@ type Experience {
 
 type Group {
   description: String
+  groupMemberships(after: GroupMembershipWhereUniqueInput, before: GroupMembershipWhereUniqueInput, first: Int, last: Int): [GroupMembership!]!
   id: Int
   name: String
 }
@@ -116,6 +117,21 @@ type Group {
 input GroupInput {
   description: String
   name: String!
+}
+
+type GroupMembership {
+  groupId: Int
+  memberId: Int
+  user: User
+}
+
+input GroupMembershipMemberIdGroupIdCompoundUniqueInput {
+  groupId: Int!
+  memberId: Int!
+}
+
+input GroupMembershipWhereUniqueInput {
+  memberId_groupId: GroupMembershipMemberIdGroupIdCompoundUniqueInput
 }
 
 input HydratedExerciseInput {
@@ -146,6 +162,7 @@ enum LanguageCode {
 }
 
 type Mutation {
+  addGroupMemberships(addedMemberships: [NewGroupMembership!]!, id: Int!): Group
   createExercise(hydratedExerciseInput: HydratedExerciseInput!): Exercise
   createExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, title: String!): ExerciseFilter
   createGroup(group: GroupInput!): Group
@@ -176,6 +193,10 @@ type Mutation {
   suspendExperience(exerciseId: Int!): Experience
   updateExercise(hydratedExerciseInput: HydratedExerciseInput!, id: Int!): Exercise
   updateExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, id: Int!, title: String!): ExerciseFilter
+}
+
+input NewGroupMembership {
+  memberId: Int!
 }
 
 type Note {

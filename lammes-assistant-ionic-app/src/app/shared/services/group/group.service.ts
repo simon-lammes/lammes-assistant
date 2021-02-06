@@ -1,12 +1,22 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {map} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
+import {User} from '../users/user.service';
+
+export interface NewGroupMembership {
+  memberId: number;
+}
+
+export interface GroupMembership {
+  user: User;
+}
 
 export interface Group {
   id: number;
   name: string;
   description?: string;
+  groupMemberships?: GroupMembership[];
 }
 
 interface GroupInput {
@@ -18,7 +28,16 @@ const groupFragment = gql`
   fragment GroupFragment on Group {
     id,
     name,
-    description
+    description,
+    groupMemberships {
+      user {
+        id,
+        username,
+        profilePictureDownloadLink,
+        firstName,
+        lastName
+      }
+    }
   }
 `;
 
@@ -71,5 +90,33 @@ export class GroupService {
       `,
       variables: {id, group}
     }).toPromise();
+  }
+
+  addGroupMemberships(id: number, addedMemberships: NewGroupMembership[]) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation AddGroupMemberships($id: Int!, $addedMemberships: [NewGroupMembership!]!) {
+          addGroupMemberships(id: $id, addedMemberships: $addedMemberships) {
+            ...GroupFragment
+          }
+        },
+        ${groupFragment}
+      `,
+      variables: {
+        id,
+        addedMemberships
+      },
+    }).toPromise();
+  }
+
+  fetchGroupById(id: number | undefined): Observable<Group | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this.myGroups$.pipe(
+      map(groups => {
+        return groups.find(x => x.id === id);
+      })
+    );
   }
 }

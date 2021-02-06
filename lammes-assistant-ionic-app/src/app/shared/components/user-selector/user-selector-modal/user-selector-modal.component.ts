@@ -15,6 +15,12 @@ export class UserSelectorModalComponent implements OnInit {
   @Input()
   initiallySelectedUserIds: Set<number>;
 
+  /**
+   * A set of user ids that cannot be selected.
+   */
+  @Input()
+  disabledUserIds: Set<number> = new Set<number>();
+
   filterForm: FormGroup;
   filter$: Observable<UserFilter>;
   filteredUsers$: Observable<User[]>;

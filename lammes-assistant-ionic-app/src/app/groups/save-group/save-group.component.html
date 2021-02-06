@@ -12,7 +12,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-list [formGroup]="groupForm">
+  <ion-list *ngIf="groupForm" [formGroup]="groupForm">
     <ion-item>
       <ion-label>{{ 'name' | translate | titlecase }}</ion-label>
       <ion-input formControlName="name" (ionBlur)="trim(groupForm.controls.description, true)"></ion-input>
@@ -22,9 +22,4 @@
       <ion-textarea formControlName="description" (ionBlur)="trim(groupForm.controls.description)" rows="4"></ion-textarea>
     </ion-item>
   </ion-list>
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button>
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 </ion-content>

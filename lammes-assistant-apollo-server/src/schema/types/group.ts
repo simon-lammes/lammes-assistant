@@ -6,6 +6,7 @@ export const groupObjectType = objectType({
     t.model.id();
     t.model.name();
     t.model.description();
+    t.model.groupMemberships();
   }
 });
 

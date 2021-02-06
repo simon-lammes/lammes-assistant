@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar *ngIf="group$ | async as group">
+    <ion-buttons slot="start">
+      <ion-button routerLink="/tabs/home/groups">{{ 'close' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{group.name}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editGroup(group)">{{ 'edit' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="group$ | async as group">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ 'description' | translate | titlecase }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <markdown [data]="group.description"></markdown>
+    </ion-card-content>
+  </ion-card>
+  <ion-list>
+    <ion-list-header>
+      <h3>{{ 'members' | translate | titlecase }}</h3>
+    </ion-list-header>
+    <ion-item *ngFor="let membership of group.groupMemberships">
+      <ion-avatar slot="start">
+        <img *ngIf="membership.user.profilePictureDownloadLink as link" [src]="link" alt="profile picture">
+        <ion-icon *ngIf="!membership.user.profilePictureDownloadLink" style="width: 100%; height: 100%" name="person-outline"></ion-icon>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{membership.user.username}}</h2>
+        <h3>{{membership.user.firstName}} {{membership.user.lastName}}</h3>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="addMembers(group)">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
