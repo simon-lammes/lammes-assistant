@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: GroupDetailPage
+  },
+  {
+    path: 'membership/:memberId',
+    loadChildren: () => import('./group-membership-detail/group-membership-detail.module').then(m => m.GroupMembershipDetailPageModule)
   }
 ];
 

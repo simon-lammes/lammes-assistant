@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">{{ 'close' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'group-membership' | translate | titlecase }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="member$ | async as member">
+    <ion-card-header>
+      <ion-card-subtitle>{{ 'group-membership' | translate | titlecase }}</ion-card-subtitle>
+      <ion-card-title>{{member.username}}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button expand="block" color="danger" (click)="removeMember(member)">{{ 'remove-member' | translate | titlecase }}</ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

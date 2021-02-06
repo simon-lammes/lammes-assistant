@@ -109,6 +109,23 @@ export class GroupService {
     }).toPromise();
   }
 
+  removeGroupMemberships(id: number, removedMemberIds: number[]) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation RemoveGroupMemberships($id: Int!, $removedMemberIds: [Int!]!) {
+          removeGroupMemberships(id: $id, removedMemberIds: $removedMemberIds) {
+            ...GroupFragment
+          }
+        },
+        ${groupFragment}
+      `,
+      variables: {
+        id,
+        removedMemberIds
+      },
+    }).toPromise();
+  }
+
   fetchGroupById(id: number | undefined): Observable<Group | undefined> {
     if (!id) {
       return of(undefined);

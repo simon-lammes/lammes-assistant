@@ -23,7 +23,7 @@
     <ion-list-header>
       <h3>{{ 'members' | translate | titlecase }}</h3>
     </ion-list-header>
-    <ion-item *ngFor="let membership of group.groupMemberships">
+    <ion-item *ngFor="let membership of group.groupMemberships" [routerLink]="['membership', membership.user.id]">
       <ion-avatar slot="start">
         <img *ngIf="membership.user.profilePictureDownloadLink as link" [src]="link" alt="profile picture">
         <ion-icon *ngIf="!membership.user.profilePictureDownloadLink" style="width: 100%; height: 100%" name="person-outline"></ion-icon>

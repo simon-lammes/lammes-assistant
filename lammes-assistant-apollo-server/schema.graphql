@@ -179,6 +179,7 @@ type Mutation {
   Removes an exercise and thereby marks it for deletion. It will be deleted when this action is not reverted within a certain amount of time.
   """
   removeExercise(id: Int!): Exercise
+  removeGroupMemberships(id: Int!, removedMemberIds: [Int!]!): Group
   reopenNote(noteId: Int!): Note
   resolveNote(noteId: Int!): Note
   restoreExercise(id: Int!): Exercise

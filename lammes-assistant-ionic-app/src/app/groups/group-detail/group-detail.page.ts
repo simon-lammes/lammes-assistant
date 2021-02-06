@@ -24,7 +24,7 @@ export class GroupDetailPage implements OnInit {
   ngOnInit() {
     this.group$ = this.activatedRoute.params.pipe(
       switchMap(params => {
-        return this.groupService.fetchGroupById(+params.id);
+        return this.groupService.fetchGroupById(+params.groupId);
       })
     );
   }

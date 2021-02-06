@@ -9,7 +9,7 @@ const routes: Routes = [
     component: GroupsPage
   },
   {
-    path: ':id',
+    path: ':groupId',
     loadChildren: () => import('./group-detail/group-detail.module').then( m => m.GroupDetailPageModule)
   }
 ];
