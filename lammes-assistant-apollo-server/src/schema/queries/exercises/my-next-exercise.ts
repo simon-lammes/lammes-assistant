@@ -16,7 +16,7 @@ export const myNextExercise = queryField('myNextExercise', {
     root,
     {
       exerciseCooldown,
-      exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak, exerciseTypes}
+      exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak, exerciseTypes, groupIds}
     },
     {jwtPayload, prisma}
   ) => {
@@ -31,6 +31,13 @@ export const myNextExercise = queryField('myNextExercise', {
         creatorId: creatorIds && creatorIds.length > 0 ? {
           in: creatorIds
         } : userId,
+        groupExercises: groupIds && groupIds.length > 0 ? {
+          some: {
+            groupId: {
+              in: groupIds
+            }
+          }
+        } : undefined,
         exerciseLabels: labels && labels.length > 0 ? {
           some: {
             label: {
@@ -72,6 +79,13 @@ export const myNextExercise = queryField('myNextExercise', {
           creatorId: creatorIds && creatorIds.length > 0 ? {
             in: creatorIds
           } : userId,
+          groupExercises: groupIds && groupIds.length > 0 ? {
+            some: {
+              groupId: {
+                in: groupIds
+              }
+            }
+          } : undefined,
           exerciseLabels: labels && labels.length > 0 ? {
             some: {
               label: {

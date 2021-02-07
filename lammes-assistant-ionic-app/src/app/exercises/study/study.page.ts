@@ -49,6 +49,7 @@ export class StudyPage implements OnInit {
       map((params) => {
         return {
           labels: params.getAll('labels'),
+          groupIds: params.getAll('groupIds').map(stringValue => +stringValue),
           creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
           languageCodes: params.getAll('languageCodes'),
           maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined,

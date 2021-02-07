@@ -63,6 +63,7 @@ type ExerciseFilter {
 input ExerciseFilterDefinition {
   creatorIds: [Int!]
   exerciseTypes: [ExerciseType!]
+  groupIds: [Int!]
   labels: [String!]
   languageCodes: [LanguageCode!]
   maximumCorrectStreak: Int

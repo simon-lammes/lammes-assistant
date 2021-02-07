@@ -11,7 +11,7 @@ export const filteredExercises = queryField('filteredExercises', {
   },
   resolve: (
     root,
-    {exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak, exerciseTypes}},
+    {exerciseFilter: {creatorIds, labels, languageCodes, maximumCorrectStreak, exerciseTypes, groupIds}},
     {jwtPayload, prisma}
   ) => {
     const userId = jwtPayload?.userId;
@@ -22,6 +22,13 @@ export const filteredExercises = queryField('filteredExercises', {
       where: {
         creatorId: creatorIds && creatorIds.length > 0 ? {
           in: creatorIds
+        } : undefined,
+        groupExercises: groupIds && groupIds.length > 0 ? {
+          some: {
+            groupId: {
+              in: groupIds
+            }
+          }
         } : undefined,
         exerciseLabels: labels && labels.length > 0 ? {
           some: {

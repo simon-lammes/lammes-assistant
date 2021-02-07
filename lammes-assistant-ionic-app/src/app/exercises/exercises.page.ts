@@ -52,6 +52,7 @@ export class ExercisesPage implements OnInit {
   private static trimFilter(exerciseFilter: ExerciseFilterDefinition) {
     const trimmedFilter: ExerciseFilterDefinition = {
       creatorIds: exerciseFilter.creatorIds?.length > 0 ? exerciseFilter.creatorIds : undefined,
+      groupIds: exerciseFilter.groupIds?.length > 0 ? exerciseFilter.groupIds : undefined,
       labels: exerciseFilter.labels?.length > 0 ? exerciseFilter.labels : undefined,
       languageCodes: exerciseFilter.languageCodes?.length > 0 ? exerciseFilter.languageCodes : undefined,
       maximumCorrectStreak: exerciseFilter.maximumCorrectStreak ?? undefined,
@@ -71,6 +72,7 @@ export class ExercisesPage implements OnInit {
       if (this.filterForm) {
         this.filterForm.patchValue({
           creatorIds: filterDef?.creatorIds ?? [user.id],
+          groupIds: filterDef?.groupIds ?? [],
           labels: filterDef?.labels ?? [],
           languageCodes: filterDef?.languageCodes,
           exerciseTypes: filterDef?.exerciseTypes ?? [],
@@ -79,6 +81,7 @@ export class ExercisesPage implements OnInit {
       } else {
         this.filterForm = this.formBuilder.group({
           creatorIds: this.formBuilder.control(filterDef?.creatorIds ?? [user.id]),
+          groupIds: this.formBuilder.control(filterDef?.groupIds ?? []),
           labels: this.formBuilder.control(filterDef?.labels ?? []),
           languageCodes: this.formBuilder.control(filterDef?.languageCodes),
           exerciseTypes: this.formBuilder.control(filterDef?.exerciseTypes ?? []),

@@ -82,6 +82,7 @@ export interface ExerciseFilter {
  */
 export interface ExerciseFilterDefinition {
   labels?: string[];
+  groupIds: number[];
   creatorIds?: number[];
   languageCodes?: LanguageCodeIso639_1[];
   exerciseTypes?: ExerciseType[];

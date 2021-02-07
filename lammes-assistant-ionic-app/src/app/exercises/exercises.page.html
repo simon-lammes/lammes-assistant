@@ -2,7 +2,8 @@
   <ion-toolbar>
     <ion-title>{{ 'exercises' | translate | titlecase }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="filterForm" (click)="startStudying()" [disabled]="filterForm.invalid">{{ 'study' | translate | titlecase }}</ion-button>
+      <ion-button *ngIf="filterForm" (click)="startStudying()"
+                  [disabled]="filterForm.invalid">{{ 'study' | translate | titlecase }}</ion-button>
       <ion-button (click)="showPopover($event)">
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
       </ion-button>
@@ -12,14 +13,17 @@
 
 <ion-content>
   <div class="exercise-filter-row">
-    <ion-card [color]="filter.isSelected ? 'light' : undefined" class="exercise-filter-card" *ngFor="let filter of exerciseFilters$ | async" (click)="selectFilter(filter)">
+    <ion-card [color]="filter.isSelected ? 'light' : undefined" class="exercise-filter-card"
+              *ngFor="let filter of exerciseFilters$ | async" (click)="selectFilter(filter)">
       <ion-card-header>
         <ion-card-title>{{filter.title}}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <ng-container *ngIf="filter.isSelected">
-          <ion-button expand="block" fill="clear" [disabled]="filter.isUnchanged" (click)="updateExerciseFilter(filter)">{{ 'save-changes' | translate }}</ion-button>
-          <ion-button expand="block" fill="clear" color="danger" (click)="deleteExerciseFilter(filter)">{{ 'delete' | translate }}</ion-button>
+          <ion-button expand="block" fill="clear" [disabled]="filter.isUnchanged"
+                      (click)="updateExerciseFilter(filter)">{{ 'save-changes' | translate }}</ion-button>
+          <ion-button expand="block" fill="clear" color="danger"
+                      (click)="deleteExerciseFilter(filter)">{{ 'delete' | translate }}</ion-button>
         </ng-container>
       </ion-card-content>
     </ion-card>
@@ -28,6 +32,8 @@
     <ion-list-header>
       <ion-label>{{ 'filter.noun' | translate | titlecase }}</ion-label>
     </ion-list-header>
+    <app-group-select [label]="'groups' | translate | titlecase" formControlName="groupIds"
+                      [noSelectionText]="'messages.no-group-filter' | translate"></app-group-select>
     <app-user-selector heading="{{ 'creators' | translate | titlecase }}" formControlName="creatorIds"
                        [noSelectionText]="'messages.showing-exercises-of-all-users' | translate"></app-user-selector>
     <app-label-selector heading="{{ 'labels' | translate | titlecase }}" formControlName="labels"
@@ -51,7 +57,8 @@
     </ion-item>
     <ion-item>
       <ion-label>{{ 'maximum-correct-streak' | translate | titlecase }}</ion-label>
-      <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number" placeholder="({{ 'optional' | translate | titlecase }})"></ion-input>
+      <ion-input style="text-align: right" formControlName="maximumCorrectStreak" type="number"
+                 placeholder="({{ 'optional' | translate | titlecase }})"></ion-input>
     </ion-item>
 
   </ion-list>

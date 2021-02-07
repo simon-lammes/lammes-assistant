@@ -15,6 +15,7 @@ export const ExerciseFilterDefinition = inputObjectType({
   definition(t) {
     t.nullable.list.nonNull.int('creatorIds');
     t.nullable.list.nonNull.string('labels');
+    t.nullable.list.nonNull.int('groupIds');
     t.nullable.list.nonNull.field('languageCodes', {type: 'LanguageCode'});
     t.nullable.int('maximumCorrectStreak');
     t.nullable.list.nonNull.field('exerciseTypes', {type: 'ExerciseType'});

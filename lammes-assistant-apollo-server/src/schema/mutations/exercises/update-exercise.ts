@@ -104,7 +104,11 @@ export const updateExercise = mutationField("updateExercise", {
         groupExercises: {
           create: addedGroupIds?.map(groupId => {
             return {
-              groupId
+              group: {
+                connect: {
+                  id: groupId
+                }
+              }
             };
           }),
           deleteMany: removedGroupIds?.map(groupId => {
