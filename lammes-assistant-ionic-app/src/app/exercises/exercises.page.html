@@ -30,7 +30,7 @@
   </div>
   <ion-list *ngIf="filterForm" [formGroup]="filterForm">
     <ion-list-header>
-      <ion-label>{{ 'filter.noun' | translate | titlecase }}</ion-label>
+      <h3>{{ 'filter.noun' | translate | titlecase }}</h3>
     </ion-list-header>
     <app-group-select [label]="'groups' | translate | titlecase" formControlName="groupIds"
                       [noSelectionText]="'messages.no-group-filter' | translate"></app-group-select>
@@ -64,7 +64,7 @@
   </ion-list>
   <ion-list>
     <ion-list-header>
-      <ion-label>{{ 'filtered-exercises' | translate | titlecase }}</ion-label>
+      <h3>{{ 'filtered-exercises' | translate | titlecase }}</h3>
     </ion-list-header>
     <ion-item-sliding *ngFor="let exercise of filteredExercises$ | async">
       <!-- Actual item -->

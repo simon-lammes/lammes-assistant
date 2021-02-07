@@ -115,6 +115,10 @@ type Group {
   name: String
 }
 
+input GroupFilterDefinition {
+  groupIds: [Int!]
+}
+
 input GroupInput {
   description: String
   name: String!
@@ -291,6 +295,7 @@ input PromptSolution {
 type Query {
   currentApplicationConfiguration: ApplicationConfiguration
   filteredExercises(exerciseFilter: ExerciseFilterDefinition!): [Exercise]
+  filteredGroups(groupFilter: GroupFilterDefinition!): [Group]
   filteredLabels(query: String): [Label]
   filteredUsers(query: String): [User]
   getExerciseDownloadLink(exerciseId: Int!): String

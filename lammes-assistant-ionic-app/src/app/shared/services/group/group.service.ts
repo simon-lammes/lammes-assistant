@@ -105,7 +105,7 @@ export class GroupService {
     }).toPromise();
   }
 
-  addGroupMemberships(args: {id: number, addedMemberships: NewGroupMembership[], role: GroupMemberRole}) {
+  addGroupMemberships(args: { id: number, addedMemberships: NewGroupMembership[], role: GroupMemberRole }) {
     return this.apollo.mutate({
       mutation: gql`
         mutation AddGroupMemberships($id: Int!, $addedMemberships: [NewGroupMembership!]!, $role: GroupMemberRole!) {
@@ -158,6 +158,25 @@ export class GroupService {
       map(groups => {
         return groups.find(x => x.id === id);
       })
+    );
+  }
+
+  getFilteredGroups(groupFilter: { groupIds: number[] }): Observable<Group[]> {
+    if (groupFilter.groupIds.length === 0) {
+      return of([]);
+    }
+    return this.apollo.watchQuery<{ filteredGroups: Group[] }>({
+      query: gql`
+        query FilteredGroups($groupFilter: GroupFilterDefinition!) {
+          filteredGroups(groupFilter: $groupFilter) {
+            ...GroupFragment
+          }
+        },
+        ${groupFragment}
+      `,
+      variables: {groupFilter}
+    }).valueChanges.pipe(
+      map(result => result.data.filteredGroups)
     );
   }
 }

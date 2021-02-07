@@ -1,8 +1,14 @@
-import {Component, forwardRef, Input} from '@angular/core';
+import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ModalController} from '@ionic/angular';
 import {GroupSelectModalComponent} from './group-select-modal/group-select-modal.component';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {distinctUntilChangedDeeply} from '../../operators/distinct-until-changed-deeply';
+import {switchMap} from 'rxjs/operators';
+import {Group, GroupService} from '../../services/group/group.service';
 
+@UntilDestroy()
 @Component({
   selector: 'app-group-select',
   templateUrl: './group-select.component.html',
@@ -16,27 +22,46 @@ import {GroupSelectModalComponent} from './group-select-modal/group-select-modal
     }
   ]
 })
-export class GroupSelectComponent implements ControlValueAccessor {
+export class GroupSelectComponent implements ControlValueAccessor, OnInit {
   @Input()
   label: string;
-
   /**
    * This text is displayed when no labels are selected.
    */
   @Input()
   noSelectionText = '';
-
-  selectedGroupIds: Set<number>;
-  private onChange: (selectedGroupIds: number[]) => void;
+  /**
+   * The value provided from the outside.
+   */
+  inputValue: Set<number>;
+  currentGroups$: Observable<Group[]>;
   private onTouched: () => void;
+  private currentValueBehaviourSubject = new BehaviorSubject<Set<number>>(new Set<number>());
+  private currentValue$ = this.currentValueBehaviourSubject.asObservable();
 
   constructor(
-    private modalController: ModalController
+    private modalController: ModalController,
+    private groupService: GroupService
   ) {
   }
 
+  ngOnInit(): void {
+    this.currentGroups$ = this.currentValue$.pipe(
+      switchMap(groupIds => {
+        return this.groupService.getFilteredGroups({
+          groupIds: [...groupIds]
+        });
+      })
+    );
+  }
+
   registerOnChange(fn: any): void {
-    this.onChange = fn;
+    this.currentValue$.pipe(
+      untilDestroyed(this),
+      distinctUntilChangedDeeply()
+    ).subscribe(value => {
+      fn([...value]);
+    });
   }
 
   registerOnTouched(fn: any): void {
@@ -44,14 +69,15 @@ export class GroupSelectComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    this.selectedGroupIds = new Set<number>(obj);
+    this.inputValue = new Set<number>(obj);
+    this.currentValueBehaviourSubject.next(this.inputValue);
   }
 
   async openGroupSelectModal() {
     const modal = await this.modalController.create({
       component: GroupSelectModalComponent,
       componentProps: {
-        initiallySelectedGroupIds: this.selectedGroupIds
+        initiallySelectedGroupIds: this.currentValueBehaviourSubject.value
       }
     });
     await modal.present();
@@ -59,14 +85,6 @@ export class GroupSelectComponent implements ControlValueAccessor {
     if (!selectedGroupIds) {
       return;
     }
-    this.selectedGroupIds = selectedGroupIds;
-    this.onChange([...this.selectedGroupIds]);
-  }
-
-  getValueRepresentation() {
-    if (this.selectedGroupIds.size === 0) {
-      return this.noSelectionText;
-    }
-    return [...this.selectedGroupIds].join(', ');
+    this.currentValueBehaviourSubject.next(selectedGroupIds);
   }
 }
