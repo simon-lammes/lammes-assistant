@@ -30,7 +30,7 @@ export const myNextExercise = queryField('myNextExercise', {
       where: {
         creatorId: creatorIds && creatorIds.length > 0 ? {
           in: creatorIds
-        } : userId,
+        } : undefined,
         groupExercises: groupIds && groupIds.length > 0 ? {
           some: {
             groupId: {
@@ -78,7 +78,7 @@ export const myNextExercise = queryField('myNextExercise', {
           markedForDeletionTimestamp: null,
           creatorId: creatorIds && creatorIds.length > 0 ? {
             in: creatorIds
-          } : userId,
+          } : undefined,
           groupExercises: groupIds && groupIds.length > 0 ? {
             some: {
               groupId: {
