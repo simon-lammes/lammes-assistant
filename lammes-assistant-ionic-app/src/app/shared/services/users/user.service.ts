@@ -21,6 +21,7 @@ interface PictureInput {
 }
 
 export interface UserFilter {
+  userIds?: number[];
   query?: string | null;
 }
 
@@ -36,8 +37,8 @@ export const userFragment = gql`
 `;
 
 const filteredUsersQuery = gql`
-  query FilteredUsers($query: String) {
-    filteredUsers(query: $query) {
+  query FilteredUsers($userFilter: UserFilterDefinition!) {
+    filteredUsers(userFilter: $userFilter) {
       ...UserFragment
     }
   },
@@ -76,10 +77,10 @@ export class UserService {
   ) {
   }
 
-  getFilteredUsers(usersFilter: UserFilter): Observable<any> {
+  getFilteredUsers(userFilter: UserFilter): Observable<any> {
     return this.apollo.watchQuery<{ filteredUsers: User[] }>({
       query: filteredUsersQuery,
-      variables: usersFilter
+      variables: {userFilter}
     }).valueChanges.pipe(
       map(result => result.data.filteredUsers)
     );

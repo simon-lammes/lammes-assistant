@@ -1,9 +1,14 @@
-import {Component, forwardRef, Input} from '@angular/core';
+import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ModalController} from '@ionic/angular';
 import {UserSelectorModalComponent} from './user-selector-modal/user-selector-modal.component';
-import {UserService} from '../../services/users/user.service';
+import {User, UserService} from '../../services/users/user.service';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {distinctUntilChangedDeeply} from '../../operators/distinct-until-changed-deeply';
+import {switchMap} from 'rxjs/operators';
 
+@UntilDestroy()
 @Component({
   selector: 'app-user-selector',
   templateUrl: './user-selector.component.html',
@@ -17,19 +22,18 @@ import {UserService} from '../../services/users/user.service';
     }
   ]
 })
-export class UserSelectorComponent implements ControlValueAccessor {
+export class UserSelectorComponent implements ControlValueAccessor, OnInit {
   @Input()
   heading: string;
-
   /**
    * This text is displayed when no labels are selected.
    */
   @Input()
   noSelectionText = '';
-
   isDisabled = false;
-  selectedUserIds = new Set<number>();
-  private onChange: (selectedUsers: string[]) => void;
+  currentValueSubject = new BehaviorSubject(new Set<number>());
+  currentValue$ = this.currentValueSubject.asObservable();
+  selectedUsers$: Observable<User[]>;
   private onTouched: () => void;
 
   constructor(
@@ -38,12 +42,28 @@ export class UserSelectorComponent implements ControlValueAccessor {
   ) {
   }
 
+  ngOnInit(): void {
+    this.selectedUsers$ = this.currentValue$.pipe(
+      switchMap(userIds => {
+        if (userIds.size === 0) {
+          of([]);
+        }
+        return this.userService.getFilteredUsers({userIds: [...userIds]});
+      })
+    );
+  }
+
   writeValue(obj: any): void {
-    this.selectedUserIds = new Set<number>(obj);
+    this.currentValueSubject.next(new Set(obj));
   }
 
   registerOnChange(fn: any): void {
-    this.onChange = fn;
+    this.currentValue$.pipe(
+      untilDestroyed(this),
+      distinctUntilChangedDeeply(),
+    ).subscribe(value => {
+      fn([...value]);
+    });
   }
 
   registerOnTouched(fn: any): void {
@@ -58,7 +78,7 @@ export class UserSelectorComponent implements ControlValueAccessor {
     const modal = await this.modalController.create({
       component: UserSelectorModalComponent,
       componentProps: {
-        initiallySelectedUserIds: this.selectedUserIds
+        initiallySelectedUserIds: this.currentValueSubject.value
       }
     });
     await modal.present();
@@ -66,15 +86,10 @@ export class UserSelectorComponent implements ControlValueAccessor {
     if (!data) {
       return;
     }
-    const {selectedUserIds = this.selectedUserIds} = data;
-    this.selectedUserIds = selectedUserIds;
-    this.onChange([...selectedUserIds]);
-  }
-
-  getValueRepresentation() {
-    if (this.selectedUserIds.size === 0) {
-      return this.noSelectionText;
+    const {selectedUserIds} = data;
+    if (!selectedUserIds) {
+      return;
     }
-    return [...this.selectedUserIds].map(userId => this.userService.getCachedUserById(userId)?.username ?? userId).join(', ');
+    this.currentValueSubject.next(selectedUserIds);
   }
 }

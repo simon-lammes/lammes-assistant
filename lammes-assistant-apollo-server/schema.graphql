@@ -297,7 +297,7 @@ type Query {
   filteredExercises(exerciseFilter: ExerciseFilterDefinition!): [Exercise]
   filteredGroups(groupFilter: GroupFilterDefinition!): [Group]
   filteredLabels(query: String): [Label]
-  filteredUsers(query: String): [User]
+  filteredUsers(userFilter: UserFilterDefinition!): [User]
   getExerciseDownloadLink(exerciseId: Int!): String
 
   """Will be null if the user has no settings yet."""
@@ -353,4 +353,9 @@ type User {
   profilePictureDownloadLink: String
   settingsUpdatedTimestamp: DateTime
   username: String
+}
+
+input UserFilterDefinition {
+  query: String
+  userIds: [Int!]
 }

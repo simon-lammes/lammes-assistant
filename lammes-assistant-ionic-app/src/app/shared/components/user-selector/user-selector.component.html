@@ -1,6 +1,8 @@
 <ion-item button (click)="openUserSelectorModal()">
   <ion-label>
     <h2>{{heading}}</h2>
-    <p>{{getValueRepresentation()}}</p>
+    <ion-chip *ngFor="let user of selectedUsers$ | async">
+      <ion-label>{{user.username}}</ion-label>
+    </ion-chip>
   </ion-label>
 </ion-item>
