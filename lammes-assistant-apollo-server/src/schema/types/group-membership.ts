@@ -1,11 +1,12 @@
 import {inputObjectType, objectType} from "@nexus/schema";
 
-export const groupObjectType = objectType({
+export const groupMembershipObjectType = objectType({
   name: 'GroupMembership',
   definition(t) {
     t.model.memberId();
     t.model.groupId();
     t.model.user();
+    t.model.role();
   }
 });
 

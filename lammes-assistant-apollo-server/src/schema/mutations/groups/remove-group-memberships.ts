@@ -1,8 +1,9 @@
 import {intArg, list, mutationField, nonNull} from "@nexus/schema";
 import {groupObjectType} from "../../types/group";
-import {UserInputError} from "apollo-server";
+import {ForbiddenError, UserInputError} from "apollo-server";
 import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
-import {validateMembership} from "../../../utils/validators/group-validation/validate-membership";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
+import {GroupMemberRole} from "../../types/group-member-role";
 
 export const removeGroupMemberships = mutationField('removeGroupMemberships', {
   type: groupObjectType,
@@ -19,7 +20,30 @@ export const removeGroupMemberships = mutationField('removeGroupMemberships', {
       throw new UserInputError('Array length should be larger than 0');
     }
     const userId = validateAuthenticated(jwtPayload);
-    validateMembership(prisma, id, userId);
+    const rolesOfRemovedMembers = await prisma.groupMembership.findMany({
+      where: {
+        groupId: id,
+        memberId: {
+          in: removedMemberIds
+        }
+      },
+      select: {
+        role: true
+      },
+      distinct: 'role'
+    }).then(result => result.map(x => x.role));
+    // If the user only removes himself, the operation is automatically permitted.
+    // Otherwise, we have to authorize it.
+    if (!(removedMemberIds.length === 1 && removedMemberIds[0] === userId)) {
+      if (rolesOfRemovedMembers.includes('owner')) {
+        throw new ForbiddenError('Owners cannot be removed. They can only leave the group by themself.');
+      }
+      let minRole: GroupMemberRole = 'owner';
+      if (!rolesOfRemovedMembers.includes('owner') && !rolesOfRemovedMembers.includes('admin')) {
+        minRole = 'admin';
+      }
+      await validateMembersRole(prisma, id, userId, minRole);
+    }
     return prisma.group.update({
       where: {
         id

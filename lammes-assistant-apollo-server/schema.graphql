@@ -119,9 +119,16 @@ input GroupInput {
   name: String!
 }
 
+enum GroupMemberRole {
+  admin
+  member
+  owner
+}
+
 type GroupMembership {
   groupId: Int
   memberId: Int
+  role: GroupMemberRole
   user: User
 }
 
@@ -162,7 +169,13 @@ enum LanguageCode {
 }
 
 type Mutation {
-  addGroupMemberships(addedMemberships: [NewGroupMembership!]!, id: Int!): Group
+  addGroupMemberships(
+    addedMemberships: [NewGroupMembership!]!
+    id: Int!
+
+    """The role that the added members should have"""
+    role: GroupMemberRole!
+  ): Group
   createExercise(hydratedExerciseInput: HydratedExerciseInput!): Exercise
   createExerciseFilter(exerciseFilterDefinition: ExerciseFilterDefinition!, title: String!): ExerciseFilter
   createGroup(group: GroupInput!): Group
@@ -170,6 +183,7 @@ type Mutation {
   deleteExerciseFilter(id: Int!): ExerciseFilter
   deleteNote(noteId: Int!): Note
   editGroup(group: GroupInput!, id: Int!): Group
+  editGroupMembership(groupId: Int!, memberId: Int!, role: GroupMemberRole!): GroupMembership
   editNote(id: Int!, noteInput: NoteInput!): Note
   login(password: String!, username: String!): String
   register(firstName: String!, lastName: String!, password: String!, username: String!): Registration

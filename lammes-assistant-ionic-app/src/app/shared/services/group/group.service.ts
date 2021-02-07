@@ -4,11 +4,14 @@ import {map} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
 import {User} from '../users/user.service';
 
+export type GroupMemberRole = 'owner' | 'admin' | 'member';
+
 export interface NewGroupMembership {
   memberId: number;
 }
 
 export interface GroupMembership {
+  role: GroupMemberRole;
   user: User;
 }
 
@@ -24,28 +27,38 @@ interface GroupInput {
   description?: string;
 }
 
+const groupMembershipFragment = gql`
+  fragment GroupMembershipFragment on GroupMembership {
+    groupId,
+    memberId,
+    role,
+    user {
+      id,
+      username,
+      profilePictureDownloadLink,
+      firstName,
+      lastName
+    }
+  }
+`;
+
 const groupFragment = gql`
   fragment GroupFragment on Group {
     id,
     name,
     description,
     groupMemberships {
-      user {
-        id,
-        username,
-        profilePictureDownloadLink,
-        firstName,
-        lastName
-      }
+      ...GroupMembershipFragment
     }
-  }
+  },
+  ${groupMembershipFragment}
 `;
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
-  myGroups$: Observable<Group[]> = this.apollo.watchQuery<{myGroups: Group[]}>({
+  myGroups$: Observable<Group[]> = this.apollo.watchQuery<{ myGroups: Group[] }>({
     query: gql`
       query MyGroups {
         myGroups {
@@ -92,20 +105,17 @@ export class GroupService {
     }).toPromise();
   }
 
-  addGroupMemberships(id: number, addedMemberships: NewGroupMembership[]) {
+  addGroupMemberships(args: {id: number, addedMemberships: NewGroupMembership[], role: GroupMemberRole}) {
     return this.apollo.mutate({
       mutation: gql`
-        mutation AddGroupMemberships($id: Int!, $addedMemberships: [NewGroupMembership!]!) {
-          addGroupMemberships(id: $id, addedMemberships: $addedMemberships) {
+        mutation AddGroupMemberships($id: Int!, $addedMemberships: [NewGroupMembership!]!, $role: GroupMemberRole!) {
+          addGroupMemberships(id: $id, addedMemberships: $addedMemberships, role: $role) {
             ...GroupFragment
           }
         },
         ${groupFragment}
       `,
-      variables: {
-        id,
-        addedMemberships
-      },
+      variables: args,
     }).toPromise();
   }
 
@@ -123,6 +133,20 @@ export class GroupService {
         id,
         removedMemberIds
       },
+    }).toPromise();
+  }
+
+  editGroupMembership(args: { groupId: number, memberId: number, role: GroupMemberRole }) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation EditGroupMembership($groupId: Int!, $memberId: Int!, $role: GroupMemberRole!) {
+          editGroupMembership(groupId: $groupId, memberId: $memberId, role: $role) {
+            ...GroupMembershipFragment
+          }
+        },
+        ${groupMembershipFragment}
+      `,
+      variables: args,
     }).toPromise();
   }
 

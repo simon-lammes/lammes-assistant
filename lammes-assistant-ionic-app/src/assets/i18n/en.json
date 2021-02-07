@@ -3,6 +3,7 @@
   "add-file": "add file",
   "add-ordering-item": "add ordering item",
   "add-prompt-solution": "add prompt solution",
+  "admin": "admin",
   "already-having-account": "Already having an account?",
   "answer": "answer",
   "assignment": "assignment",
@@ -60,10 +61,12 @@
     "german": "german"
   },
   "last-name": "last name",
+  "leave-group": "leave group",
   "light": "light",
   "login": "login",
   "logout": "logout",
   "maximum-correct-streak": "maximum correct streak",
+  "member": "member",
   "members": "members",
   "messages": {
     "experience-suspended": "The exercise will not be shown to you anymore.",
@@ -102,6 +105,7 @@
   "order-is-correct": "The order is correct.",
   "order-items": "order-items",
   "overdue-since": "overdue since",
+  "owner": "owner",
   "password": "password",
   "pending": "pending",
   "possible-answers": "possible answers",
@@ -110,6 +114,7 @@
   "prompt-solutions": "prompt solutions",
   "questions": {
     "is-statement-correct": "Is statement correct?",
+    "role-of-added-members": "Which role should the added members get?",
     "suspend-experience": "Do you want to suspend the experience so that the exercise will not be shown to you anymore?"
   },
   "register": "register",
@@ -124,6 +129,7 @@
   "restore": "restore",
   "review-note": "review note",
   "right": "right",
+  "role": "role",
   "save": "save",
   "save-changes": "save changes",
   "save-copy": "save copy",

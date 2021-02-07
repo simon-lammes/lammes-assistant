@@ -18,6 +18,10 @@ export function createApollo(httpLink: HttpLink, authenticationService: Authenti
   const link = ApolloLink.from([auth, httpLink.create({uri: environment.uriGraphQl})]);
   const cache = new InMemoryCache({
     typePolicies: {
+      GroupMembership: {
+        // This entity has a composed primary key that we need for caching.
+        keyFields: ['groupId', 'memberId']
+      },
       Query: {
         fields: {
           myDeferredNotes: {

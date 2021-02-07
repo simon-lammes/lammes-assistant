@@ -3,6 +3,7 @@
   "add-file": "Datei hinzufügen",
   "add-ordering-item": "Teilstück hinzufügen",
   "add-prompt-solution": "Abfragelösung hinzufügen",
+  "admin": "Administrator",
   "already-having-account": "Schon registriert?",
   "answer": "Antwort",
   "assignment": "Aufgabenstellung",
@@ -60,10 +61,12 @@
     "german": "Deutsch"
   },
   "last-name": "Nachname",
+  "leave-group": "Gruppe verlassen",
   "light": "hell",
   "login": "Login",
   "logout": "abmelden",
   "maximum-correct-streak": "maximale Erfolgsserie",
+  "member": "Mitglied",
   "members": "Mitglieder",
   "messages": {
     "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt.",
@@ -102,6 +105,7 @@
   "order-is-correct": "Die Reihenfolge ist richtig.",
   "order-items": "Teilstücke",
   "overdue-since": "Überfällig seit",
+  "owner": "Besitzer",
   "password": "Passwort",
   "pending": "anstehend",
   "possible-answers": "Antwortmöglichkeiten",
@@ -110,6 +114,7 @@
   "prompt-solutions": "Abfragelösungen",
   "questions": {
     "is-statement-correct": "Ist die Aussage richtig?",
+    "role-of-added-members": "Welche Rolle sollen die hinzugefügten Mitglieder bekommen?",
     "suspend-experience": "Möchtest du, dass dir diese Übungsaufgabe nicht mehr angezeigt wird?"
   },
   "register": "registrieren",
@@ -124,6 +129,7 @@
   "restore": "wiederherstellen",
   "review-note": "Notiz prüfen",
   "right": "Richtig",
+  "role": "Rolle",
   "save": "speichern",
   "save-changes": "Änderungen speichern",
   "save-copy": "Kopie speichern",

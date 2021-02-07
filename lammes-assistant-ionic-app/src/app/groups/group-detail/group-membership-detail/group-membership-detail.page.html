@@ -4,6 +4,9 @@
       <ion-button (click)="navigateBack()">{{ 'close' | translate | titlecase }}</ion-button>
     </ion-buttons>
     <ion-title>{{ 'group-membership' | translate | titlecase }}</ion-title>
+    <ion-buttons slot="end" *ngIf="allowedOptionsForRoleControl$ | async as allowedOptions">
+      <ion-button [disabled]="allowedOptions.length === 0" (click)="save()">{{ 'save' | translate | titlecase }}</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -14,7 +17,30 @@
       <ion-card-title>{{member.username}}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-button expand="block" color="danger" (click)="removeMember(member)">{{ 'remove-member' | translate | titlecase }}</ion-button>
+      <ion-list *ngIf="membershipForm" [formGroup]="membershipForm">
+        <ion-item *ngIf="allowedOptionsForRoleControl$ | async as allowedOptions">
+          <ion-label>{{ 'role' | translate | titlecase }}</ion-label>
+          <ion-select formControlName="role">
+            <ion-select-option value="owner" [disabled]="!allowedOptions.includes('owner')">
+              {{ 'owner' | translate | titlecase }}
+            </ion-select-option>
+            <ion-select-option value="admin" [disabled]="!allowedOptions.includes('admin')">
+              {{ 'admin' | translate | titlecase }}
+            </ion-select-option>
+            <ion-select-option value="member" [disabled]="!allowedOptions.includes('member')">
+              {{ 'member' | translate | titlecase }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+      <ng-container [ngSwitch]="hierarchyRelationship$ | async">
+        <ion-button *ngSwitchCase="HierarchyRelationship.NotSuperior" expand="block" color="danger" disabled
+                    (click)="removeMember(member)">{{ 'remove-member' | translate | titlecase }}</ion-button>
+        <ion-button *ngSwitchCase="HierarchyRelationship.Superior" expand="block" color="danger"
+                    (click)="removeMember(member)">{{ 'remove-member' | translate | titlecase }}</ion-button>
+        <ion-button *ngSwitchCase="HierarchyRelationship.Self" expand="block" color="danger"
+                    (click)="removeMember(member)">{{ 'leave-group' | translate | titlecase }}</ion-button>
+      </ng-container>
     </ion-card-content>
   </ion-card>
 </ion-content>

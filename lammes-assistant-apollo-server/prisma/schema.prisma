@@ -106,10 +106,11 @@ model NoteLabel {
 }
 
 model GroupMembership {
-  memberId Int   @map("member_id")
-  groupId  Int   @map("group_id")
-  group    Group @relation("groupMembershipsToGroups", fields: [groupId], references: [id])
-  user     User  @relation("groupMembershipsToUsers", fields: [memberId], references: [id])
+  memberId Int             @map("member_id")
+  groupId  Int             @map("group_id")
+  role     GroupMemberRole @default(owner)
+  group    Group           @relation("groupMembershipsToGroups", fields: [groupId], references: [id])
+  user     User            @relation("groupMembershipsToUsers", fields: [memberId], references: [id])
 
   @@id([memberId, groupId])
   @@map("group_memberships")
@@ -139,4 +140,12 @@ enum ExerciseType {
   prompt
 
    @@map("exercise_type")
+}
+
+enum GroupMemberRole {
+  owner
+  admin
+  member
+
+   @@map("group_member_role")
 }

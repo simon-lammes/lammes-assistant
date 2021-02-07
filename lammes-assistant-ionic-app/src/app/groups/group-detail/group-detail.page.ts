@@ -1,11 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
-import {Group, GroupService, NewGroupMembership} from '../../shared/services/group/group.service';
-import {switchMap} from 'rxjs/operators';
+import {combineLatest, Observable} from 'rxjs';
+import {Group, GroupMemberRole, GroupMembership, GroupService, NewGroupMembership} from '../../shared/services/group/group.service';
+import {first, map, switchMap} from 'rxjs/operators';
 import {UserSelectorModalComponent} from '../../shared/components/user-selector/user-selector-modal/user-selector-modal.component';
-import {ModalController} from '@ionic/angular';
+import {AlertController, ModalController} from '@ionic/angular';
 import {SaveGroupComponent, SaveGroupModalInput} from '../save-group/save-group.component';
+import {TranslateService} from '@ngx-translate/core';
+import {UserService} from '../../shared/services/users/user.service';
 
 @Component({
   selector: 'app-group-detail',
@@ -14,17 +16,30 @@ import {SaveGroupComponent, SaveGroupModalInput} from '../save-group/save-group.
 })
 export class GroupDetailPage implements OnInit {
   group$: Observable<Group>;
+  myGroupMembership$: Observable<GroupMembership>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private groupService: GroupService,
-    private modalController: ModalController
-  ) { }
+    private modalController: ModalController,
+    private alertController: AlertController,
+    private translateService: TranslateService,
+    private userService$: UserService
+  ) {
+  }
 
   ngOnInit() {
     this.group$ = this.activatedRoute.params.pipe(
       switchMap(params => {
         return this.groupService.fetchGroupById(+params.groupId);
+      })
+    );
+    this.myGroupMembership$ = combineLatest([
+      this.group$,
+      this.userService$.currentUser$
+    ]).pipe(
+      map(([group, me]) => {
+        return group.groupMemberships.find(x => x.user.id === me.id);
       })
     );
   }
@@ -42,12 +57,53 @@ export class GroupDetailPage implements OnInit {
     await modal.present();
     const {data} = await modal.onWillDismiss();
     const selectedUserIds = data?.selectedUserIds as Set<number> | undefined;
-    if (selectedUserIds?.size > 0) {
-      const newMemberships: NewGroupMembership[] = [...selectedUserIds]
-        .filter(x => !currentUserIdsSet.has(x))
-        .map(x => ({memberId: x}));
-      await this.groupService.addGroupMemberships(group.id, newMemberships);
+    if (!selectedUserIds || selectedUserIds.size === 0) {
+      return;
     }
+    const myRole = await this.myGroupMembership$.pipe(first()).toPromise().then(x => x.role);
+    const alert = await this.alertController.create({
+      header: await this.translateService.get('select-role').toPromise(),
+      message: await this.translateService.get('questions.role-of-added-members').toPromise(),
+      inputs: [
+        {
+          label: await this.translateService.get('owner').toPromise(),
+          value: 'owner',
+          type: 'radio',
+          disabled: myRole !== 'owner'
+        },
+        {
+          label: await this.translateService.get('admin').toPromise(),
+          value: 'admin',
+          type: 'radio',
+          disabled: myRole !== 'owner' && myRole !== 'admin'
+        },
+        {
+          label: await this.translateService.get('member').toPromise(),
+          value: 'member',
+          type: 'radio',
+        }
+      ],
+      buttons: [
+        {
+          text: await this.translateService.get('cancel').toPromise(),
+          role: 'cancel'
+        },
+        {
+          text: await this.translateService.get('save').toPromise(),
+          handler: async (role: GroupMemberRole) => {
+            const addedMemberships: NewGroupMembership[] = [...selectedUserIds]
+              .filter(x => !currentUserIdsSet.has(x))
+              .map(x => ({memberId: x}));
+            await this.groupService.addGroupMemberships({
+              id: group.id,
+              addedMemberships,
+              role
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async editGroup(editedGroup: Group) {
