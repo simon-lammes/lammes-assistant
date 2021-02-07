@@ -8,6 +8,7 @@ import {SaveExerciseModalPage} from './save-exercise-modal.page';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
 import {NgxFileHelpersModule} from 'ngx-file-helpers';
 import {SharedModule} from '../../shared/shared.module';
+import {ExerciseContainerModule} from '../exercise-container/exercise-container.module';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import {SharedModule} from '../../shared/shared.module';
     ExerciseTypesModule,
     NgxFileHelpersModule,
     SharedModule,
+    ExerciseContainerModule,
   ],
   declarations: [SaveExerciseModalPage]
 })

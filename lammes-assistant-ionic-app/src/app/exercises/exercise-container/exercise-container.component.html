@@ -1,0 +1,12 @@
+<ng-container [ngSwitch]="exercise.exerciseType">
+  <app-multiselect-exercise *ngSwitchCase="'multiselect'" [exercise]="exercise"
+                            (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-multiselect-exercise>
+  <app-ordering-exercise *ngSwitchCase="'ordering'" [exercise]="exercise"
+                         (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-ordering-exercise>
+  <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exercise"
+                              (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-true-or-false-exercise>
+  <app-prompt-exercise *ngSwitchCase="'prompt'" [exercise]="exercise"
+                       (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-prompt-exercise>
+  <app-standard-exercise *ngSwitchDefault [exercise]="exercise"
+                         (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-standard-exercise>
+</ng-container>

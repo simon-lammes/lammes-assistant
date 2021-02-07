@@ -4,11 +4,13 @@ import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validat
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
 import {Exercise, ExerciseService, ExerciseType, HydratedExercise, PossibleAnswer} from '../../shared/services/exercise/exercise.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {distinctUntilChanged, map, pairwise, startWith} from 'rxjs/operators';
+import {distinctUntilChanged, map, pairwise, shareReplay, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 import {ItemReorderEventDetail} from '@ionic/core';
 import {TranslateService} from '@ngx-translate/core';
+import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
+import {ExerciseState} from '../study/study.page';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -284,6 +286,12 @@ export class SaveExerciseModalPage implements OnInit {
     }
   ];
   selectedSegment: 'edit' | 'preview' = 'edit';
+  nextExerciseRequestedSubject = new BehaviorSubject<boolean>(true);
+  nextExerciseRequested$: Observable<boolean>;
+  /**
+   * The exercise that will be shown in the preview view.
+   */
+  previewedExercise$: Observable<HydratedExercise>;
   /**
    * If an exercise is provided, one must specify whether the user this exercise.
    */
@@ -309,6 +317,7 @@ export class SaveExerciseModalPage implements OnInit {
 
   async ngOnInit(): Promise<any> {
     await this.setupForm();
+    await this.setupPreview();
   }
 
   async dismissModal() {
@@ -439,5 +448,28 @@ export class SaveExerciseModalPage implements OnInit {
       const value = this.exerciseForm.value[key];
       return {[key]: value};
     }).reduce((previousValue, currentValue) => ({...previousValue, ...currentValue}));
+  }
+
+  /**
+   * Makes sure that the exercise preview works.
+   */
+  private async setupPreview() {
+    this.nextExerciseRequested$ = this.nextExerciseRequestedSubject.asObservable();
+    this.previewedExercise$ = combineLatest([
+      this.exerciseForm.valueChanges.pipe(startWith(this.exerciseForm.value as HydratedExercise)),
+      this.nextExerciseRequested$
+    ]).pipe(
+      // The trick is to make a deep copy. This will trigger Angular's change
+      // which will 'restart' the exercise' which is what we expect when next
+      // exercise is requested.
+      map(([exercise]) => ({...exercise})),
+      shareReplay(1)
+    );
+  }
+
+  onPreviewExerciseStateChanged(state: ExerciseState) {
+    if (state.nextExerciseRequested) {
+      this.nextExerciseRequestedSubject.next(true);
+    }
   }
 }

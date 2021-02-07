@@ -139,16 +139,7 @@
   </ng-container>
   <!--  Preview-->
   <ng-container *ngIf="selectedSegment === 'preview'">
-    <ng-container [ngSwitch]="exerciseForm.value.exerciseType">
-      <app-multiselect-exercise *ngSwitchCase="'multiselect'"
-                                [exercise]="exerciseForm.value"></app-multiselect-exercise>
-      <app-ordering-exercise *ngSwitchCase="'ordering'"
-                             [exercise]="exerciseForm.value"></app-ordering-exercise>
-      <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'"
-                                  [exercise]="exerciseForm.value"></app-true-or-false-exercise>
-      <app-prompt-exercise *ngSwitchCase="'prompt'"
-                                  [exercise]="exerciseForm.value"></app-prompt-exercise>
-      <app-standard-exercise *ngSwitchDefault [exercise]="exerciseForm.value"></app-standard-exercise>
-    </ng-container>
+    <app-exercise-container *ngIf="previewedExercise$ | async as exercise" [exercise]="exercise"
+                            (exerciseStateChanged)="onPreviewExerciseStateChanged($event)"></app-exercise-container>
   </ng-container>
 </ion-content>

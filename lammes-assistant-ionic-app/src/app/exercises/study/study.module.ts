@@ -10,6 +10,7 @@ import {StudyPage} from './study.page';
 import {StudyPopoverModule} from './study-popover/study-popover.module';
 import {ExerciseTypesModule} from '../exercise-types/exercise-types.module';
 import {SharedModule} from '../../shared/shared.module';
+import {ExerciseContainerModule} from '../exercise-container/exercise-container.module';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import {SharedModule} from '../../shared/shared.module';
     StudyPageRoutingModule,
     StudyPopoverModule,
     ExerciseTypesModule,
-    SharedModule
+    SharedModule,
+    ExerciseContainerModule
   ],
   declarations: [StudyPage]
 })

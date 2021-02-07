@@ -1,7 +1,8 @@
 <ion-header>
   <ion-toolbar>
     <ion-title *ngIf="studyProgress$ | async as studyProgress">
-      {{ 'study' | translate | titlecase }} ({{ 'completed' | translate | titlecase }}: {{studyProgress.successCount + studyProgress.failureCount}})
+      {{ 'study' | translate | titlecase }} ({{ 'completed' | translate | titlecase }}
+      : {{studyProgress.successCount + studyProgress.failureCount}})
     </ion-title>
     <ion-buttons slot="end" *ngIf="exercise$ | async as exercise">
       <ion-button (click)="showPopover($event, exercise)">
@@ -16,18 +17,8 @@
 
 <ion-content>
   <!--  Exercise -->
-    <ng-container *ngIf="hydratedExercise$ | async as exercise" [ngSwitch]="exercise.exerciseType">
-      <app-multiselect-exercise *ngSwitchCase="'multiselect'" [exercise]="exercise"
-                                  (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-multiselect-exercise>
-      <app-ordering-exercise *ngSwitchCase="'ordering'" [exercise]="exercise"
-                                (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-ordering-exercise>
-      <app-true-or-false-exercise *ngSwitchCase="'trueOrFalse'" [exercise]="exercise"
-                                  (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-true-or-false-exercise>
-      <app-prompt-exercise *ngSwitchCase="'prompt'" [exercise]="exercise"
-                                  (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-prompt-exercise>
-      <app-standard-exercise *ngSwitchDefault [exercise]="exercise"
-                             (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-standard-exercise>
-    </ng-container>
+  <app-exercise-container *ngIf="hydratedExercise$ | async as exercise" [exercise]="exercise"
+                          (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-exercise-container>
 
   <!-- No exercise to show -->
   <ng-container *ngIf="!(hydratedExercise$ | async)">
