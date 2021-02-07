@@ -5,7 +5,7 @@
     </ion-buttons>
     <ion-title>{{group.name}}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="editGroup(group)">{{ 'edit' | translate | titlecase }}</ion-button>
+      <ion-button *ngIf="myGroupMembership$ | async as membership" [disabled]="!['owner', 'admin'].includes(membership.role)" (click)="editGroup(group)">{{ 'edit' | translate | titlecase }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
