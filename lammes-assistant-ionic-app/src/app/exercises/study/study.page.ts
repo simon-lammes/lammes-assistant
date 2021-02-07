@@ -6,13 +6,12 @@ import {
   ExerciseService,
   HydratedExercise
 } from '../../shared/services/exercise/exercise.service';
-import {first, map, switchMap} from 'rxjs/operators';
+import {first, switchMap} from 'rxjs/operators';
 import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent, StudyPopoverResult} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
 import {SettingsService} from '../../shared/services/settings/settings.service';
-import {isNumeric} from 'rxjs/internal-compatibility';
 import {TranslateService} from '@ngx-translate/core';
 
 export interface ExerciseState {
@@ -45,18 +44,7 @@ export class StudyPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.exerciseFilter$ = this.activatedRoute.queryParamMap.pipe(
-      map((params) => {
-        return {
-          labels: params.getAll('labels'),
-          groupIds: params.getAll('groupIds').map(stringValue => +stringValue),
-          creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
-          languageCodes: params.getAll('languageCodes'),
-          maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined,
-          exerciseTypes: params.getAll('exerciseTypes')
-        } as ExerciseFilterDefinition;
-      })
-    );
+    this.exerciseFilter$ = this.exerciseService.extractExerciseFilterDefinitionFromQueryParamMap(this.activatedRoute);
     this.exercise$ = combineLatest([
       this.nextExerciseRequested$,
       this.settingsService.exerciseCooldown$,

@@ -65,29 +65,24 @@ export class ExercisesPage implements OnInit {
     const user = await this.userService.currentUser$.pipe(first()).toPromise();
     this.selectedExerciseFilterSubject = new BehaviorSubject<ExerciseFilter>(undefined);
     this.selectedExerciseFilter$ = this.selectedExerciseFilterSubject.asObservable();
+    this.filterForm = this.formBuilder.group({
+      creatorIds: this.formBuilder.control([user.id]),
+      groupIds: this.formBuilder.control([]),
+      labels: this.formBuilder.control([]),
+      languageCodes: this.formBuilder.control([]),
+      exerciseTypes: this.formBuilder.control([]),
+      maximumCorrectStreak: this.formBuilder.control(undefined, [Validators.min(0), maximumForSigned32Int])
+    });
     this.selectedExerciseFilter$.pipe(untilDestroyed(this)).subscribe(selectedExerciseFilter => {
       const filterDef = selectedExerciseFilter?.exerciseFilterDefinition;
-      // If the form already exists, we do only patch values but not recreate it because
-      // that would mess up all listeners we have on the existing form.
-      if (this.filterForm) {
-        this.filterForm.patchValue({
-          creatorIds: filterDef?.creatorIds ?? [user.id],
-          groupIds: filterDef?.groupIds ?? [],
-          labels: filterDef?.labels ?? [],
-          languageCodes: filterDef?.languageCodes,
-          exerciseTypes: filterDef?.exerciseTypes ?? [],
-          maximumCorrectStreak: filterDef?.maximumCorrectStreak
-        });
-      } else {
-        this.filterForm = this.formBuilder.group({
-          creatorIds: this.formBuilder.control(filterDef?.creatorIds ?? [user.id]),
-          groupIds: this.formBuilder.control(filterDef?.groupIds ?? []),
-          labels: this.formBuilder.control(filterDef?.labels ?? []),
-          languageCodes: this.formBuilder.control(filterDef?.languageCodes),
-          exerciseTypes: this.formBuilder.control(filterDef?.exerciseTypes ?? []),
-          maximumCorrectStreak: this.formBuilder.control(filterDef?.maximumCorrectStreak, [Validators.min(0), maximumForSigned32Int])
-        });
-      }
+      this.filterForm.patchValue({
+        creatorIds: filterDef?.creatorIds ?? [user.id],
+        groupIds: filterDef?.groupIds ?? [],
+        labels: filterDef?.labels ?? [],
+        languageCodes: filterDef?.languageCodes,
+        exerciseTypes: filterDef?.exerciseTypes ?? [],
+        maximumCorrectStreak: filterDef?.maximumCorrectStreak
+      });
     });
     this.currentFilterDefinition$ = this.filterForm.valueChanges.pipe(
       startWith(this.filterForm.value as ExerciseFilterDefinition),
@@ -120,7 +115,6 @@ export class ExercisesPage implements OnInit {
         });
       })
     );
-    this.setupAutomaticUpdateOfUrlQueryParams();
   }
 
   async createExercise() {
@@ -161,23 +155,6 @@ export class ExercisesPage implements OnInit {
       }
     });
     return await modal.present();
-  }
-
-  /**
-   * Makes sure the current filter is reflected in the url. Inspired by
-   * [GitHub](https://docs.github.com/en/github/managing-your-work-on-github/sharing-filters).
-   */
-  private setupAutomaticUpdateOfUrlQueryParams() {
-    this.currentFilterDefinition$.pipe(untilDestroyed(this)).subscribe(async currentFilter => {
-      const trimmedFilter = ExercisesPage.trimFilter(currentFilter);
-      await this.router.navigate(
-        [],
-        {
-          relativeTo: this.activatedRoute,
-          queryParams: trimmedFilter,
-          queryParamsHandling: 'merge'
-        });
-    });
   }
 
   selectFilter(selectedFilter: ExerciseFilter) {

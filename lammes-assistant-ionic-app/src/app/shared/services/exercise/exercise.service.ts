@@ -5,6 +5,8 @@ import {BehaviorSubject, from, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Storage} from '@ionic/storage';
 import {ExerciseCooldown} from '../settings/settings.service';
+import {ActivatedRoute} from '@angular/router';
+import {isNumeric} from 'rxjs/internal-compatibility';
 
 export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering' | 'prompt';
 
@@ -484,5 +486,20 @@ export class ExerciseService {
         cache.writeQuery({query: myExerciseFilters, data: {myExerciseFilters: newValue}});
       }
     }).toPromise();
+  }
+
+  extractExerciseFilterDefinitionFromQueryParamMap(activatedRoute: ActivatedRoute) {
+    return activatedRoute.queryParamMap.pipe(
+      map((params) => {
+        return {
+          labels: params.getAll('labels'),
+          groupIds: params.getAll('groupIds').map(stringValue => +stringValue),
+          creatorIds: params.getAll('creatorIds').map(labelString => +labelString),
+          languageCodes: params.getAll('languageCodes'),
+          maximumCorrectStreak: isNumeric(params.get('maximumCorrectStreak')) ? +params.get('maximumCorrectStreak') : undefined,
+          exerciseTypes: params.getAll('exerciseTypes')
+        } as ExerciseFilterDefinition;
+      })
+    );
   }
 }
