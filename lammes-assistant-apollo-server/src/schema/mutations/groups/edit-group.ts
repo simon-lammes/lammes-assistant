@@ -1,7 +1,6 @@
 import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
 import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
 import {groupInputType, groupObjectType} from "../../types/group";
-import {generateNotFoundError} from "../../../custom-errors/not-found-error";
 import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 
 export const editGroup = mutationField('editGroup', {
@@ -16,7 +15,7 @@ export const editGroup = mutationField('editGroup', {
     {jwtPayload, prisma}
   ) => {
     const userId = validateAuthenticated(jwtPayload);
-    validateMembersRole(prisma, id, userId, 'admin');
+    await validateMembersRole(prisma, id, userId, 'admin');
     return prisma.group.update({
       where: {
         id
