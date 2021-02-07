@@ -21,7 +21,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems' | 'promptSolutions';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems' | 'promptSolutions' | 'groupSelect';
   title: Promise<string>;
   controlName: string;
   /**
@@ -258,6 +258,13 @@ export class SaveExerciseModalPage implements OnInit {
       }
     },
     {
+      title: this.translateService.get('groups').toPromise(),
+      isLocked: true,
+      type: 'groupSelect',
+      controlName: 'groupIds',
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.groupIds ?? [])
+    },
+    {
       title: this.translateService.get('labels').toPromise(),
       isLocked: true,
       type: 'labelSelector',
@@ -373,7 +380,7 @@ export class SaveExerciseModalPage implements OnInit {
    * It be called in order to 'reset' the form.
    */
   private async setupForm() {
-    const currentValue = this.editedExercise
+    const currentValue: Partial<HydratedExercise> | undefined = this.editedExercise
       ? await this.exerciseService.getHydratedExercise(this.editedExercise)
       : this.getExerciseLockedValues();
     this.exerciseForm = this.formBuilder.group({});

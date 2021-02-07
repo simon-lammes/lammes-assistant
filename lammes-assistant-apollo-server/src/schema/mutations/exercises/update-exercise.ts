@@ -55,11 +55,20 @@ export const updateExercise = mutationField("updateExercise", {
           }
         }
       }
-    })
-    const [currentLabels] = await Promise.all([currentLabelsPromise, upload.promise()]);
+    });
+    // Which groups are currently associated with the exercise?
+    const currentGroupIdsPromise = prisma.groupExercise.findMany({
+      where: {
+        exerciseId: id
+      }
+    }).then(results => results.map(x => x.groupId));
+    const [currentLabels, currentGroupIds] = await Promise.all([currentLabelsPromise, currentGroupIdsPromise, upload.promise()]);
     // Which labels has the user removed or added to the exercise?
     const removeLabels = currentLabels.filter(label => !hydratedExerciseInput.labels.some(x => x === label.title));
     const addedLabels = hydratedExerciseInput.labels.filter(label => !currentLabels.some(x => x.title === label));
+    // Which groups has the user removed or added to the exercise?
+    const removedGroupIds = currentGroupIds.filter(currentGroupId => !hydratedExerciseInput.groupIds?.includes(currentGroupId));
+    const addedGroupIds = hydratedExerciseInput.groupIds?.filter(groupId => !currentGroupIds.includes(groupId));
     return prisma.exercise.update({
       where: {
         id
@@ -87,6 +96,18 @@ export const updateExercise = mutationField("updateExercise", {
                   }
                 }
               }
+            };
+          })
+        },
+        groupExercises: {
+          create: addedGroupIds?.map(groupId => {
+            return {
+              groupId
+            };
+          }),
+          deleteMany: removedGroupIds?.map(groupId => {
+            return {
+              groupId
             };
           })
         },

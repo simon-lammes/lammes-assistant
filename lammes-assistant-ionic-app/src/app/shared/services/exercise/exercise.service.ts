@@ -48,6 +48,7 @@ export interface HydratedExercise {
   files: CustomFile[];
   labels?: string[];
   languageCode: LanguageCodeIso639_1;
+  groupIds?: number[];
 }
 
 export interface Exercise {

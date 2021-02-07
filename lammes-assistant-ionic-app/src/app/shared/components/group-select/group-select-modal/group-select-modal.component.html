@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'select-groups' | translate | titlecase }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'cancel' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="set()">{{ 'set.verb' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let group of allDisplayedGroups$ | async">
+      <ion-label>
+        <h3>{{group.name}}</h3>
+        <p *ngIf="group.description">{{group.description}}</p>
+      </ion-label>
+      <ion-checkbox slot="start" [checked]="selectedGroupIds.has(group.id)" (ionChange)="onChangeGroupSelection($event, group)"></ion-checkbox>
+    </ion-item>
+  </ion-list>
+</ion-content>

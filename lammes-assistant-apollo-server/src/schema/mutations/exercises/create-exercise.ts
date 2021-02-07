@@ -47,6 +47,13 @@ export const createExercise = mutationField('createExercise', {
             };
           })
         },
+        groupExercises: {
+          create: hydratedExerciseInput.groupIds?.map(groupId => {
+            return {
+              groupId
+            };
+          })
+        },
         // For every new exercise the user creates, we directly want to create an "Experience" object containing the information
         // that the user has not yet started studying this exercise. We need this object for querying functionality.
         experiences: {
@@ -63,7 +70,7 @@ export const createExercise = mutationField('createExercise', {
     const hydratedExercise = {
       ...hydratedExerciseInput,
       id: exercise.id,
-      versionTimestamp: versionTimestamp.toISOString(),
+      versionTimestamp: versionTimestamp.toISOString()
     } as HydratedExercise;
     const upload = spacesClient.putObject({
       Bucket: "lammes-assistant-space",

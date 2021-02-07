@@ -145,6 +145,7 @@ input HydratedExerciseInput {
   assignment: String!
   exerciseType: ExerciseType!
   files: [CustomFile!]!
+  groupIds: [Int!]
   isStatementCorrect: Boolean
   labels: [String!]!
   languageCode: LanguageCode!

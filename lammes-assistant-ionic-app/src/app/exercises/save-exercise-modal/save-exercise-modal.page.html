@@ -126,6 +126,9 @@
               </ion-item-sliding>
               <ion-button type="button" ngxFilePicker (filePick)="exerciseControl.addChildControl($event)">{{ 'add-file' | translate | titlecase }}</ion-button>
             </ion-list>
+            <!-- Groups -->
+            <app-group-select *ngSwitchCase="'groupSelect'" [label]="exerciseControl.title | async | titlecase"
+                              [formControlName]="exerciseControl.controlName"></app-group-select>
             <!-- Labels -->
             <app-label-selector *ngSwitchCase="'labelSelector'" [heading]="exerciseControl.title | async | titlecase"
                                 [formControlName]="exerciseControl.controlName"></app-label-selector>

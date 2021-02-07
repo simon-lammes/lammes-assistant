@@ -49,6 +49,7 @@ model Exercise {
   creator                    User            @relation("exercisesToUsers", fields: [creatorId], references: [id])
   exerciseLabels             ExerciseLabel[] @relation("exercisesToLabels")
   experiences                Experience[]    @relation("exercisesToExperiences")
+  groupExercises             GroupExercise[] @relation("exercisesToGroupExercises")
 
   @@map("exercises")
 }
@@ -120,9 +121,20 @@ model Group {
   id               Int               @id @default(autoincrement())
   name             String            @unique
   description      String?
+  groupExercises   GroupExercise[]   @relation("groupExercisesToGroups")
   groupMemberships GroupMembership[] @relation("groupMembershipsToGroups")
 
   @@map("groups")
+}
+
+model GroupExercise {
+  groupId    Int      @map("group_id")
+  exerciseId Int      @map("exercise_id")
+  exercise   Exercise @relation("exercisesToGroupExercises", fields: [exerciseId], references: [id])
+  group      Group    @relation("groupExercisesToGroups", fields: [groupId], references: [id])
+
+  @@id([groupId, exerciseId])
+  @@map("group_exercises")
 }
 
 enum LanguageCode {
