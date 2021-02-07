@@ -71,7 +71,7 @@ export class ExercisesPage implements OnInit {
       labels: this.formBuilder.control([]),
       languageCodes: this.formBuilder.control([]),
       exerciseTypes: this.formBuilder.control([]),
-      maximumCorrectStreak: this.formBuilder.control(undefined, [Validators.min(0), maximumForSigned32Int])
+      maximumCorrectStreak: this.formBuilder.control(null, [Validators.min(0), maximumForSigned32Int])
     });
     this.selectedExerciseFilter$.pipe(untilDestroyed(this)).subscribe(selectedExerciseFilter => {
       const filterDef = selectedExerciseFilter?.exerciseFilterDefinition;
@@ -81,7 +81,7 @@ export class ExercisesPage implements OnInit {
         labels: filterDef?.labels ?? [],
         languageCodes: filterDef?.languageCodes,
         exerciseTypes: filterDef?.exerciseTypes ?? [],
-        maximumCorrectStreak: filterDef?.maximumCorrectStreak
+        maximumCorrectStreak: filterDef?.maximumCorrectStreak ?? null
       });
     });
     this.currentFilterDefinition$ = this.filterForm.valueChanges.pipe(
