@@ -5,6 +5,7 @@ import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
 import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 
 export const createExercise = mutationField('createExercise', {
   type: exerciseObjectType,
@@ -21,6 +22,7 @@ export const createExercise = mutationField('createExercise', {
       throw new AuthenticationError('You can only create exercises when you are authenticated.');
     }
     validateExercise(applicationConfiguration, hydratedExerciseInput);
+    await validateMembersRole(prisma, userId, 'member', hydratedExerciseInput.groupIds);
     const versionTimestamp = new Date();
     const exercise: Exercise = await prisma.exercise.create({
       data: {

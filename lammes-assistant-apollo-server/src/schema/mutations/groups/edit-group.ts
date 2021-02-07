@@ -15,7 +15,7 @@ export const editGroup = mutationField('editGroup', {
     {jwtPayload, prisma}
   ) => {
     const userId = validateAuthenticated(jwtPayload);
-    await validateMembersRole(prisma, id, userId, 'admin');
+    await validateMembersRole(prisma, userId, 'admin', [id]);
     return prisma.group.update({
       where: {
         id

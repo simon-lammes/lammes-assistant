@@ -6,6 +6,7 @@ import {HydratedExercise, HydratedExerciseInputType} from "../../types/hydrated-
 import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
 import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 
 export const updateExercise = mutationField("updateExercise", {
   type: exerciseObjectType,
@@ -33,6 +34,7 @@ export const updateExercise = mutationField("updateExercise", {
       throw generateAuthorizationError("You do not own the requested resource.");
     }
     validateExercise(applicationConfiguration, hydratedExerciseInput);
+    await validateMembersRole(prisma, userId, 'member', hydratedExerciseInput.groupIds);
     const versionTimestamp = new Date();
     const hydratedExercise = {
       ...hydratedExerciseInput,

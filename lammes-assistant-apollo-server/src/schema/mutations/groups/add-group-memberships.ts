@@ -24,7 +24,7 @@ export const addGroupMemberships = mutationField('addGroupMemberships', {
     const userId = validateAuthenticated(jwtPayload);
     // Which role must the user have at least in order for this operation to be allowed?
     const minRole: GroupMemberRole = role === 'owner' ? 'owner' : 'admin';
-    await validateMembersRole(prisma, id, userId, minRole);
+    await validateMembersRole(prisma, userId, minRole, [id]);
     return prisma.group.update({
       where: {
         id

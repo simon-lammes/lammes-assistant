@@ -42,7 +42,7 @@ export const removeGroupMemberships = mutationField('removeGroupMemberships', {
       if (!rolesOfRemovedMembers.includes('owner') && !rolesOfRemovedMembers.includes('admin')) {
         minRole = 'admin';
       }
-      await validateMembersRole(prisma, id, userId, minRole);
+      await validateMembersRole(prisma, userId, minRole, [id]);
     }
     return prisma.group.update({
       where: {

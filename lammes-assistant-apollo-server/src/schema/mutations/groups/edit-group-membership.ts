@@ -1,7 +1,6 @@
-import {arg, intArg, list, mutationField, nonNull} from "@nexus/schema";
-import {groupObjectType} from "../../types/group";
-import {groupMembershipObjectType, NewGroupMembership} from "../../types";
-import {ForbiddenError, UserInputError} from "apollo-server";
+import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
+import {groupMembershipObjectType} from "../../types";
+import {ForbiddenError} from "apollo-server";
 import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
 import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 import {GroupMemberRole, GroupMemberRoleEnumType} from "../../types/group-member-role";
@@ -40,7 +39,7 @@ export const editGroupMembership = mutationField('editGroupMembership', {
     if (role !== 'owner' && oldRole !== 'admin') {
       minRole = 'admin';
     }
-    await validateMembersRole(prisma, groupId, userId, minRole);
+    await validateMembersRole(prisma, userId, minRole, [groupId]);
     return prisma.groupMembership.update({
       where: {
         memberId_groupId: {
