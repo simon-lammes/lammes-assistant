@@ -39,7 +39,7 @@ export const registerExerciseExperience = mutationField("registerExerciseExperie
             id: userId
           }
         },
-        correctStreak: 0,
+        correctStreak: newCorrectStreak,
         lastStudiedTimestamp: new Date()
       }
     });
@@ -59,7 +59,9 @@ async function determineNewCorrectStreak(prisma: PrismaClient, exerciseId: numbe
   } else if (exerciseResult === 'SUCCESS') {
     newCorrectStreak++;
   }
-  if (exerciseCorrectStreakCap && newCorrectStreak > exerciseCorrectStreakCap) {
+  // We need the typeof check instead of a truthy check because the number 0
+  // is evaluated to falsy which is a weird specification of JavaScript.
+  if (typeof exerciseCorrectStreakCap === 'number' && newCorrectStreak > exerciseCorrectStreakCap) {
     newCorrectStreak = exerciseCorrectStreakCap;
   }
   return newCorrectStreak;
