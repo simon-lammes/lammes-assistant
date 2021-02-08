@@ -11,6 +11,9 @@ export const myNoteToReview = queryField('myNoteToReview', {
     return prisma.note.findFirst({
       where: {
         creatorId: userId,
+        // The user only needs to review notes that aren't resolved yet.
+        resolvedTimestamp: null,
+        // The user does not need to review notes that he/she deferred.
         startTimestamp: {
           lte: now
         }
