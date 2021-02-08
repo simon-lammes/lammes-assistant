@@ -162,9 +162,6 @@ export class GroupService {
   }
 
   getFilteredGroups(groupFilter: { groupIds: number[] }): Observable<Group[]> {
-    if (groupFilter.groupIds.length === 0) {
-      return of([]);
-    }
     return this.apollo.watchQuery<{ filteredGroups: Group[] }>({
       query: gql`
         query FilteredGroups($groupFilter: GroupFilterDefinition!) {

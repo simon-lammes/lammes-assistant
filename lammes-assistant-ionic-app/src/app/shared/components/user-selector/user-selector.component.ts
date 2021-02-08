@@ -46,7 +46,7 @@ export class UserSelectorComponent implements ControlValueAccessor, OnInit {
     this.selectedUsers$ = this.currentValue$.pipe(
       switchMap(userIds => {
         if (userIds.size === 0) {
-          of([]);
+          return of([]);
         }
         return this.userService.getFilteredUsers({userIds: [...userIds]});
       })

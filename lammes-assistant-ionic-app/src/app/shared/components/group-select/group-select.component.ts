@@ -2,7 +2,7 @@ import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ModalController} from '@ionic/angular';
 import {GroupSelectModalComponent} from './group-select-modal/group-select-modal.component';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {distinctUntilChangedDeeply} from '../../operators/distinct-until-changed-deeply';
 import {switchMap} from 'rxjs/operators';
@@ -48,6 +48,9 @@ export class GroupSelectComponent implements ControlValueAccessor, OnInit {
   ngOnInit(): void {
     this.currentGroups$ = this.currentValue$.pipe(
       switchMap(groupIds => {
+        if (groupIds.size === 0) {
+          return of([]);
+        }
         return this.groupService.getFilteredGroups({
           groupIds: [...groupIds]
         });
