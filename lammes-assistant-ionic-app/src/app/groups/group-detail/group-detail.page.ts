@@ -50,7 +50,7 @@ export class GroupDetailPage implements OnInit {
     const modal = await this.modalController.create({
       component: UserSelectorModalComponent,
       componentProps: {
-        initiallySelectedUserIds: currentUserIds,
+        initiallySelectedUserIds: currentUserIdsSet,
         disabledUserIds: currentUserIdsSet
       }
     });

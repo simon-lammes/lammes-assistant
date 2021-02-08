@@ -4,6 +4,7 @@ import {ModalController} from '@ionic/angular';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {startWith, switchMap} from 'rxjs/operators';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-user-selector-modal',
@@ -61,5 +62,9 @@ export class UserSelectorModalComponent implements OnInit {
     await this.modalController.dismiss({
       selectedUserIds: this.selectedUserIds
     });
+  }
+
+  areChangesPresent() {
+    return !_.isEqual(this.initiallySelectedUserIds, this.selectedUserIds);
   }
 }

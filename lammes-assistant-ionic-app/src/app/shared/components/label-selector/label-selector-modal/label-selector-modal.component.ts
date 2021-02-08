@@ -4,6 +4,7 @@ import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {distinctUntilChanged, map, startWith, switchMap} from 'rxjs/operators';
 import {LabelFilter, LabelService} from '../../../services/label/label.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-label-selector-modal',
@@ -12,28 +13,23 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 })
 export class LabelSelectorModalComponent implements OnInit {
 
+  @Input()
+  initiallySelectedLabels: Set<string>;
+  selectedLabelsSubject: BehaviorSubject<Set<string>>;
+  selectedLabels$: Observable<Set<string>>;
+  allDisplayedLabels$: Observable<string[]>;
+  filterForm: FormGroup;
+  filter$: Observable<LabelFilter>;
+  filterQuery$: Observable<string>;
+  filteredLabels$: Observable<string[]>;
+  areChangesPresent$: Observable<boolean>;
+
   constructor(
     private modalController: ModalController,
     private fb: FormBuilder,
     private labelService: LabelService
   ) {
   }
-  @Input()
-  initiallySelectedLabels: Set<string>;
-
-  selectedLabelsSubject: BehaviorSubject<Set<string>>;
-
-  selectedLabels$: Observable<Set<string>>;
-
-  allDisplayedLabels$: Observable<string[]>;
-
-  filterForm: FormGroup;
-
-  filter$: Observable<LabelFilter>;
-
-  filterQuery$: Observable<string>;
-
-  filteredLabels$: Observable<string[]>;
 
   ngOnInit(): void {
     this.selectedLabelsSubject = new BehaviorSubject<Set<string>>(new Set<string>(this.initiallySelectedLabels));
@@ -66,6 +62,9 @@ export class LabelSelectorModalComponent implements OnInit {
           }
         }
       })
+    );
+    this.areChangesPresent$ = this.selectedLabels$.pipe(
+      map(selectedLabels => !_.isEqual(selectedLabels, this.initiallySelectedLabels))
     );
   }
 

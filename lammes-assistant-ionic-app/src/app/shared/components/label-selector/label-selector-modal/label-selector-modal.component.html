@@ -5,7 +5,7 @@
       <ion-button (click)="cancel()">{{ 'cancel' | translate | titlecase }}</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="set()">{{ 'set.verb' | translate | titlecase }}</ion-button>
+      <ion-button [disabled]="!(areChangesPresent$ | async)" (click)="set()">{{ 'set.verb' | translate | titlecase }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>

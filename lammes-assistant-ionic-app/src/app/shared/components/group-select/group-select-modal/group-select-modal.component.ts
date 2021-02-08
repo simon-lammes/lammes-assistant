@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ModalController} from '@ionic/angular';
 import {Observable} from 'rxjs';
 import {Group, GroupService} from '../../../services/group/group.service';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-group-select-modal',
@@ -41,5 +42,9 @@ export class GroupSelectModalComponent implements OnInit {
     } else {
       this.selectedGroupIds.delete(group.id);
     }
+  }
+
+  areChangesPresent() {
+    return !_.isEqual(this.initiallySelectedGroupIds, this.selectedGroupIds);
   }
 }
