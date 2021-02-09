@@ -1,12 +1,35 @@
 version: '3.5'
 services:
   lammes-assistant-apollo-server:
-    env_file:
-    - lammes-assistant-apollo-server/.env
+    depends_on:
+      - lammes-assistant-postgres
+    environment:
+      # NODE_ENV: production # https://github.com/graphql-nexus/nexus-plugin-prisma/issues/510
+      DATABASE_URL: postgresql://postgres:postgres@lammes-assistant-postgres:5432/lammes_assistant?schema=public
+      SECRET: my_personal_testing_secret
+      # I know that the following line should use a static IP with DOCKER_IP but this only works when
+      # the spaces endpoint is accessed from other containers in this network.
+      # The frontend/client cannot run in a container (because it is in the browser) and, thus,
+      # it would not work. So for testing purposes, we have to use this workaround.
+      # (https://stackoverflow.com/questions/55311465/what-url-can-docker-container-a-use-to-access-another-docker-container-b-same-d)
+      SPACES_ENDPOINT: http://host.docker.internal:9000
+      SPACES_KEY: test
+      SPACES_SECRET: testing123
     build:
       context: ./lammes-assistant-apollo-server
     ports:
      - "4000:4000"
+  lammes-assistant-postgres:
+    build:
+      context: ./lammes-assistant-relational-database
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: lammes_assistant
+    volumes:
+      - lammes-assistant-relational-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   lammes-assistant-s3-storage:
     image: minio/minio
     command: server /data
@@ -19,4 +42,5 @@ services:
       - "9000:9000"
       
 volumes:
+  lammes-assistant-relational-data:
   lammes-assistant-s3-data:
