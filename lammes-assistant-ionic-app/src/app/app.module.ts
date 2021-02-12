@@ -14,8 +14,7 @@ import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {IonicStorageModule} from '@ionic/storage';
 import {MarkdownModule} from 'ngx-markdown';
-import {SettingsService} from './shared/services/settings/settings.service';
-import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 
 @NgModule({
@@ -51,29 +50,6 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(
-    private settingsService: SettingsService,
-    private translateService: TranslateService
-  ) {
-    this.setupThemeListener();
-    this.setupLanguage();
-  }
-
-  private setupThemeListener() {
-    const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.settingsService.currentSettings$.subscribe(settings => {
-      const useDarkTheme = settings.theme === 'dark'
-        || (settings.theme === 'system' && prefersDarkQuery.matches);
-      document.body.classList.toggle('dark-theme', useDarkTheme);
-    });
-  }
-
-  private setupLanguage() {
-    this.translateService.setDefaultLang('en');
-    this.settingsService.currentSettings$.subscribe(settings => {
-      if (settings.preferredLanguageCode) {
-        this.translateService.use(settings.preferredLanguageCode);
-      }
-    });
+  constructor() {
   }
 }
