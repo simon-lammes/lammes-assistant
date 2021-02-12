@@ -1,7 +1,7 @@
 {
-  "name": "lammes-assistant-ionic-app",
+  "name": "Lammes Assistant",
   "integrations": {
-    "capacitor": {}
+    "cordova": {}
   },
   "type": "angular"
 }
