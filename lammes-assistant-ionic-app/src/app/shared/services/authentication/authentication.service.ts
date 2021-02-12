@@ -1,6 +1,3 @@
-// Line is needed because of web part of the plugin (explained here https://www.npmjs.com/package/capacitor-secure-storage-plugin)
-import 'capacitor-secure-storage-plugin';
-import {Plugins} from '@capacitor/core';
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, timer} from 'rxjs';
 import {debounce, filter, map} from 'rxjs/operators';
@@ -8,8 +5,7 @@ import jwt_decode from 'jwt-decode';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {Router} from '@angular/router';
 import {ToastController} from '@ionic/angular';
-
-const {SecureStoragePlugin} = Plugins;
+import {Storage} from '@ionic/storage';
 
 interface JwtPayload {
   /**
@@ -48,7 +44,8 @@ export class AuthenticationService {
 
   constructor(
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private storage: Storage
   ) {
     this.setupAutomaticLogoutWhenTokenExpires();
   }
@@ -76,7 +73,7 @@ export class AuthenticationService {
    * when the user re-visits the application and does not need to login again.
    */
   async storeJwtToken(jwtToken: string) {
-    await SecureStoragePlugin.set({key: this.JWT_TOKEN_KEY, value: jwtToken});
+    await this.storage.set(this.JWT_TOKEN_KEY, jwtToken);
     this.jwtTokenBehaviourSubject.next(jwtToken);
   }
 
@@ -126,7 +123,7 @@ export class AuthenticationService {
    * authenticated when he re-visits the application. This method loads the jwtToken.
    */
   private async loadJwtTokenFromSecureStorage() {
-    await SecureStoragePlugin.get({key: this.JWT_TOKEN_KEY}).then(({value}) => {
+    await this.storage.get(this.JWT_TOKEN_KEY).then((value) => {
       this.jwtTokenBehaviourSubject.next(value);
     }).catch(() => {
       // The key could not be found, which is absolutely normal when the user uses the application the first time.
