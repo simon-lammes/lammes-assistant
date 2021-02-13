@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.simon-lammes.lammes-assistant" version="0.0.1" xmlns="http://www.w3.org/ns/widgets">
+<widget id="com.simonlammes.LammesAssistant" version="0.0.1" xmlns="http://www.w3.org/ns/widgets">
     <name>Lammes Assistant</name>
     <description>The personal assistant that for real-life problems.</description>
     <author email="ghostsgandi@gmail.com">Simon Lammes</author>
