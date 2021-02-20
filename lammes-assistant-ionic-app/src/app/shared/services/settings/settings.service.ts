@@ -96,7 +96,10 @@ export class SettingsService {
     } as Settings);
   }
 
-  private retrieveCachedSettings(user: User): Promise<Settings | undefined> {
+  private retrieveCachedSettings(user: { id: number }): Promise<Settings | undefined> {
+    if (!user) {
+      return undefined;
+    }
     const cacheKey = `user.${user.id}.settings`;
     return this.storage.get(cacheKey) as Promise<Settings>;
   }
@@ -112,11 +115,19 @@ export class SettingsService {
     ).toPromise();
   }
 
+  /**
+   * @param user null if no user is logged in
+   */
   private async getUsersSettings(user: User) {
     const cachedSettings = await this.retrieveCachedSettings(user);
     const isCacheFresh = cachedSettings?.settingsUpdatedTimestamp
       && new Date(cachedSettings.settingsUpdatedTimestamp).getTime() === new Date(user.settingsUpdatedTimestamp).getTime();
-    if (isCacheFresh) {
+    if (!user) {
+      // If no user is logged in, we see what the id of the LAST user logged in was
+      // and take the cached settings from him.
+      const mostCurrentUserId = await this.userService.getMostCurrentUserId();
+      return await this.retrieveCachedSettings({id: mostCurrentUserId});
+    } else if (isCacheFresh) {
       return cachedSettings;
     } else {
       const downloadLink = await this.getSettingsDownloadLink();

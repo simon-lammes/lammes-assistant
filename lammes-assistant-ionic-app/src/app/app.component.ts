@@ -5,6 +5,7 @@ import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {SwUpdate} from '@angular/service-worker';
 import {TranslateService} from '@ngx-translate/core';
+import {SettingsService} from './shared/services/settings/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -18,10 +19,13 @@ export class AppComponent {
     private statusBar: StatusBar,
     private updates: SwUpdate,
     private alertController: AlertController,
-    private translate: TranslateService
+    private settingsService: SettingsService,
+    private translateService: TranslateService
   ) {
     this.initializeApp();
     this.setupServiceWorkerListeners();
+    this.setupThemeListener();
+    this.setupLanguage();
   }
 
   initializeApp() {
@@ -39,14 +43,14 @@ export class AppComponent {
   private setupServiceWorkerListeners() {
     this.updates.available.subscribe(async () => {
       const alert = await this.alertController.create({
-        header: await this.translate.get('new-version').toPromise(),
-        message: await this.translate.get('messages.new-pwa-version').toPromise(),
+        header: await this.translateService.get('new-version').toPromise(),
+        message: await this.translateService.get('messages.new-pwa-version').toPromise(),
         buttons: [
           {
-            text: await this.translate.get('cancel').toPromise(),
+            text: await this.translateService.get('cancel').toPromise(),
             role: 'cancel'
           }, {
-            text: await this.translate.get('reload').toPromise(),
+            text: await this.translateService.get('reload').toPromise(),
             handler: () => {
               this.updates.activateUpdate().then(() => document.location.reload());
             }
@@ -54,6 +58,24 @@ export class AppComponent {
         ]
       });
       await alert.present();
+    });
+  }
+
+  private setupThemeListener() {
+    const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.settingsService.currentSettings$.subscribe(settings => {
+      const useDarkTheme = settings.theme === 'dark'
+        || (settings.theme === 'system' && prefersDarkQuery.matches);
+      document.body.classList.toggle('dark-theme', useDarkTheme);
+    });
+  }
+
+  private setupLanguage() {
+    this.translateService.setDefaultLang('en');
+    this.settingsService.currentSettings$.subscribe(settings => {
+      if (settings.preferredLanguageCode) {
+        this.translateService.use(settings.preferredLanguageCode);
+      }
     });
   }
 }
