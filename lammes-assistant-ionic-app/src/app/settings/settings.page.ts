@@ -6,13 +6,15 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {PickerController, ToastController} from '@ionic/angular';
 import _ from 'lodash';
 import {PickerColumn} from '@ionic/core/dist/types/components/picker/picker-interface';
-import {distinctUntilChanged, first, map, startWith} from 'rxjs/operators';
+import {filter, first, map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {ExerciseCooldown, Settings, SettingsService} from '../shared/services/settings/settings.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {TranslateService} from '@ngx-translate/core';
 import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
-import {debounceAutomaticSave} from '../shared/operators/debounce-automatic-save';
+import {Actions, ofActionSuccessful, Select, Store} from '@ngxs/store';
+import {SettingsState} from '../shared/state/settings/settings.state';
+import {PersistSettings, UpdateSettings} from '../shared/state/settings/settings.actions';
 
 @UntilDestroy()
 @Component({
@@ -21,11 +23,8 @@ import {debounceAutomaticSave} from '../shared/operators/debounce-automatic-save
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
+  @Select(SettingsState.currentSettings) currentSettings$: Observable<Settings>;
 
-  /**
-   * The settings that are currently saved. Not the settings that currently edited.
-   */
-  settings$: Observable<Settings> = this.settingsService.currentSettings$;
   settingsForm: FormGroup;
   exerciseCooldownTextualRepresentation$: Observable<string>;
 
@@ -38,7 +37,9 @@ export class SettingsPage implements OnInit {
     private settingsService: SettingsService,
     private toastController: ToastController,
     private translateService: TranslateService,
-    private applicationConfigurationService: ApplicationConfigurationService
+    private applicationConfigurationService: ApplicationConfigurationService,
+    private store: Store,
+    private actions: Actions
   ) {
   }
 
@@ -47,7 +48,10 @@ export class SettingsPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const settings = await this.settings$.pipe(first()).toPromise();
+    const settings = await this.currentSettings$.pipe(
+      filter(x => !!x),
+      first()
+    ).toPromise();
     this.settingsForm = this.fb.group({
       preferredLanguageCode: this.fb.control(settings.preferredLanguageCode),
       theme: this.fb.control(settings.theme),
@@ -77,15 +81,16 @@ export class SettingsPage implements OnInit {
     );
     this.settingsForm.valueChanges.pipe(
       untilDestroyed(this),
-      debounceAutomaticSave(this.applicationConfigurationService.applicationConfiguration$),
-      distinctUntilChanged((x, y) => _.isEqual(x, y))
     ).subscribe(async currentSettings => {
       if (this.settingsForm.valid) {
-        await this.settingsService.saveSettings(currentSettings);
-        await this.showToast(await this.translateService.get('messages.settings-saved').toPromise(), 'success');
-      } else {
-        await this.showToast(await this.translateService.get('messages.invalid-form').toPromise(), 'danger');
+        this.store.dispatch(new UpdateSettings(currentSettings));
       }
+    });
+    this.actions.pipe(
+      ofActionSuccessful(PersistSettings),
+      untilDestroyed(this)
+    ).subscribe(async () => {
+      await this.showToast(await this.translateService.get('messages.settings-saved').toPromise(), 'success');
     });
   }
 

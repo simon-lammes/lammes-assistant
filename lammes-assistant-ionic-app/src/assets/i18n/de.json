@@ -73,7 +73,6 @@
     "failure": "Fehlschlag",
     "group-created": "Gruppe wurde erstellt.",
     "group-edited": "Änderungen gespeichert",
-    "invalid-form": "ungültige Eingabe",
     "member-removed": "Mitglied entfernt",
     "min-password-length": "Minimale Passwortlänge: {{minPasswordLength}}",
     "new-pwa-version": "Es ist eine neue Version dieser App verfügbar. Es wird empfohlen, die Seite neu zu laden.",
@@ -139,6 +138,7 @@
   "search": {
     "noun": "Suche"
   },
+  "select-groups": "Gruppen auswählen",
   "select-labels": "Labels auswählen",
   "select-users": "Benutzer auswählen",
   "set": {

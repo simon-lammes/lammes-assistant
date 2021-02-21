@@ -5,7 +5,11 @@ import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {SwUpdate} from '@angular/service-worker';
 import {TranslateService} from '@ngx-translate/core';
-import {SettingsService} from './shared/services/settings/settings.service';
+import {Settings} from './shared/services/settings/settings.service';
+import {Select} from '@ngxs/store';
+import {SettingsState} from './shared/state/settings/settings.state';
+import {Observable} from 'rxjs';
+import {filter} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,13 +17,14 @@ import {SettingsService} from './shared/services/settings/settings.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
+  @Select(SettingsState.currentSettings) currentSettings$: Observable<Settings>;
+
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private updates: SwUpdate,
     private alertController: AlertController,
-    private settingsService: SettingsService,
     private translateService: TranslateService
   ) {
     this.initializeApp();
@@ -63,7 +68,7 @@ export class AppComponent {
 
   private setupThemeListener() {
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.settingsService.currentSettings$.subscribe(settings => {
+    this.currentSettings$.pipe(filter(x => !!x)).subscribe(settings => {
       const useDarkTheme = settings.theme === 'dark'
         || (settings.theme === 'system' && prefersDarkQuery.matches);
       document.body.classList.toggle('dark-theme', useDarkTheme);
@@ -72,7 +77,7 @@ export class AppComponent {
 
   private setupLanguage() {
     this.translateService.setDefaultLang('en');
-    this.settingsService.currentSettings$.subscribe(settings => {
+    this.currentSettings$.pipe(filter(x => !!x)).subscribe(settings => {
       if (settings.preferredLanguageCode) {
         this.translateService.use(settings.preferredLanguageCode);
       }

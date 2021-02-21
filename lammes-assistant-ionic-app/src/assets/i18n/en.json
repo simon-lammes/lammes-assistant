@@ -73,7 +73,6 @@
     "failure": "failure",
     "group-created": "group created",
     "group-edited": "saved changes",
-    "invalid-form": "invalid values",
     "member-removed": "member removed",
     "min-password-length": "Min password length: {{minPasswordLength}}",
     "new-pwa-version": "New version of this app is available. It is recommended to reload the application.",
@@ -139,6 +138,7 @@
   "search": {
     "noun": "search"
   },
+  "select-groups": "select groups",
   "select-labels": "select labels",
   "select-users": "select users",
   "set": {

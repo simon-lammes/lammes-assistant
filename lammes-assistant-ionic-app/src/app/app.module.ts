@@ -16,6 +16,8 @@ import {IonicStorageModule} from '@ionic/storage';
 import {MarkdownModule} from 'ngx-markdown';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {NgxsModule} from '@ngxs/store';
+import {SettingsState} from './shared/state/settings/settings.state';
 
 @NgModule({
   declarations: [AppComponent],
@@ -40,6 +42,9 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
         },
         deps: [HttpClient]
       }
+    }),
+    NgxsModule.forRoot([SettingsState], {
+      developmentMode: !environment.production
     })
   ],
   providers: [
