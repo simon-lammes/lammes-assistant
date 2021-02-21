@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
-import {distinctUntilChanged, filter, map, startWith, switchMap, tap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map, shareReplay, startWith, switchMap, tap} from 'rxjs/operators';
 import {AuthenticationService} from '../authentication/authentication.service';
 import _ from 'lodash';
 import {Storage} from '@ionic/storage';
@@ -72,7 +72,8 @@ export class UserService {
       if (user) {
         await this.storage.set(mostCurrentUserIdKey, `${user.id}`);
       }
-    })
+    }),
+    shareReplay(1)
   );
 
   readonly myProfilePicture$ = this.currentUser$.pipe(
