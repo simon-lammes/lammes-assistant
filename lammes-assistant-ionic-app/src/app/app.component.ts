@@ -17,7 +17,7 @@ import {filter} from 'rxjs/operators';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  @Select(SettingsState.currentSettings) currentSettings$: Observable<Settings>;
+  @Select(SettingsState.settings) settings$: Observable<Settings>;
 
   constructor(
     private platform: Platform,
@@ -68,7 +68,7 @@ export class AppComponent {
 
   private setupThemeListener() {
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.currentSettings$.pipe(filter(x => !!x)).subscribe(settings => {
+    this.settings$.pipe(filter(x => !!x)).subscribe(settings => {
       const useDarkTheme = settings.theme === 'dark'
         || (settings.theme === 'system' && prefersDarkQuery.matches);
       document.body.classList.toggle('dark-theme', useDarkTheme);
@@ -77,7 +77,7 @@ export class AppComponent {
 
   private setupLanguage() {
     this.translateService.setDefaultLang('en');
-    this.currentSettings$.pipe(filter(x => !!x)).subscribe(settings => {
+    this.settings$.pipe(filter(x => !!x)).subscribe(settings => {
       if (settings.preferredLanguageCode) {
         this.translateService.use(settings.preferredLanguageCode);
       }

@@ -23,7 +23,7 @@ import {PersistSettings, UpdateSettings} from '../shared/state/settings/settings
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  @Select(SettingsState.currentSettings) currentSettings$: Observable<Settings>;
+  @Select(SettingsState.settings) settings$: Observable<Settings>;
 
   settingsForm: FormGroup;
   exerciseCooldownTextualRepresentation$: Observable<string>;
@@ -48,7 +48,7 @@ export class SettingsPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const settings = await this.currentSettings$.pipe(
+    const settings = await this.settings$.pipe(
       filter(x => !!x),
       first()
     ).toPromise();

@@ -11,8 +11,10 @@ import {IonContent, PopoverController, ToastController} from '@ionic/angular';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {StudyPopoverComponent, StudyPopoverResult} from './study-popover/study-popover.component';
 import {ActivatedRoute} from '@angular/router';
-import {SettingsService} from '../../shared/services/settings/settings.service';
+import {ExerciseCooldown, Settings} from '../../shared/services/settings/settings.service';
 import {TranslateService} from '@ngx-translate/core';
+import {Select} from '@ngxs/store';
+import {SettingsState} from '../../shared/state/settings/settings.state';
 
 export interface ExerciseState {
   exerciseResult?: ExerciseResult;
@@ -25,6 +27,9 @@ export interface ExerciseState {
   styleUrls: ['./study.page.scss'],
 })
 export class StudyPage implements OnInit {
+  @Select(SettingsState.settings) settings$: Observable<Settings>;
+  @Select(SettingsState.exerciseCooldown) exerciseCooldown$: Observable<ExerciseCooldown>;
+
   @ViewChild(IonContent) ionContent: IonContent;
   studyProgress$ = this.exerciseService.studyProgress$;
   exerciseFilter$: Observable<ExerciseFilterDefinition>;
@@ -38,7 +43,6 @@ export class StudyPage implements OnInit {
     private toastController: ToastController,
     private popoverController: PopoverController,
     private activatedRoute: ActivatedRoute,
-    private settingsService: SettingsService,
     private translateService: TranslateService
   ) {
   }
@@ -47,7 +51,7 @@ export class StudyPage implements OnInit {
     this.exerciseFilter$ = this.exerciseService.extractExerciseFilterDefinitionFromQueryParamMap(this.activatedRoute);
     this.exercise$ = combineLatest([
       this.nextExerciseRequested$,
-      this.settingsService.exerciseCooldown$,
+      this.exerciseCooldown$,
       this.exerciseFilter$
     ]).pipe(
       switchMap(([, exerciseCooldown, exerciseFilter]) => {
@@ -100,7 +104,7 @@ export class StudyPage implements OnInit {
 
   private async registerExerciseResult(exerciseId: number, exerciseResult: ExerciseResult) {
     const toastPromise = this.showToastForExerciseResult(exerciseResult);
-    const exerciseCorrectStreakCap = await this.settingsService.currentSettings$.pipe(first()).toPromise()
+    const exerciseCorrectStreakCap = await this.settings$.pipe(first()).toPromise()
       .then(settings => settings.exerciseCorrectStreakCap);
     const registerPromise = this.exerciseService.registerExerciseExperience({
       exerciseId,

@@ -2,11 +2,12 @@ import {Action, Actions, NgxsOnInit, ofActionDispatched, Selector, State, StateC
 import {LoadSettings, PersistSettings, UpdateSettings} from './settings.actions';
 import {Settings, SettingsService} from '../../services/settings/settings.service';
 import {Injectable} from '@angular/core';
-import {first, map, tap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {debounceAutomaticSave} from '../../operators/debounce-automatic-save';
 import {ApplicationConfigurationService} from '../../services/application-configuration/application-configuration.service';
 import {distinctUntilChangedDeeply} from '../../operators/distinct-until-changed-deeply';
+import {AuthenticationService} from '../../services/authentication/authentication.service';
 
 export interface SettingsStateModel {
   settings: Settings;
@@ -24,31 +25,35 @@ export class SettingsState implements NgxsOnInit {
 
   constructor(
     private settingsService: SettingsService,
+    private authenticationService: AuthenticationService,
     private applicationConfigurationService: ApplicationConfigurationService,
     private actions: Actions
   ) {
   }
 
   @Selector()
-  public static currentSettings(state: SettingsStateModel) {
+  public static settings(state: SettingsStateModel) {
     return state.settings;
   }
 
-  ngxsOnInit(ctx?: StateContext<any>): any {
-    ctx.dispatch(new LoadSettings());
+  @Selector([SettingsState.settings])
+  public static exerciseCooldown(settings: Settings) {
+    return settings?.exerciseCooldown;
+  }
+
+  ngxsOnInit(ctx?: StateContext<SettingsStateModel>): any {
+    const cachedSettings = ctx.getState().settings;
+    ctx.dispatch(new LoadSettings(cachedSettings));
     this.setupAutomaticSave(ctx);
   }
 
   @Action(LoadSettings)
-  public load(ctx: StateContext<SettingsStateModel>) {
-    return this.settingsService.currentSettings$.pipe(
-      first(),
-      tap(settings => {
-        ctx.patchState({
-          settings
-        });
-      })
-    );
+  public load(ctx: StateContext<SettingsStateModel>, {cachedSettings}: LoadSettings) {
+    this.settingsService.getSettings(cachedSettings).then(settings => {
+      ctx.patchState({
+        settings
+      });
+    });
   }
 
   @Action(UpdateSettings)
@@ -58,7 +63,7 @@ export class SettingsState implements NgxsOnInit {
     });
   }
 
-  @Action(PersistSettings)
+  @Action(PersistSettings, {cancelUncompleted: true})
   public persist(ctx: StateContext<SettingsStateModel>, {settings}: PersistSettings) {
     return this.settingsService.saveSettings(settings);
   }

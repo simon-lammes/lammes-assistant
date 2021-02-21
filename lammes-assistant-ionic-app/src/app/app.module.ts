@@ -18,6 +18,8 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {NgxsModule} from '@ngxs/store';
 import {SettingsState} from './shared/state/settings/settings.state';
+import {IonicStorageEngine} from './shared/ionic-storage-engine';
+import {NgxsAsyncStoragePluginModule} from '@ngxs-labs/async-storage-plugin';
 
 @NgModule({
   declarations: [AppComponent],
@@ -44,13 +46,23 @@ import {SettingsState} from './shared/state/settings/settings.state';
       }
     }),
     NgxsModule.forRoot([SettingsState], {
-      developmentMode: !environment.production
+      developmentMode: !environment.production,
+      selectorOptions: {
+        // This will be the default in NGXS 4.x.
+        injectContainerState: false
+      }
+    }),
+    NgxsAsyncStoragePluginModule.forRoot(IonicStorageEngine, {
+      key: [SettingsState]
     })
   ],
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: RouteReuseStrategy, useClass: IonicRouteStrategy}
+    {
+      provide: RouteReuseStrategy,
+      useClass: IonicRouteStrategy
+    }
   ],
   bootstrap: [AppComponent]
 })

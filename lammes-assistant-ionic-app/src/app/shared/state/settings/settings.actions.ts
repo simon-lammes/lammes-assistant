@@ -2,7 +2,7 @@ import {Settings} from '../../services/settings/settings.service';
 
 export class LoadSettings {
   public static readonly type = '[Settings] Load Settings';
-  constructor() { }
+  constructor(public cachedSettings?: Settings) { }
 }
 
 export class UpdateSettings {

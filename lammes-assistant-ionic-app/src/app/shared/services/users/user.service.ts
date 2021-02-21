@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
-import {distinctUntilChanged, filter, map, shareReplay, startWith, switchMap, tap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map, shareReplay, startWith, switchMap} from 'rxjs/operators';
 import {AuthenticationService} from '../authentication/authentication.service';
 import _ from 'lodash';
-import {Storage} from '@ionic/storage';
 
 export interface User {
   id: number;
@@ -46,8 +45,6 @@ const filteredUsersQuery = gql`
   ${userFragment}
 `;
 
-const mostCurrentUserIdKey = 'UserService_mostCurrentUserId';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -68,11 +65,6 @@ export class UserService {
     }).valueChanges),
     map(({data}) => data.me),
     startWith(null as User),
-    tap(async user => {
-      if (user) {
-        await this.storage.set(mostCurrentUserIdKey, `${user.id}`);
-      }
-    }),
     shareReplay(1)
   );
 
@@ -83,8 +75,7 @@ export class UserService {
 
   constructor(
     private apollo: Apollo,
-    private authenticationService: AuthenticationService,
-    private storage: Storage
+    private authenticationService: AuthenticationService
   ) {
   }
 
@@ -95,12 +86,6 @@ export class UserService {
     }).valueChanges.pipe(
       map(result => result.data.filteredUsers)
     );
-  }
-
-  async getMostCurrentUserId(): Promise<number> {
-    const stringValue = await this.storage.get(mostCurrentUserIdKey);
-    const numberValue = +stringValue;
-    return typeof numberValue === 'number' ? numberValue : undefined;
   }
 
   setProfilePicture(picture: PictureInput) {
