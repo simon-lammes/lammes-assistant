@@ -340,7 +340,7 @@ export class SaveExerciseModalPage implements OnInit {
       await this.exerciseService.createExercise(this.exerciseForm.value);
       await Promise.all([
         this.showHint('Exercise created', 'primary', 2000),
-        this.setupForm()
+        this.resetForm()
       ]);
     }
   }
@@ -465,6 +465,11 @@ export class SaveExerciseModalPage implements OnInit {
       map(([exercise]) => ({...exercise})),
       shareReplay(1)
     );
+  }
+
+  private resetForm() {
+    const value = this.getExerciseLockedValues();
+    this.exerciseForm.reset(value);
   }
 
   onPreviewExerciseStateChanged(state: ExerciseState) {
