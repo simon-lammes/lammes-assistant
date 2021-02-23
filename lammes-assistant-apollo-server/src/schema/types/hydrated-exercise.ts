@@ -51,6 +51,26 @@ export const HydratedExerciseInputType = inputObjectType({
     t.nullable.list.nonNull.string('orderingItems');
     t.nullable.list.nonNull.field('promptSolutions', {type: PromptSolutionInputType});
     t.nullable.list.nonNull.int('groupIds');
+    t.nullable.list.nonNull.field('nodes', {type: NodeInputType});
+    t.nullable.list.nonNull.field('edges', {type: EdgeInputType});
   },
 });
+
+const NodeInputType = inputObjectType({
+  name: 'NodeInput',
+  definition(t) {
+    t.nonNull.string('id');
+    t.nonNull.string('label');
+  },
+});
+
+const EdgeInputType = inputObjectType({
+  name: 'EdgeInput',
+  definition(t) {
+    t.nonNull.string('id');
+    t.nonNull.string('label');
+    t.nonNull.string('source');
+    t.nonNull.string('target');
+  },
+})
 

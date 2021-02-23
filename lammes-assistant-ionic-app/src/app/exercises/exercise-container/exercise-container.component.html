@@ -7,6 +7,8 @@
                               (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-true-or-false-exercise>
   <app-prompt-exercise *ngSwitchCase="'prompt'" [exercise]="exercise"
                        (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-prompt-exercise>
+  <app-directed-graph-assembly-exercise *ngSwitchCase="'directedGraphAssembly'" [exercise]="exercise"
+                       (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-directed-graph-assembly-exercise>
   <app-standard-exercise *ngSwitchDefault [exercise]="exercise"
                          (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-standard-exercise>
 </ng-container>

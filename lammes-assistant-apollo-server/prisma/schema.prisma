@@ -150,6 +150,7 @@ enum ExerciseType {
   trueOrFalse @map("true_or_false")
   ordering
   prompt
+  directedGraphAssembly @map("directed_graph_assembly")
 
    @@map("exercise_type")
 }

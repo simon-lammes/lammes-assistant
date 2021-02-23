@@ -20,12 +20,14 @@ import {NgxsModule} from '@ngxs/store';
 import {SettingsState} from './shared/state/settings/settings.state';
 import {IonicStorageEngine} from './shared/ionic-storage-engine';
 import {NgxsAsyncStoragePluginModule} from '@ngxs-labs/async-storage-plugin';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
     MarkdownModule.forRoot({

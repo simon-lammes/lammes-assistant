@@ -1,0 +1,83 @@
+<!-- Assignment -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>{{ 'assignment' | translate | titlecase }}</ion-card-subtitle>
+    <ion-card-title>{{exercise.title}}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.assignment" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- Users Input -->
+<ion-list>
+  <ion-list-header>
+    <ion-label>{{ 'edges' | translate | titlecase }}</ion-label>
+  </ion-list-header>
+  <ion-item *ngFor="let edge of userCreatedEdges">
+    <ion-label>{{getNodeById(edge.source).label + ' ' + edge.label + ' ' + getNodeById(edge.target).label}}</ion-label>
+    <ion-button slot="end" fill="clear" (click)="removeEdge(edge.id)">
+      <ion-icon name="trash" slot="icon-only"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-list>
+<ion-list *ngIf="addEdgeForm" [formGroup]="addEdgeForm">
+  <ion-list-header>
+    <ion-label>{{ 'add-edge' | translate | titlecase }}</ion-label>
+  </ion-list-header>
+  <ion-item>
+    <ion-label>{{ 'source-node' | translate | titlecase }}</ion-label>
+    <ion-select interface="popover" formControlName="source" [disabled]="addEdgeForm.disabled">
+      <ion-select-option *ngFor="let node of nodes"
+                         [value]="node.id">
+        {{node.label}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>{{ 'edge-label' | translate | titlecase }}</ion-label>
+    <ion-select interface="popover" formControlName="label" [disabled]="addEdgeForm.disabled">
+      <ion-select-option *ngFor="let label of edgeLabels"
+                         [value]="label">
+        {{label}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>{{ 'target-node' | translate | titlecase }}</ion-label>
+    <ion-select interface="popover" formControlName="target" [disabled]="addEdgeForm.disabled">
+      <ion-select-option *ngFor="let node of nodes"
+                         [value]="node.id">
+        {{node.label}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-button [disabled]="this.addEdgeForm.disabled || this.addEdgeForm.invalid || isAddEdgeFormValueADuplicate()"
+              (click)="addEdge()">
+    {{ 'add-edge' | translate | titlecase }}
+  </ion-button>
+</ion-list>
+
+<!-- User Graph -->
+<app-directed-graph [edges]="userCreatedEdges" [nodes]="nodes"></app-directed-graph>
+
+<ion-button [disabled]="exerciseResult !== undefined"
+            (click)="validateUsersAnswer()">
+  {{ 'submit' | translate | titlecase }}
+</ion-button>
+
+<!-- Solution -->
+<ion-card *ngIf="exerciseResult !== undefined">
+  <ion-card-header>
+    <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
+    <app-directed-graph [edges]="edges" [nodes]="nodes"></app-directed-graph>
+  </ion-card-content>
+</ion-card>
+
+<!-- Request next exercise -->
+<ion-button *ngIf="exerciseResult !== undefined" color="primary" expand="full" (click)="requestNextExercise()">
+  Next Exercise
+</ion-button>

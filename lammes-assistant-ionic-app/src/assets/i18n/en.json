@@ -39,7 +39,8 @@
     "ordering": "ordering",
     "prompt": "prompt",
     "standard": "standard",
-    "true-or-false": "true or false"
+    "true-or-false": "true or false",
+    "directed-graph-assembly": "directed graph assembly"
   },
   "exercise-types": "exercise types",
   "exercises": "exercises",
@@ -160,5 +161,11 @@
   "title": "title",
   "urgently-due-till": "urgently due till",
   "username": "username",
-  "wrong": "wrong"
+  "wrong": "wrong",
+  "add-edge": "add edge",
+  "source-node": "source node",
+  "target-node": "target node",
+  "add-node": "add node",
+  "edges": "edges",
+  "edge-label": "edge label"
 }

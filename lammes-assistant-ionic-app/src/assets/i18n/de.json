@@ -39,7 +39,8 @@
     "ordering": "Reihenfolge",
     "prompt": "Abfrage",
     "standard": "standart",
-    "true-or-false": "Richtig oder Falsch"
+    "true-or-false": "Richtig oder Falsch",
+    "directed-graph-assembly": "gerichteter Graph-Erstellung"
   },
   "exercise-types": "Aufgabentypen",
   "exercises": "Übungsaufgaben",
@@ -160,5 +161,11 @@
   "title": "Titel",
   "urgently-due-till": "dringend fällig bis",
   "username": "Benutzername",
-  "wrong": "Falsch"
+  "wrong": "Falsch",
+  "add-edge": "Kante hinzufügen",
+  "source-node": "Startknoten",
+  "target-node": "Endknoten",
+  "add-node": "Knoten hinzufügen",
+  "edges": "Kanten",
+  "edge-label": "Kantenbezeichnung"
 }

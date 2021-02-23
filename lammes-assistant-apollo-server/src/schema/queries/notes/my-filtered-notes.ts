@@ -56,6 +56,5 @@ function getNoteStatusFilters(filter: {noteStatus?: string[] | null}): any[] | u
       resolvedTimestamp: {not: null}
     });
   }
-  console.log(filters);
   return filters;
 }

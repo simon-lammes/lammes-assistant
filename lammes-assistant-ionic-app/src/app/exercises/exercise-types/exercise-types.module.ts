@@ -9,6 +9,9 @@ import {OrderingExerciseComponent} from './ordering-exercise/ordering-exercise.c
 import {SharedModule} from '../../shared/shared.module';
 import {PromptExerciseComponent} from './prompt-exercise/prompt-exercise.component';
 import {ReactiveFormsModule} from '@angular/forms';
+import {DirectedGraphAssemblyExerciseComponent} from './directed-graph-assembly-exercise/directed-graph-assembly-exercise.component';
+import {NgxGraphModule} from '@swimlane/ngx-graph';
+import {DirectedGraphComponent} from './directed-graph-assembly-exercise/directed-graph/directed-graph.component';
 
 @NgModule({
   declarations: [
@@ -16,21 +19,25 @@ import {ReactiveFormsModule} from '@angular/forms';
     TrueOrFalseExerciseComponent,
     MultiselectExerciseComponent,
     OrderingExerciseComponent,
-    PromptExerciseComponent
+    PromptExerciseComponent,
+    DirectedGraphAssemblyExerciseComponent,
+    DirectedGraphComponent
   ],
   exports: [
     StandardExerciseComponent,
     TrueOrFalseExerciseComponent,
     MultiselectExerciseComponent,
     OrderingExerciseComponent,
-    PromptExerciseComponent
+    PromptExerciseComponent,
+    DirectedGraphAssemblyExerciseComponent
   ],
   imports: [
     CommonModule,
     IonicModule,
     EnrichedMarkdownModule,
     SharedModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxGraphModule
   ]
 })
 export class ExerciseTypesModule { }

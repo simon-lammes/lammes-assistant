@@ -102,6 +102,56 @@
               </ion-item>
               <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-ordering-item' | translate | titlecase }}</ion-button>
             </ion-reorder-group>
+            <!-- Nodes -->
+            <ion-list *ngSwitchCase="'nodes'" formArrayName="nodes">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
+              </ion-list-header>
+              <ng-container [formGroup]="nodeControl"
+                            *ngFor="let nodeControl of getArrayControls('nodes'); let i = index">
+                <ion-item>
+                  <ion-input (ionBlur)="trim(nodeControl.controls.label)" formControlName="label" appIonInputFocus></ion-input>
+                  <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </ng-container>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-node' | translate | titlecase }}</ion-button>
+            </ion-list>
+            <!-- Edges -->
+            <ion-list *ngSwitchCase="'edges'" formArrayName="edges">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
+              </ion-list-header>
+              <ng-container [formGroup]="edgeControl"
+                            *ngFor="let edgeControl of getArrayControls('edges'); let i = index">
+                <ion-item>
+                  <ion-input (ionBlur)="trim(edgeControl.controls.label)" formControlName="label" appIonInputFocus></ion-input>
+                  <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+                <ion-item>
+                  <ion-label>{{ 'source-node' | translate | titlecase }}</ion-label>
+                  <ion-select interface="popover" formControlName="source">
+                    <ion-select-option *ngFor="let node of exerciseForm.value.nodes"
+                                       [value]="node.id">
+                      {{node.label}}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item>
+                  <ion-label>{{ 'target-node' | translate | titlecase }}</ion-label>
+                  <ion-select interface="popover" formControlName="target">
+                    <ion-select-option *ngFor="let node of exerciseForm.value.nodes"
+                                       [value]="node.id">
+                      {{node.label}}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </ng-container>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-edge' | translate | titlecase }}</ion-button>
+            </ion-list>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
               <ion-list-header>

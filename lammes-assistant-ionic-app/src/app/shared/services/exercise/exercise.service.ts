@@ -8,7 +8,7 @@ import {ExerciseCooldown} from '../settings/settings.service';
 import {ActivatedRoute} from '@angular/router';
 import {isNumeric} from 'rxjs/internal-compatibility';
 
-export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering' | 'prompt';
+export type ExerciseType = 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering' | 'prompt' | 'directedGraphAssembly';
 
 export type ExerciseResult = 'FAILURE' | 'SUCCESS';
 
@@ -47,6 +47,8 @@ export interface HydratedExercise {
   isStatementCorrect?: boolean;
   possibleAnswers: PossibleAnswer[];
   promptSolutions: PromptSolution[];
+  nodes: any[];
+  edges: any[];
   files: CustomFile[];
   labels?: string[];
   languageCode: LanguageCodeIso639_1;

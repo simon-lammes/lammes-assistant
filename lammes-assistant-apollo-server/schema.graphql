@@ -30,6 +30,13 @@ input CustomFile {
 
 scalar DateTime
 
+input EdgeInput {
+  id: String!
+  label: String!
+  source: String!
+  target: String!
+}
+
 type Exercise {
   creatorId: Int
   exerciseLabels(after: ExerciseLabelWhereUniqueInput, before: ExerciseLabelWhereUniqueInput, first: Int, last: Int): [ExerciseLabel!]!
@@ -93,6 +100,7 @@ enum ExerciseResult {
 }
 
 enum ExerciseType {
+  directedGraphAssembly
   multiselect
   ordering
   prompt
@@ -148,12 +156,14 @@ input GroupMembershipWhereUniqueInput {
 
 input HydratedExerciseInput {
   assignment: String!
+  edges: [EdgeInput!]
   exerciseType: ExerciseType!
   files: [CustomFile!]!
   groupIds: [Int!]
   isStatementCorrect: Boolean
   labels: [String!]!
   languageCode: LanguageCode!
+  nodes: [NodeInput!]
   orderingItems: [String!]
   possibleAnswers: [PossibleAnswer!]
   promptSolutions: [PromptSolution!]
@@ -218,6 +228,11 @@ type Mutation {
 
 input NewGroupMembership {
   memberId: Int!
+}
+
+input NodeInput {
+  id: String!
+  label: String!
 }
 
 type Note {
