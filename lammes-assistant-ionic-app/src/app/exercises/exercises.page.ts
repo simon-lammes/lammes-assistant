@@ -62,7 +62,10 @@ export class ExercisesPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const user = await this.userService.currentUser$.pipe(first()).toPromise();
+    const user = await this.userService.currentUser$.pipe(
+      filter(x => !!x),
+      first()
+    ).toPromise();
     this.selectedExerciseFilterSubject = new BehaviorSubject<ExerciseFilter>(undefined);
     this.selectedExerciseFilter$ = this.selectedExerciseFilterSubject.asObservable();
     this.filterForm = this.formBuilder.group({
