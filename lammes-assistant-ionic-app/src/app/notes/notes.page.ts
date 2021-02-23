@@ -49,7 +49,7 @@ export class NotesPage implements OnInit {
     this.filteredNotes$ = of([]);
     this.filterForm = this.fb.group({
       labels: this.fb.control([]),
-      noteStatus: this.fb.control([])
+      noteStatus: this.fb.control(['pending'])
     });
     this.currentValidFilter$ = this.filterForm.valueChanges.pipe(
       startWith(this.filterForm.value as NoteFilter),
