@@ -334,14 +334,14 @@ export class SaveExerciseModalPage implements OnInit {
       controlName: 'sources',
       exerciseTypes: ['mapping'],
       controlBuilder: (type, exercise) => {
-        const nodes = exercise?.targets ?? [{id: uuidv4(), label: ''}];
-        return this.formBuilder.array(nodes.map((node) => {
+        const sources = exercise?.sources ?? [];
+        return this.formBuilder.array(sources.map((source) => {
           return this.formBuilder.group({
             label: this.formBuilder.control(
-              node.label,
+              source.label,
               [Validators.required, Validators.minLength(1)]
             ),
-            targets: this.formBuilder.control([])
+            targets: this.formBuilder.control(source.targets)
           });
         }));
       },
