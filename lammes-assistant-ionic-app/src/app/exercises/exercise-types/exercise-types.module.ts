@@ -12,6 +12,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {DirectedGraphAssemblyExerciseComponent} from './directed-graph-assembly-exercise/directed-graph-assembly-exercise.component';
 import {NgxGraphModule} from '@swimlane/ngx-graph';
 import {DirectedGraphComponent} from './directed-graph-assembly-exercise/directed-graph/directed-graph.component';
+import {MappingExerciseComponent} from './mapping-exercise/mapping-exercise.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import {DirectedGraphComponent} from './directed-graph-assembly-exercise/directe
     OrderingExerciseComponent,
     PromptExerciseComponent,
     DirectedGraphAssemblyExerciseComponent,
-    DirectedGraphComponent
+    DirectedGraphComponent,
+    MappingExerciseComponent
   ],
   exports: [
     StandardExerciseComponent,
@@ -29,7 +31,8 @@ import {DirectedGraphComponent} from './directed-graph-assembly-exercise/directe
     MultiselectExerciseComponent,
     OrderingExerciseComponent,
     PromptExerciseComponent,
-    DirectedGraphAssemblyExerciseComponent
+    DirectedGraphAssemblyExerciseComponent,
+    MappingExerciseComponent
   ],
   imports: [
     CommonModule,

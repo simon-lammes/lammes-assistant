@@ -152,6 +152,47 @@
               </ng-container>
               <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-edge' | translate | titlecase }}</ion-button>
             </ion-list>
+            <!-- Targets -->
+            <ion-list *ngSwitchCase="'targets'" [formArrayName]="exerciseControl.controlName">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
+              </ion-list-header>
+              <ng-container [formGroup]="nodeControl"
+                            *ngFor="let nodeControl of getArrayControls(exerciseControl.controlName); let i = index">
+                <ion-item>
+                  <ion-input (ionBlur)="trim(nodeControl.controls.label)" formControlName="label" appIonInputFocus></ion-input>
+                  <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </ng-container>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-target' | translate | titlecase }}</ion-button>
+            </ion-list>
+            <!-- Sources -->
+            <ion-list *ngSwitchCase="'sources'" [formArrayName]="exerciseControl.controlName">
+              <ion-list-header>
+                <ion-label>{{exerciseControl.title | async | titlecase}}</ion-label>
+              </ion-list-header>
+              <ng-container [formGroup]="edgeControl"
+                            *ngFor="let edgeControl of getArrayControls(exerciseControl.controlName); let i = index">
+                <ion-item>
+                  <ion-input (ionBlur)="trim(edgeControl.controls.label)" formControlName="label" appIonInputFocus></ion-input>
+                  <ion-button slot="end" fill="clear" (click)="exerciseControl.removeChildControl(i)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
+                <ion-item>
+                  <ion-label>{{ 'targets' | translate | titlecase }}</ion-label>
+                  <ion-select interface="popover" formControlName="targets" multiple>
+                    <ion-select-option *ngFor="let target of exerciseForm.value.targets"
+                                       [value]="target.id">
+                      {{target.label}}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+              </ng-container>
+              <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-source' | translate | titlecase }}</ion-button>
+            </ion-list>
             <!-- Files -->
             <ion-list *ngSwitchCase="'files'">
               <ion-list-header>

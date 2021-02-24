@@ -151,6 +151,7 @@ enum ExerciseType {
   ordering
   prompt
   directedGraphAssembly @map("directed_graph_assembly")
+  mapping
 
    @@map("exercise_type")
 }

@@ -1,0 +1,53 @@
+<!-- Assignment -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>{{ 'assignment' | translate | titlecase }}</ion-card-subtitle>
+    <ion-card-title>{{exercise.title}}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <app-enriched-markdown [data]="exercise.assignment" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- User's Answer -->
+<ion-list *ngIf="answerForm">
+  <ion-list-header>
+    <ion-label>{{ 'mappings' | translate | titlecase }}</ion-label>
+  </ion-list-header>
+  <ion-item *ngFor="let sourceControl of sourcesArrayControl.controls" [formGroup]="sourceControl">
+    <ion-label>{{ sourceControl.value.label }}</ion-label>
+    <ion-select interface="popover" multiple formControlName="targets" [disabled]="answerForm.disabled">
+      <ion-select-option *ngFor="let target of exercise.targets"
+                         [value]="target.id">
+        {{target.label}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+</ion-list>
+
+<!-- Submit -->
+<ion-button [disabled]="exerciseResult !== undefined"
+            (click)="validateUsersAnswer()">
+  {{ 'submit' | translate | titlecase }}
+</ion-button>
+
+<!-- Solution -->
+<ion-card *ngIf="exerciseResult !== undefined">
+  <ion-card-header>
+    <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <ng-container *ngFor="let source of exercise.sources">
+      <h3>{{source.label}}</h3>
+      <ul>
+        <li *ngFor="let target of source.targets">{{ getTargetById(target).label }}</li>
+      </ul>
+    </ng-container>
+    <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
+  </ion-card-content>
+</ion-card>
+
+<!-- Request next exercise -->
+<ion-button *ngIf="exerciseResult !== undefined" color="primary" expand="full" (click)="requestNextExercise()">
+  Next Exercise
+</ion-button>

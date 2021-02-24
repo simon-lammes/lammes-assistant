@@ -24,7 +24,7 @@ interface ExerciseControl {
    * The exercise types for which this control is needed. Undefined, if this control should be used for every exercise type.
    */
   exerciseTypes?: ExerciseType[];
-  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems' | 'promptSolutions' | 'groupSelect' | 'nodes' | 'edges';
+  type: 'textarea' | 'text' | 'select' | 'checkbox' | 'files' | 'possibleAnswers' | 'labelSelector' | 'orderingItems' | 'promptSolutions' | 'groupSelect' | 'nodes' | 'edges' | 'targets' | 'sources';
   title: Promise<string>;
   controlName: string;
   /**
@@ -112,7 +112,8 @@ export class SaveExerciseModalPage implements OnInit {
         {value: 'ordering', displayValue: this.translateService.get('exercise-type-list.ordering').toPromise()},
         {value: 'trueOrFalse', displayValue: this.translateService.get('exercise-type-list.true-or-false').toPromise()},
         {value: 'prompt', displayValue: this.translateService.get('exercise-type-list.prompt').toPromise()},
-        {value: 'directedGraphAssembly', displayValue: this.translateService.get('exercise-type-list.directed-graph-assembly').toPromise()}
+        {value: 'directedGraphAssembly', displayValue: this.translateService.get('exercise-type-list.directed-graph-assembly').toPromise()},
+        {value: 'mapping', displayValue: this.translateService.get('exercise-type-list.mapping').toPromise()}
       ],
       controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.exerciseType ?? 'standard', [Validators.required])
     },
@@ -281,6 +282,82 @@ export class SaveExerciseModalPage implements OnInit {
       },
       removeChildControl: (index: number) => {
         const control = this.exerciseForm.controls.edges as FormArray;
+        control.removeAt(index);
+      }
+    },
+    {
+      title: this.translateService.get('targets').toPromise(),
+      type: 'targets',
+      isLocked: false,
+      controlName: 'targets',
+      exerciseTypes: ['mapping'],
+      controlBuilder: (type, exercise) => {
+        const nodes = exercise?.targets ?? [{id: uuidv4(), label: ''}];
+        return this.formBuilder.array(nodes.map((node) => {
+          return this.formBuilder.group({
+            id: this.formBuilder.control(node.id),
+            label: this.formBuilder.control(
+              node.label,
+              [Validators.required, Validators.minLength(1)]
+            )
+          });
+        }));
+      },
+      addChildControl: () => {
+        const control = this.exerciseForm.controls.targets as FormArray;
+        const newNode = this.formBuilder.group({
+          id: uuidv4(),
+          label: this.formBuilder.control(
+            '',
+            [Validators.required, Validators.minLength(1)]
+          )
+        });
+        control.push(newNode);
+      },
+      removeChildControl: (index: number) => {
+        const control = this.exerciseForm.controls.targets as FormArray;
+        const uuid = control.at(index).value.id;
+        control.removeAt(index);
+        // Now remove all references to the deleted node.
+        const sourcesControl = this.exerciseForm.controls.sources as FormArray;
+        for (const sourceControl of sourcesControl.controls) {
+          if (sourceControl.value.targets.includes(uuid)) {
+            sourceControl.patchValue(sourceControl.value.targets.filter(uuid));
+          }
+        }
+      }
+    },
+    {
+      title: this.translateService.get('sources').toPromise(),
+      type: 'sources',
+      isLocked: false,
+      controlName: 'sources',
+      exerciseTypes: ['mapping'],
+      controlBuilder: (type, exercise) => {
+        const nodes = exercise?.targets ?? [{id: uuidv4(), label: ''}];
+        return this.formBuilder.array(nodes.map((node) => {
+          return this.formBuilder.group({
+            label: this.formBuilder.control(
+              node.label,
+              [Validators.required, Validators.minLength(1)]
+            ),
+            targets: this.formBuilder.control([])
+          });
+        }));
+      },
+      addChildControl: () => {
+        const control = this.exerciseForm.controls.sources as FormArray;
+        const newNode = this.formBuilder.group({
+          label: this.formBuilder.control(
+            '',
+            [Validators.required, Validators.minLength(1)]
+          ),
+          targets: this.formBuilder.control([])
+        });
+        control.push(newNode);
+      },
+      removeChildControl: (index: number) => {
+        const control = this.exerciseForm.controls.sources as FormArray;
         control.removeAt(index);
       }
     },
