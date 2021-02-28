@@ -50,7 +50,7 @@ export interface HydratedExercise {
   nodes: { id: string, label: string }[];
   edges: { id: string, label: string, source: string, target: string }[];
   targets: { id: string, label: string }[];
-  sources: { label: string, targets: string[] }[];
+  sources: { label: string, targets: string[], explanation?: string }[];
   files: CustomFile[];
   labels?: string[];
   languageCode: LanguageCodeIso639_1;

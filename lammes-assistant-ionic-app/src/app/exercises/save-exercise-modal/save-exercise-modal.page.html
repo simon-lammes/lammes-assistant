@@ -190,6 +190,10 @@
                     </ion-select-option>
                   </ion-select>
                 </ion-item>
+                <ion-item>
+                  <ion-label>{{ 'explanation' | translate | titlecase }}</ion-label>
+                  <ion-input (ionBlur)="trim(edgeControl.controls.label)" formControlName="explanation"></ion-input>
+                </ion-item>
               </ng-container>
               <ion-button type="button" (click)="exerciseControl.addChildControl()">{{ 'add-source' | translate | titlecase }}</ion-button>
             </ion-list>

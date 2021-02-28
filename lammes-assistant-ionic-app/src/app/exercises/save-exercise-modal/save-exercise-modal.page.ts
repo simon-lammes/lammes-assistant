@@ -341,7 +341,8 @@ export class SaveExerciseModalPage implements OnInit {
               source.label,
               [Validators.required, Validators.minLength(1)]
             ),
-            targets: this.formBuilder.control(source.targets)
+            targets: this.formBuilder.control(source.targets),
+            explanation: this.formBuilder.control(source.explanation)
           });
         }));
       },
@@ -352,7 +353,8 @@ export class SaveExerciseModalPage implements OnInit {
             '',
             [Validators.required, Validators.minLength(1)]
           ),
-          targets: this.formBuilder.control([])
+          targets: this.formBuilder.control([]),
+          explanation: this.formBuilder.control('')
         });
         control.push(newNode);
       },

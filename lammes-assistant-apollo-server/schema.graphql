@@ -358,6 +358,7 @@ input SettingsInput {
 }
 
 input SourceInput {
+  explanation: String
   label: String!
   targets: [String!]!
 }

@@ -38,19 +38,23 @@
   </ion-card-header>
   <ion-card-content>
     <ng-container *ngFor="let source of shuffledSources; let i = index">
-      <h3>{{source.label}}</h3>
+      <h2>{{source.label}}</h2>
+      <app-enriched-markdown *ngIf="source.explanation" [files]="exercise.files" [data]="source.explanation"></app-enriched-markdown>
       <ul>
         <ng-container *ngFor="let target of shuffledTargets">
+          <!-- Wrong Answer -->
           <li *ngIf="!source.targets.includes(target.id) && usersSources[i].targets?.includes(target.id)">
             <ion-text color="danger">
               <del>{{target.label}}</del>
             </ion-text>
           </li>
+          <!-- Correct Answer -->
           <li *ngIf="source.targets.includes(target.id) && usersSources[i].targets?.includes(target.id)">
             <ion-text color="success">
               {{target.label}}
             </ion-text>
           </li>
+          <!-- Missing Answer -->
           <li *ngIf="source.targets.includes(target.id) && !usersSources[i].targets?.includes(target.id)">
            {{target.label}}
           </li>

@@ -19,7 +19,7 @@ export class MappingExerciseComponent implements OnChanges {
 
   exerciseResult: ExerciseResult;
   answerForm: FormGroup;
-  shuffledSources: {label: string, targets: string[]}[];
+  shuffledSources: {label: string, targets: string[], explanation?: string}[];
   shuffledTargets: {id: string, label: string}[];
 
   constructor(

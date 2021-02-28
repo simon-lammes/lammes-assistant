@@ -89,5 +89,6 @@ const SourceInputType = inputObjectType({
   definition(t) {
     t.nonNull.string('label');
     t.nonNull.list.nonNull.string('targets');
+    t.nullable.string('explanation');
   },
 });
