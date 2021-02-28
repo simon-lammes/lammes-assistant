@@ -24,6 +24,7 @@ export interface Settings {
   exerciseCorrectStreakCap?: number;
   theme: 'system' | 'dark' | 'light';
   preferredLanguageCode: string;
+  applicationVolume: number;
 }
 
 const saveSettingsMutation = gql`

@@ -11,6 +11,7 @@ export interface Settings {
   exerciseCooldown: ExerciseCooldown;
   exerciseCorrectStreakCap?: number;
   theme: 'system' | 'dark' | 'light';
+  applicationVolume?: number;
 }
 
 
@@ -24,6 +25,7 @@ export const SettingsInputType = inputObjectType({
       type: 'LanguageCode',
       description: 'If null, the system default will be used.'
     });
+    t.nullable.float('applicationVolume', {description: 'How load should the application be in general?'});
   },
 });
 
@@ -36,5 +38,6 @@ export const SettingsObjectType = objectType({
       type: 'LanguageCode',
       description: 'If null, the system default will be used.'
     });
+    t.nullable.float('applicationVolume', {description: 'How load should the application be in general?'});
   },
 });

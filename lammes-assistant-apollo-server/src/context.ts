@@ -29,7 +29,8 @@ const defaultApplicationConfiguration: ApplicationConfiguration = {
       minutes: 0
     },
     theme: 'system',
-    settingsUpdatedTimestamp: undefined
+    settingsUpdatedTimestamp: undefined,
+    applicationVolume: 0
   }
 }
 

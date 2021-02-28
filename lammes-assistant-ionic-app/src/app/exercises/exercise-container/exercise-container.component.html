@@ -1,3 +1,13 @@
+<ng-container *ngIf="settings$ | async as settings">
+  <audio [volume]="settings.applicationVolume" #successAudio>
+    <source src="assets/sounds/success.wav">
+  </audio>
+
+  <audio [volume]="settings.applicationVolume" #failureAudio>
+    <source src="assets/sounds/failure.mp3">
+  </audio>
+</ng-container>
+
 <ng-container [ngSwitch]="exercise.exerciseType">
   <app-multiselect-exercise *ngSwitchCase="'multiselect'" [exercise]="exercise"
                             (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-multiselect-exercise>

@@ -60,7 +60,8 @@ export class SettingsPage implements OnInit {
         hours: this.fb.control(settings.exerciseCooldown.hours),
         minutes: this.fb.control(settings.exerciseCooldown.minutes)
       }),
-      exerciseCorrectStreakCap: this.fb.control(settings.exerciseCorrectStreakCap, [Validators.min(0)])
+      exerciseCorrectStreakCap: this.fb.control(settings.exerciseCorrectStreakCap, [Validators.min(0)]),
+      applicationVolume: this.fb.control(settings.applicationVolume ?? 0)
     });
     this.exerciseCooldownTextualRepresentation$ = this.exerciseCooldownGroup.valueChanges.pipe(
       // We want this observable to include the initial value.
