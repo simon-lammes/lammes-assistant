@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
 import {ExerciseState} from '../../study/study.page';
-import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {CustomFormsService} from '../../../shared/services/custom-forms.service';
 import _ from 'lodash';
 
@@ -30,6 +30,10 @@ export class MappingExerciseComponent implements OnChanges {
 
   get sourcesArrayControl() {
     return this.answerForm.controls.sources as FormArray;
+  }
+
+  get usersSources() {
+    return this.answerForm.controls.sources.value as {label: string, targets: string[]}[];
   }
 
   ngOnChanges() {
@@ -77,7 +81,12 @@ export class MappingExerciseComponent implements OnChanges {
     });
   }
 
-  getTargetById(targetId: string) {
-    return this.exercise.targets.find(target => target.id === targetId);
+  determineSourceColor(sourceControl: AbstractControl, index: number) {
+    if (!this.exerciseResult) {
+      return undefined;
+    }
+    const source = sourceControl.value;
+    const originalSource = this.shuffledSources[index];
+    return _.isEqual(new Set(originalSource.targets), new Set(source.targets)) ? undefined : 'danger';
   }
 }

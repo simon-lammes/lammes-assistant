@@ -14,7 +14,7 @@
   <ion-list-header>
     <ion-label>{{ 'mappings' | translate | titlecase }}</ion-label>
   </ion-list-header>
-  <ion-item *ngFor="let sourceControl of sourcesArrayControl.controls" [formGroup]="sourceControl">
+  <ion-item *ngFor="let sourceControl of sourcesArrayControl.controls; let i = index" [formGroup]="sourceControl" [color]="determineSourceColor(sourceControl, i)">
     <ion-label>{{ sourceControl.value.label }}</ion-label>
     <ion-select interface="popover" multiple formControlName="targets" [disabled]="answerForm.disabled">
       <ion-select-option *ngFor="let target of shuffledTargets"
@@ -37,11 +37,23 @@
     <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
-    <ng-container *ngFor="let source of shuffledSources">
+    <ng-container *ngFor="let source of shuffledSources; let i = index">
       <h3>{{source.label}}</h3>
       <ul>
         <ng-container *ngFor="let target of shuffledTargets">
-          <li *ngIf="source.targets.includes(target.id)">{{ getTargetById(target.id).label }}</li>
+          <li *ngIf="!source.targets.includes(target.id) && usersSources[i].targets?.includes(target.id)">
+            <ion-text color="danger">
+              <del>{{target.label}}</del>
+            </ion-text>
+          </li>
+          <li *ngIf="source.targets.includes(target.id) && usersSources[i].targets?.includes(target.id)">
+            <ion-text color="success">
+              {{target.label}}
+            </ion-text>
+          </li>
+          <li *ngIf="source.targets.includes(target.id) && !usersSources[i].targets?.includes(target.id)">
+           {{target.label}}
+          </li>
         </ng-container>
       </ul>
     </ng-container>
