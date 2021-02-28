@@ -96,7 +96,7 @@ export class SaveExerciseModalPage implements OnInit {
       },
       controlBuilder: (type, exercise) => {
         // For some types of exercises, we do not necessarily need a solution text.
-        const exerciseTypesThatDontRequireSolution: ExerciseType[] = ['multiselect', 'prompt'];
+        const exerciseTypesThatDontRequireSolution: ExerciseType[] = ['multiselect', 'prompt', 'mapping'];
         const isSolutionRequired = !exerciseTypesThatDontRequireSolution.includes(type);
         return this.formBuilder.control(exercise?.solution ?? '', isSolutionRequired ? [Validators.required, Validators.min(1)] : []);
       }
