@@ -42,7 +42,7 @@
   "exercise-type": "exercise type",
   "exercise-type-list": {
     "directed-graph-assembly": "directed graph assembly",
-    "mapping": "Zuordnung",
+    "mapping": "mapping",
     "multi-select": "multi-select",
     "ordering": "ordering",
     "prompt": "prompt",

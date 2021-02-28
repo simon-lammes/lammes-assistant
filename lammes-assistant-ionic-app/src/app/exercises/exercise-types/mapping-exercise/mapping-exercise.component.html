@@ -17,7 +17,7 @@
   <ion-item *ngFor="let sourceControl of sourcesArrayControl.controls" [formGroup]="sourceControl">
     <ion-label>{{ sourceControl.value.label }}</ion-label>
     <ion-select interface="popover" multiple formControlName="targets" [disabled]="answerForm.disabled">
-      <ion-select-option *ngFor="let target of exercise.targets"
+      <ion-select-option *ngFor="let target of shuffledTargets"
                          [value]="target.id">
         {{target.label}}
       </ion-select-option>
@@ -37,10 +37,12 @@
     <ion-card-subtitle>{{ 'solution' | translate | titlecase }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
-    <ng-container *ngFor="let source of exercise.sources">
+    <ng-container *ngFor="let source of shuffledSources">
       <h3>{{source.label}}</h3>
       <ul>
-        <li *ngFor="let target of source.targets">{{ getTargetById(target).label }}</li>
+        <ng-container *ngFor="let target of shuffledTargets">
+          <li *ngIf="source.targets.includes(target.id)">{{ getTargetById(target.id).label }}</li>
+        </ng-container>
       </ul>
     </ng-container>
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>

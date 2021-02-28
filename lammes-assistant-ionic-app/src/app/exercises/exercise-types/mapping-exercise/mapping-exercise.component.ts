@@ -19,6 +19,8 @@ export class MappingExerciseComponent implements OnChanges {
 
   exerciseResult: ExerciseResult;
   answerForm: FormGroup;
+  shuffledSources: {label: string, targets: string[]}[];
+  shuffledTargets: {id: string, label: string}[];
 
   constructor(
     private fb: FormBuilder,
@@ -33,8 +35,10 @@ export class MappingExerciseComponent implements OnChanges {
   ngOnChanges() {
     // When the exercise has changed, reset.
     this.exerciseResult = undefined;
+    this.shuffledSources = _.shuffle(this.exercise.sources);
+    this.shuffledTargets = _.shuffle(this.exercise.targets);
     this.answerForm = this.fb.group({
-      sources: this.fb.array(this.exercise.sources.map(source => {
+      sources: this.fb.array(this.shuffledSources.map(source => {
         return this.fb.group({
           label: source.label,
           // Targets is empty because the user needs to fill it.
@@ -68,7 +72,7 @@ export class MappingExerciseComponent implements OnChanges {
     const answer = this.answerForm.value;
     const sources = answer.sources as {label: string, targets: string[]}[];
     return sources.every((source, index) => {
-      const originalSource = this.exercise.sources[index];
+      const originalSource = this.shuffledSources[index];
       return _.isEqual(new Set(originalSource.targets), new Set(source.targets));
     });
   }
