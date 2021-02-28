@@ -1,9 +1,9 @@
-<ng-container *ngIf="settings$ | async as settings">
-  <audio [volume]="settings.applicationVolume" #successAudio>
+<ng-container *ngIf="applicationVolume$ | async as volume">
+  <audio [volume]="volume" #successAudio>
     <source src="assets/sounds/success.wav">
   </audio>
 
-  <audio [volume]="settings.applicationVolume" #failureAudio>
+  <audio [volume]="volume" #failureAudio>
     <source src="assets/sounds/failure.mp3">
   </audio>
 </ng-container>

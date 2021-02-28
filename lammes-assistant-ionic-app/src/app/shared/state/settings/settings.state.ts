@@ -41,6 +41,11 @@ export class SettingsState implements NgxsOnInit {
     return settings?.exerciseCooldown;
   }
 
+  @Selector([SettingsState.settings])
+  public static applicationVolume(settings: Settings) {
+    return settings?.applicationVolume;
+  }
+
   ngxsOnInit(ctx?: StateContext<SettingsStateModel>): any {
     const cachedSettings = ctx.getState().settings;
     ctx.dispatch(new LoadSettings(cachedSettings));

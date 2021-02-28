@@ -4,7 +4,6 @@ import {ExerciseState} from '../study/study.page';
 import {Select} from '@ngxs/store';
 import {SettingsState} from '../../shared/state/settings/settings.state';
 import {Observable} from 'rxjs';
-import {Settings} from '../../shared/services/settings/settings.service';
 
 @Component({
   selector: 'app-exercise-container',
@@ -12,7 +11,7 @@ import {Settings} from '../../shared/services/settings/settings.service';
   styleUrls: ['./exercise-container.component.scss'],
 })
 export class ExerciseContainerComponent {
-  @Select(SettingsState.settings) settings$: Observable<Settings>;
+  @Select(SettingsState.applicationVolume) applicationVolume$: Observable<number>;
 
   @Input()
   exercise: HydratedExercise;
