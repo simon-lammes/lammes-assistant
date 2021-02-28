@@ -48,7 +48,8 @@ export class SettingsState implements NgxsOnInit {
 
   ngxsOnInit(ctx?: StateContext<SettingsStateModel>): any {
     const cachedSettings = ctx.getState().settings;
-    ctx.dispatch(new LoadSettings(cachedSettings));
+    // tslint:disable-next-line:no-console for debugging a production error leading to setting being null
+    ctx.dispatch(new LoadSettings(cachedSettings)).subscribe(() => console.debug('settings loaded'));
     this.setupAutomaticSave(ctx);
   }
 
