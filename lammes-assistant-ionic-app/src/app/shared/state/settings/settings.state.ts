@@ -8,6 +8,7 @@ import {debounceAutomaticSave} from '../../operators/debounce-automatic-save';
 import {ApplicationConfigurationService} from '../../services/application-configuration/application-configuration.service';
 import {distinctUntilChangedDeeply} from '../../operators/distinct-until-changed-deeply';
 import {AuthenticationService} from '../../services/authentication/authentication.service';
+import {UserService} from '../../services/users/user.service';
 
 export interface SettingsStateModel {
   settings: Settings;
@@ -27,7 +28,8 @@ export class SettingsState implements NgxsOnInit {
     private settingsService: SettingsService,
     private authenticationService: AuthenticationService,
     private applicationConfigurationService: ApplicationConfigurationService,
-    private actions: Actions
+    private actions: Actions,
+    private userService: UserService
   ) {
   }
 
@@ -48,8 +50,9 @@ export class SettingsState implements NgxsOnInit {
 
   ngxsOnInit(ctx?: StateContext<SettingsStateModel>): any {
     const cachedSettings = ctx.getState().settings;
-    // tslint:disable-next-line:no-console for debugging a production error leading to setting being null
-    ctx.dispatch(new LoadSettings(cachedSettings)).subscribe(() => console.debug('settings loaded'));
+    // Whenever the user changes, we need to load the "new" settings.
+    this.userService.currentUser$.pipe(untilDestroyed(this)).subscribe(() =>
+      ctx.dispatch(new LoadSettings(cachedSettings)));
     this.setupAutomaticSave(ctx);
   }
 
