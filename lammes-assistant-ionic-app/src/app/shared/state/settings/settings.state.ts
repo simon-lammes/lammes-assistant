@@ -2,7 +2,7 @@ import {Action, Actions, NgxsOnInit, ofActionDispatched, Selector, State, StateC
 import {LoadSettings, PersistSettings, UpdateSettings} from './settings.actions';
 import {Settings, SettingsService} from '../../services/settings/settings.service';
 import {Injectable} from '@angular/core';
-import {map} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
 import {debounceAutomaticSave} from '../../operators/debounce-automatic-save';
 import {ApplicationConfigurationService} from '../../services/application-configuration/application-configuration.service';
@@ -56,13 +56,15 @@ export class SettingsState implements NgxsOnInit {
     this.setupAutomaticSave(ctx);
   }
 
-  @Action(LoadSettings)
+  @Action(LoadSettings, {cancelUncompleted: true})
   public load(ctx: StateContext<SettingsStateModel>, {cachedSettings}: LoadSettings) {
-    this.settingsService.getSettings(cachedSettings).then(settings => {
-      ctx.patchState({
-        settings
-      });
-    });
+    return this.settingsService.getSettings(cachedSettings).pipe(
+      tap(settings => {
+        ctx.patchState({
+          settings
+        });
+      })
+    );
   }
 
   @Action(UpdateSettings)

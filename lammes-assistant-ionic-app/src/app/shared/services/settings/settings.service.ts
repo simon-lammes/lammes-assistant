@@ -69,7 +69,7 @@ export class SettingsService {
    * with some default values.
    * @param cachedSettings the settings that were already in cache; those are used as fallback
    */
-  getSettings(cachedSettings?: Settings): Promise<Settings> {
+  getSettings(cachedSettings?: Settings): Observable<Settings> {
     return combineLatest([
       this.applicationConfigurationService.defaultSettings$,
       this.userService.currentUser$
@@ -84,7 +84,7 @@ export class SettingsService {
           ...settings
         };
       })
-    ).toPromise();
+    );
   }
 
   private async cacheSettings(user: User, settings: Settings) {
