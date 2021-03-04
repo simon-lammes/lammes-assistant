@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../../shared/services/custom-forms.service';
 
@@ -10,11 +9,17 @@ import {CustomFormsService} from '../../../shared/services/custom-forms.service'
   styleUrls: ['./directed-graph-assembly-exercise.component.scss'],
 })
 export class DirectedGraphAssemblyExerciseComponent implements OnChanges {
+
+  constructor(
+    private fb: FormBuilder,
+    private customFormsService: CustomFormsService
+  ) {
+  }
   @Input()
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   edges: any[];
   nodes: any[];
@@ -24,10 +29,10 @@ export class DirectedGraphAssemblyExerciseComponent implements OnChanges {
   userCreatedEdges: any[];
   addEdgeForm: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private customFormsService: CustomFormsService
-  ) {
+  private static areEdgesEqual(one, other) {
+    return one.source === other.source
+      && one.label && other.label
+      && one.target === other.target;
   }
 
   ngOnChanges() {
@@ -56,21 +61,12 @@ export class DirectedGraphAssemblyExerciseComponent implements OnChanges {
     this.edgeLabels = [...new Set(this.edges.map(edge => edge.label))];
   }
 
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
-  }
-
   validateUsersAnswer() {
     const isCorrect = this.userCreatedEdges.length === this.edges.length &&
       this.userCreatedEdges.every(userCreatedEdge =>
-        this.edges.some(edge => this.areEdgesEqual(edge, userCreatedEdge)));
+        this.edges.some(edge => DirectedGraphAssemblyExerciseComponent.areEdgesEqual(edge, userCreatedEdge)));
     this.exerciseResult = isCorrect ? 'SUCCESS' : 'FAILURE';
-    this.exerciseStateChanged.emit({
-      exerciseResult: this.exerciseResult,
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(this.exerciseResult);
     this.addEdgeForm.disable();
   }
 
@@ -95,13 +91,7 @@ export class DirectedGraphAssemblyExerciseComponent implements OnChanges {
   isAddEdgeFormValueADuplicate() {
     const newEdge = this.addEdgeForm.value;
     return this.userCreatedEdges.some(edge =>
-      this.areEdgesEqual(edge, newEdge)
+      DirectedGraphAssemblyExerciseComponent.areEdgesEqual(edge, newEdge)
     );
-  }
-
-  private areEdgesEqual(one, other) {
-    return one.source === other.source
-      && one.label && other.label
-      && one.target === other.target;
   }
 }

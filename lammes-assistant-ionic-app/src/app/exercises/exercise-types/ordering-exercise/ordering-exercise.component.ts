@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 import _ from 'lodash';
 import {ItemReorderEventDetail} from '@ionic/core';
 
@@ -15,7 +14,7 @@ export class OrderingExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   exerciseResult: ExerciseResult;
   answerOrder: string[];
@@ -27,28 +26,16 @@ export class OrderingExerciseComponent implements OnChanges {
   }
 
   onUserReview(result: ExerciseResult) {
-    this.exerciseStateChanged.emit({
-      exerciseResult: result,
-      nextExerciseRequested: true
-    });
+    this.exerciseResultChanged.emit(result);
   }
 
   submit() {
     const success = _.isEqual(this.exercise.orderingItems, this.answerOrder);
     this.exerciseResult = success ? 'SUCCESS' : 'FAILURE';
-    this.exerciseStateChanged.emit({
-      exerciseResult: this.exerciseResult,
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(this.exerciseResult);
   }
 
   reorderAnswerOrder(event: CustomEvent<ItemReorderEventDetail>) {
     event.detail.complete(this.answerOrder);
-  }
-
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
   }
 }

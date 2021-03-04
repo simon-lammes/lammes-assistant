@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
+import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
 
 @Component({
   selector: 'app-true-or-false-exercise',
@@ -13,7 +12,7 @@ export class TrueOrFalseExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   trueOrFalseSelection: boolean;
 
@@ -30,22 +29,12 @@ export class TrueOrFalseExerciseComponent implements OnChanges {
     return 'medium';
   }
 
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
-  }
-
   /**
    * @param evaluation Whether the user said that he thinks the statement is right.
    */
   onEvaluatedStatement(evaluation: boolean) {
     this.trueOrFalseSelection = evaluation;
     const isCorrect = evaluation === this.exercise.isStatementCorrect;
-    this.exerciseStateChanged.emit({
-      exerciseResult: isCorrect ? 'SUCCESS' : 'FAILURE',
-      // The user may want to watch the solution. We do not request the next exercise yet.
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(isCorrect ? 'SUCCESS' : 'FAILURE');
   }
 }

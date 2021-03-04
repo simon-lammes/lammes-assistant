@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {CustomFormsService} from '../../../shared/services/custom-forms.service';
 import _ from 'lodash';
@@ -15,7 +14,7 @@ export class MappingExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   exerciseResult: ExerciseResult;
   answerForm: FormGroup;
@@ -52,19 +51,10 @@ export class MappingExerciseComponent implements OnChanges {
     });
   }
 
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
-  }
-
   validateUsersAnswer() {
     const isCorrect = this.isUsersAnswerCorrect();
     this.exerciseResult = isCorrect ? 'SUCCESS' : 'FAILURE';
-    this.exerciseStateChanged.emit({
-      exerciseResult: this.exerciseResult,
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(this.exerciseResult);
     this.answerForm.disable();
   }
 

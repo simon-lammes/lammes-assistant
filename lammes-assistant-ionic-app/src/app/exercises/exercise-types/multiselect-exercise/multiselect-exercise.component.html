@@ -45,10 +45,3 @@
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
   </ion-card-content>
 </ion-card>
-
-<!-- Request next exercise -->
-<ng-container *ngIf="exerciseResult">
-  <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()" expand="block">
-    {{ 'next-exercise' | translate | titlecase }}
-  </ion-button>
-</ng-container>

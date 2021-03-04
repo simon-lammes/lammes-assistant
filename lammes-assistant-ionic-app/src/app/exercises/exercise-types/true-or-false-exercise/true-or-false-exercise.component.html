@@ -31,10 +31,3 @@
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
   </ion-card-content>
 </ion-card>
-
-<!-- Review and request next exercise -->
-<div style="display: flex" *ngIf="trueOrFalseSelection !== undefined">
-  <ion-button color="primary" style="flex: 1" (click)="requestNextExercise()">
-    {{ 'next-exercise' | translate | titlecase }}
-  </ion-button>
-</div>

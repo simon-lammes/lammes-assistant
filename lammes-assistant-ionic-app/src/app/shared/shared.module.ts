@@ -30,7 +30,8 @@ import {GroupSelectModalComponent} from './components/group-select/group-select-
     ValidationFeedbackComponent,
     IonInputFocusDirective,
     TranslateModule,
-    GroupSelectComponent
+    GroupSelectComponent,
+    IonicModule
   ],
   imports: [
     CommonModule,

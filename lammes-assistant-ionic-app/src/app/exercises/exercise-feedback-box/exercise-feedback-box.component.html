@@ -1,0 +1,16 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle *ngIf="experience$ | async as experience">{{ 'correct-streak' | translate | titlecase }}: {{ experience.correctStreak }}</ion-card-subtitle>
+    <ion-card-title>
+      <ion-text [color]="exerciseResult === 'SUCCESS' ? 'success' : 'danger'">
+        <h3 *ngIf="exerciseResult === 'SUCCESS'">{{ 'messages.success' | translate | titlecase }}</h3>
+        <h3 *ngIf="exerciseResult === 'FAILURE'">{{ 'messages.failure' | translate | titlecase }}</h3>
+      </ion-text>
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-button color="primary" expand="block" (click)="requestNextExercise()">
+      {{ 'next-exercise' | translate }}
+    </ion-button>
+  </ion-card-content>
+</ion-card>

@@ -64,8 +64,3 @@
     <app-enriched-markdown [data]="exercise.solution" [files]="exercise.files"></app-enriched-markdown>
   </ion-card-content>
 </ion-card>
-
-<!-- Request next exercise -->
-<ion-button *ngIf="exerciseResult !== undefined" color="primary" expand="full" (click)="requestNextExercise()">
-  Next Exercise
-</ion-button>

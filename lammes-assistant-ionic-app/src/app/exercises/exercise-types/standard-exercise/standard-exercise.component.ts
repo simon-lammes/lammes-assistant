@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 
 @Component({
   selector: 'app-standard-exercise',
@@ -12,13 +11,15 @@ export class StandardExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   isSolutionVisible = false;
+  exerciseResult: ExerciseResult;
 
   ngOnChanges() {
     // When the exercise has changed, reset.
     this.isSolutionVisible = false;
+    this.exerciseResult = undefined;
   }
 
   showSolution() {
@@ -26,9 +27,7 @@ export class StandardExerciseComponent implements OnChanges {
   }
 
   onUserReview(result: ExerciseResult) {
-    this.exerciseStateChanged.emit({
-      exerciseResult: result,
-      nextExerciseRequested: true
-    });
+    this.exerciseResult = result;
+    this.exerciseResultChanged.emit(result);
   }
 }

@@ -235,6 +235,6 @@
   <!--  Preview-->
   <ng-container *ngIf="selectedSegment === 'preview'">
     <app-exercise-container *ngIf="previewedExercise$ | async as exercise" [exercise]="exercise"
-                            (exerciseStateChanged)="onPreviewExerciseStateChanged($event)"></app-exercise-container>
+                            (nextExerciseRequested)="onNextExerciseRequested()"></app-exercise-container>
   </ng-container>
 </ion-content>

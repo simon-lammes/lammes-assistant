@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {ExerciseResult, HydratedExercise} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 import {FormBuilder, FormControl} from '@angular/forms';
 import {CustomFormsService} from '../../../shared/services/custom-forms.service';
 
@@ -15,7 +14,7 @@ export class PromptExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   exerciseResult: ExerciseResult;
   usersAnswerControl: FormControl;
@@ -32,22 +31,13 @@ export class PromptExerciseComponent implements OnChanges {
     this.usersAnswerControl = this.fb.control('');
   }
 
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
-  }
-
   validateUsersAnswer() {
     const answer: string = this.usersAnswerControl.value;
     const isCorrect = this.exercise.promptSolutions.some(solution => {
       return solution.value.toLowerCase() === answer.toLowerCase();
     });
     this.exerciseResult = isCorrect ? 'SUCCESS' : 'FAILURE';
-    this.exerciseStateChanged.emit({
-      exerciseResult: this.exerciseResult,
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(this.exerciseResult);
   }
 
   trim(control: FormControl) {

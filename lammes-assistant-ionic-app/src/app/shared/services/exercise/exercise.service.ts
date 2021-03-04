@@ -108,19 +108,19 @@ export interface StudyProgress {
  * so that our cache for all queries can be updated with all required fields.
  */
 const exerciseFragment = gql`
-  fragment ExerciseFragment on Exercise {
-    id,
-    title,
-    versionTimestamp,
-    markedForDeletionTimestamp,
-    creatorId,
-    exerciseLabels {
-      label {
-        title
-      }
-    },
-    languageCode
-  }
+    fragment ExerciseFragment on Exercise {
+        id,
+        title,
+        versionTimestamp,
+        markedForDeletionTimestamp,
+        creatorId,
+        exerciseLabels {
+            label {
+                title
+            }
+        },
+        languageCode
+    }
 `;
 
 /**
@@ -128,81 +128,81 @@ const exerciseFragment = gql`
  * so that our cache for all queries can be updated with all required fields.
  */
 const experienceFragment = gql`
-  fragment ExperienceFragment on Experience {
-    correctStreak,
-    exercise {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    fragment ExperienceFragment on Experience {
+        correctStreak,
+        exercise {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 const exerciseFilterFragment = gql`
-  fragment ExerciseFilterFragment on ExerciseFilter {
-    id,
-    title,
-    exerciseFilterDefinition
-  }
+    fragment ExerciseFilterFragment on ExerciseFilter {
+        id,
+        title,
+        exerciseFilterDefinition
+    }
 `;
 
 const usersRemovedExercisesQuery = gql`
-  query UsersRemovedExercisesQuery {
-    myExercisesThatAreMarkedForDeletion {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    query UsersRemovedExercisesQuery {
+        myExercisesThatAreMarkedForDeletion {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 const createExerciseMutation = gql`
-  mutation CreateExercise($hydratedExerciseInput: HydratedExerciseInput!) {
-    createExercise(hydratedExerciseInput: $hydratedExerciseInput) {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    mutation CreateExercise($hydratedExerciseInput: HydratedExerciseInput!) {
+        createExercise(hydratedExerciseInput: $hydratedExerciseInput) {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 const updateExerciseMutation = gql`
-  mutation UpdateExercise($id: Int!, $hydratedExerciseInput: HydratedExerciseInput!) {
-    updateExercise(id: $id, hydratedExerciseInput: $hydratedExerciseInput) {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    mutation UpdateExercise($id: Int!, $hydratedExerciseInput: HydratedExerciseInput!) {
+        updateExercise(id: $id, hydratedExerciseInput: $hydratedExerciseInput) {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 const getExerciseDownloadLinkQuery = gql`
-  query GetExerciseDownloadLink($exerciseId: Int!) {
-    getExerciseDownloadLink(exerciseId: $exerciseId)
-  }
+    query GetExerciseDownloadLink($exerciseId: Int!) {
+        getExerciseDownloadLink(exerciseId: $exerciseId)
+    }
 `;
 
 const registerExerciseExperienceMutation = gql`
-  mutation RegisterExerciseExperience($exerciseId: Int!, $exerciseResult: ExerciseResult!, $exerciseCorrectStreakCap: Int) {
-    registerExerciseExperience(exerciseId: $exerciseId, exerciseResult: $exerciseResult, exerciseCorrectStreakCap: $exerciseCorrectStreakCap) {
-      ...ExperienceFragment
-    }
-  },
-  ${experienceFragment}
+    mutation RegisterExerciseExperience($exerciseId: Int!, $exerciseResult: ExerciseResult!, $exerciseCorrectStreakCap: Int) {
+        registerExerciseExperience(exerciseId: $exerciseId, exerciseResult: $exerciseResult, exerciseCorrectStreakCap: $exerciseCorrectStreakCap) {
+            ...ExperienceFragment
+        }
+    },
+    ${experienceFragment}
 `;
 
 const removeExerciseMutation = gql`
-  mutation RemoveExercise($id: Int!) {
-    removeExercise(id: $id) {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    mutation RemoveExercise($id: Int!) {
+        removeExercise(id: $id) {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 const restoreExerciseMutation = gql`
-  mutation RestoreExercise($id: Int!) {
-    restoreExercise(id: $id) {
-      ...ExerciseFragment
-    }
-  },
-  ${exerciseFragment}
+    mutation RestoreExercise($id: Int!) {
+        restoreExercise(id: $id) {
+            ...ExerciseFragment
+        }
+    },
+    ${exerciseFragment}
 `;
 
 /**
@@ -229,12 +229,12 @@ function complementHydratedExerciseWithDefaultValues() {
 }
 
 const myExerciseFilters = gql`
-  query MyExerciseFilters {
-    myExerciseFilters {
-      ...ExerciseFilterFragment
-    }
-  },
-  ${exerciseFilterFragment}
+    query MyExerciseFilters {
+        myExerciseFilters {
+            ...ExerciseFilterFragment
+        }
+    },
+    ${exerciseFilterFragment}
 `;
 
 @Injectable({
@@ -269,12 +269,12 @@ export class ExerciseService {
     // We need to use watchQuery. The user might edit the exercise and thus, the updated exercise should be emitted.
     return this.apollo.watchQuery<{ myNextExercise: Exercise }>({
       query: gql`
-        query MyNextExercise($exerciseCooldown: ExerciseCooldownInput!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
-          myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilterDefinition) {
-            ...ExerciseFragment
-          }
-        },
-        ${exerciseFragment}
+          query MyNextExercise($exerciseCooldown: ExerciseCooldownInput!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+              myNextExercise(exerciseCooldown: $exerciseCooldown, exerciseFilter: $exerciseFilterDefinition) {
+                  ...ExerciseFragment
+              }
+          },
+          ${exerciseFragment}
       `,
       variables: {exerciseFilterDefinition, exerciseCooldown},
       // 'Network-only' is the only fetch policy that worked out so far.
@@ -335,16 +335,24 @@ export class ExerciseService {
     }
   }
 
-  async registerExerciseExperience(args: { exerciseId: number, exerciseResult: ExerciseResult, exerciseCorrectStreakCap?: number }) {
-    await this.apollo.mutate<{ registerExerciseExperience: Exercise }, any>({
+  registerExerciseExperience(args: {
+    exerciseId: number,
+    exerciseResult: ExerciseResult,
+    exerciseCorrectStreakCap?: number
+  }): Observable<Experience> {
+    return this.apollo.mutate<{ registerExerciseExperience: Experience }, any>({
       mutation: registerExerciseExperienceMutation,
       variables: args
-    }).toPromise();
-    const {exerciseResult} = args;
-    this.studyProgressBehaviourSubject.next({
-      successCount: this.studyProgressBehaviourSubject.value.successCount + (exerciseResult === 'SUCCESS' ? 1 : 0),
-      failureCount: this.studyProgressBehaviourSubject.value.failureCount + (exerciseResult === 'FAILURE' ? 1 : 0),
-    });
+    }).pipe(
+      map(result => result.data.registerExerciseExperience),
+      tap(() => {
+        const {exerciseResult} = args;
+        this.studyProgressBehaviourSubject.next({
+          successCount: this.studyProgressBehaviourSubject.value.successCount + (exerciseResult === 'SUCCESS' ? 1 : 0),
+          failureCount: this.studyProgressBehaviourSubject.value.failureCount + (exerciseResult === 'FAILURE' ? 1 : 0),
+        });
+      })
+    );
   }
 
   async removeExercise(args: { id: number }) {
@@ -390,12 +398,12 @@ export class ExerciseService {
   getFilteredExercises(exerciseFilterDefinition: ExerciseFilterDefinition) {
     return this.apollo.watchQuery<{ filteredExercises: Exercise[] }>({
       query: gql`
-        query FilteredExercisesQuery($exerciseFilterDefinition: ExerciseFilterDefinition!) {
-          filteredExercises(exerciseFilter: $exerciseFilterDefinition) {
-            ...ExerciseFragment
-          }
-        },
-        ${exerciseFragment}
+          query FilteredExercisesQuery($exerciseFilterDefinition: ExerciseFilterDefinition!) {
+              filteredExercises(exerciseFilter: $exerciseFilterDefinition) {
+                  ...ExerciseFragment
+              }
+          },
+          ${exerciseFragment}
       `,
       variables: {exerciseFilterDefinition},
       // When user changed exercise resources, this query needs to update.
@@ -417,11 +425,11 @@ export class ExerciseService {
   suspendExperience(exerciseId: number) {
     return this.apollo.mutate({
       mutation: gql`
-        mutation SuspendExperience($exerciseId: Int!) {
-          suspendExperience(exerciseId: $exerciseId) {
-            exerciseId
+          mutation SuspendExperience($exerciseId: Int!) {
+              suspendExperience(exerciseId: $exerciseId) {
+                  exerciseId
+              }
           }
-        }
       `,
       variables: {
         exerciseId
@@ -429,29 +437,15 @@ export class ExerciseService {
     }).toPromise();
   }
 
-  private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
-    return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
-      // As the download link is only short-lived (meaning it expires), we should not use a cache.
-      // If we used a cache, we might end up using an expired download link.
-      fetchPolicy: 'no-cache',
-      query: getExerciseDownloadLinkQuery,
-      variables: {
-        exerciseId: exercise.id
-      }
-    }).valueChanges.pipe(
-      map(({data}) => data.getExerciseDownloadLink)
-    );
-  }
-
   async createExerciseFilter(title: string, exerciseFilterDefinition: ExerciseFilterDefinition) {
     return this.apollo.mutate({
       mutation: gql`
-        mutation CreateExerciseFilter($title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
-          createExerciseFilter(title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
-            ...ExerciseFilterFragment
-          }
-        },
-        ${exerciseFilterFragment}
+          mutation CreateExerciseFilter($title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+              createExerciseFilter(title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
+                  ...ExerciseFilterFragment
+              }
+          },
+          ${exerciseFilterFragment}
       `,
       refetchQueries: ['MyExerciseFilters'],
       variables: {title, exerciseFilterDefinition}
@@ -461,12 +455,12 @@ export class ExerciseService {
   async updateExerciseFilter(filter: ExerciseFilter) {
     return this.apollo.mutate({
       mutation: gql`
-        mutation UpdateExerciseFilter($id: Int!, $title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
-          updateExerciseFilter(id: $id, title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
-            ...ExerciseFilterFragment
-          }
-        },
-        ${exerciseFilterFragment}
+          mutation UpdateExerciseFilter($id: Int!, $title: String!, $exerciseFilterDefinition: ExerciseFilterDefinition!) {
+              updateExerciseFilter(id: $id, title: $title, exerciseFilterDefinition: $exerciseFilterDefinition) {
+                  ...ExerciseFilterFragment
+              }
+          },
+          ${exerciseFilterFragment}
       `,
       refetchQueries: ['MyExerciseFilters'],
       variables: filter
@@ -474,18 +468,18 @@ export class ExerciseService {
   }
 
   async deleteExerciseFilter(filterToDelete: ExerciseFilter) {
-    return this.apollo.mutate<{deleteExerciseFilter: ExerciseFilter}>({
+    return this.apollo.mutate<{ deleteExerciseFilter: ExerciseFilter }>({
       mutation: gql`
-        mutation DeleteExerciseFilter($id: Int!) {
-          deleteExerciseFilter(id: $id) {
-            id
+          mutation DeleteExerciseFilter($id: Int!) {
+              deleteExerciseFilter(id: $id) {
+                  id
+              }
           }
-        }
       `,
       variables: {id: filterToDelete.id},
       update: (cache, mutationResult) => {
         const idOfDeleted = mutationResult.data.deleteExerciseFilter.id;
-        const oldCache = cache.readQuery({query: myExerciseFilters}) as {myExerciseFilters: ExerciseFilter[]};
+        const oldCache = cache.readQuery({query: myExerciseFilters}) as { myExerciseFilters: ExerciseFilter[] };
         const newValue = oldCache.myExerciseFilters.filter(x => x.id !== idOfDeleted);
         cache.writeQuery({query: myExerciseFilters, data: {myExerciseFilters: newValue}});
       }
@@ -504,6 +498,20 @@ export class ExerciseService {
           exerciseTypes: params.getAll('exerciseTypes')
         } as ExerciseFilterDefinition;
       })
+    );
+  }
+
+  private getExerciseDownloadLink(exercise: Exercise): Observable<string> {
+    return this.apollo.watchQuery<{ getExerciseDownloadLink: string }>({
+      // As the download link is only short-lived (meaning it expires), we should not use a cache.
+      // If we used a cache, we might end up using an expired download link.
+      fetchPolicy: 'no-cache',
+      query: getExerciseDownloadLinkQuery,
+      variables: {
+        exerciseId: exercise.id
+      }
+    }).valueChanges.pipe(
+      map(({data}) => data.getExerciseDownloadLink)
     );
   }
 }

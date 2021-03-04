@@ -10,7 +10,6 @@ import {ApplicationConfigurationService} from '../../shared/services/application
 import {ItemReorderEventDetail} from '@ionic/core';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import {ExerciseState} from '../study/study.page';
 import {v4 as uuidv4} from 'uuid';
 
 /**
@@ -636,9 +635,7 @@ export class SaveExerciseModalPage implements OnInit {
     this.exerciseForm.reset(value);
   }
 
-  onPreviewExerciseStateChanged(state: ExerciseState) {
-    if (state.nextExerciseRequested) {
-      this.nextExerciseRequestedSubject.next(true);
-    }
+  onNextExerciseRequested() {
+    this.nextExerciseRequestedSubject.next(true);
   }
 }

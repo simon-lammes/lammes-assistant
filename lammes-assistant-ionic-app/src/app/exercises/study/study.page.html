@@ -18,7 +18,8 @@
 <ion-content>
   <!--  Exercise -->
   <app-exercise-container *ngIf="hydratedExercise$ | async as exercise" [exercise]="exercise"
-                          (exerciseStateChanged)="onExerciseStateChanged(exercise, $event)"></app-exercise-container>
+                          (nextExerciseRequested)="onNextExerciseRequested()"
+                          (exerciseResultChanged)="onExerciseResult(exercise, $event)"></app-exercise-container>
 
   <!-- No exercise to show -->
   <ng-container *ngIf="!(hydratedExercise$ | async)">

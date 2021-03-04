@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import _ from 'lodash';
 import {ExerciseResult, HydratedExercise, PossibleAnswer} from '../../../shared/services/exercise/exercise.service';
-import {ExerciseState} from '../../study/study.page';
 
 interface UserAnswer extends PossibleAnswer {
   usersEvaluation: boolean;
@@ -18,7 +17,7 @@ export class MultiselectExerciseComponent implements OnChanges {
   exercise: HydratedExercise;
 
   @Output()
-  exerciseStateChanged = new EventEmitter<ExerciseState>();
+  exerciseResultChanged = new EventEmitter<ExerciseResult>();
 
   usersAnswers: UserAnswer[];
   exerciseResult: ExerciseResult;
@@ -37,12 +36,6 @@ export class MultiselectExerciseComponent implements OnChanges {
     }
   }
 
-  requestNextExercise() {
-    this.exerciseStateChanged.emit({
-      nextExerciseRequested: true
-    });
-  }
-
   switchUsersEvaluation(i: number) {
     // If the user has already evaluated his answers, his answers are immutable.
     if (this.exerciseResult) {
@@ -54,10 +47,7 @@ export class MultiselectExerciseComponent implements OnChanges {
   submit() {
     const success = this.usersAnswers.every(answer => answer.correct === answer.usersEvaluation);
     this.exerciseResult = success ? 'SUCCESS' : 'FAILURE';
-    this.exerciseStateChanged.emit({
-      exerciseResult: this.exerciseResult,
-      nextExerciseRequested: false
-    });
+    this.exerciseResultChanged.emit(this.exerciseResult);
   }
 
   getAnswerIcon(answer: UserAnswer) {

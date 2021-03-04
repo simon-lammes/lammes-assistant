@@ -13,6 +13,7 @@ import {DirectedGraphAssemblyExerciseComponent} from './directed-graph-assembly-
 import {NgxGraphModule} from '@swimlane/ngx-graph';
 import {DirectedGraphComponent} from './directed-graph-assembly-exercise/directed-graph/directed-graph.component';
 import {MappingExerciseComponent} from './mapping-exercise/mapping-exercise.component';
+import {ExerciseFeedbackBoxModule} from '../exercise-feedback-box/exercise-feedback-box.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import {MappingExerciseComponent} from './mapping-exercise/mapping-exercise.comp
     EnrichedMarkdownModule,
     SharedModule,
     ReactiveFormsModule,
-    NgxGraphModule
+    NgxGraphModule,
+    ExerciseFeedbackBoxModule
   ]
 })
 export class ExerciseTypesModule { }

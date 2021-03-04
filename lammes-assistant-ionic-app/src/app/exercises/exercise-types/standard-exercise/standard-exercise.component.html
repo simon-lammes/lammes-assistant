@@ -25,10 +25,10 @@
 
 <!-- Review -->
 <div style="display: flex" *ngIf="isSolutionVisible">
-  <ion-button color="danger" style="flex: 1" (click)="onUserReview('FAILURE')">
+  <ion-button [disabled]="exerciseResult" color="danger" style="flex: 1" (click)="onUserReview('FAILURE')">
     <ion-icon slot="icon-only" name="thumbs-down-outline"></ion-icon>
   </ion-button>
-  <ion-button color="success" style="flex: 1" (click)="onUserReview('SUCCESS')">
+  <ion-button [disabled]="exerciseResult" color="success" style="flex: 1" (click)="onUserReview('SUCCESS')">
     <ion-icon slot="icon-only" name="thumbs-up-outline"></ion-icon>
   </ion-button>
 </div>
