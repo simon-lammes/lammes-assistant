@@ -4,6 +4,7 @@ import AWS from "aws-sdk";
 import {environment} from "./environment";
 import {JwtPayload, verifyToken} from "./utils/jwt-utils";
 import {Settings} from "./schema/types/settings";
+import DetectLanguage from "detectlanguage";
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,8 @@ const spacesClient = new AWS.S3({
   secretAccessKey: environment.SPACES_SECRET,
   s3ForcePathStyle: true
 });
+
+const detectLanguageClient = new DetectLanguage(environment.DETECT_LANGUAGE_API_KEY);
 
 /**
  * This object holds the **default** values that are used when they are not overridden.
@@ -57,7 +60,9 @@ export interface Context {
    */
   spacesClient: AWS.S3;
 
-  applicationConfiguration: ApplicationConfiguration
+  applicationConfiguration: ApplicationConfiguration;
+
+  detectLanguageClient: DetectLanguage;
 }
 
 /**
@@ -76,5 +81,5 @@ export function createContext({req}: ExpressContext): Context {
   const jwtPayload = verifyToken(token);
   // Currently, we just use the default config because overriding is not yet implemented.
   const applicationConfiguration = defaultApplicationConfiguration;
-  return { prisma, jwtPayload, spacesClient, applicationConfiguration };
+  return { prisma, jwtPayload, spacesClient, applicationConfiguration, detectLanguageClient };
 }

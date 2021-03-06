@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
@@ -11,6 +11,13 @@ import {ItemReorderEventDetail} from '@ionic/core';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {v4 as uuidv4} from 'uuid';
+
+/**
+ * This value represents that the language of the exercise should be automatically detected.
+ * It is necessary because the value null sadly does not work properly.
+ * Please replace this value with null once it properly works with Angular Reactive Forms.
+ */
+const detectLanguageAutomaticallyKey = 'automatic';
 
 /**
  * We have the need for an abstraction layer for exercise controls because those behave different from other controls:
@@ -442,10 +449,11 @@ export class SaveExerciseModalPage implements OnInit {
       type: 'select',
       controlName: 'languageCode',
       selectOptions: [
+        {value: detectLanguageAutomaticallyKey, displayValue: this.translateService.get('detect-automatically').toPromise()},
         {value: 'en', displayValue: this.translateService.get('language-list.english').toPromise()},
         {value: 'de', displayValue: this.translateService.get('language-list.german').toPromise()}
       ],
-      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.languageCode ?? 'en')
+      controlBuilder: (type, exercise) => this.formBuilder.control(exercise?.languageCode || detectLanguageAutomaticallyKey)
     }
   ];
   selectedSegment: 'edit' | 'preview' = 'edit';
@@ -474,7 +482,7 @@ export class SaveExerciseModalPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private applicationConfigurationService: ApplicationConfigurationService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
   ) {
   }
 
@@ -493,14 +501,18 @@ export class SaveExerciseModalPage implements OnInit {
   }
 
   async saveExercise() {
+    const exercise = {...this.exerciseForm.value};
+    if (exercise.languageCode === detectLanguageAutomaticallyKey) {
+      exercise.languageCode = null;
+    }
     if (this.editedExercise && this.doesUserOwnEditedExercise) {
       await this.exerciseService.updateExercise({
         id: this.editedExercise.id,
-        hydratedExerciseInput: this.exerciseForm.value
+        hydratedExerciseInput: exercise
       });
       await this.dismissModal();
     } else {
-      await this.exerciseService.createExercise(this.exerciseForm.value);
+      await this.exerciseService.createExercise(exercise);
       await Promise.all([
         this.showHint('Exercise created', 'primary', 2000),
         this.resetForm()

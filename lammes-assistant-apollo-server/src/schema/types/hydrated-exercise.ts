@@ -2,6 +2,7 @@ import {inputObjectType} from "@nexus/schema";
 import {PromptSolutionInputType} from "./prompt-solution";
 import {CustomFile} from "./custom-file";
 import {PossibleAnswer} from "./possible-answer";
+import {LanguageCode} from "./language-code";
 
 export interface CustomFile {
   name: string;
@@ -28,13 +29,53 @@ export interface HydratedExercise {
   solution: string;
   files: CustomFile[];
   labels: string[];
-  exerciseType: 'standard' | 'trueOrFalse' | 'multiselect' | 'ordering';
-  isStatementCorrect?: boolean;
-  possibleAnswers?: PossibleAnswer[];
-  orderingItems?: string[];
-  languageCode: string;
-  groupIds?: number[];
+  exerciseType: "directedGraphAssembly" | "mapping" | "multiselect" | "ordering" | "prompt" | "standard" | "trueOrFalse";
+  isStatementCorrect?: boolean | null;
+  possibleAnswers?: PossibleAnswer[] | null;
+  orderingItems?: string[] | null;
+  languageCode?: LanguageCode | null;
+  groupIds?: number[] | null;
+  nodes?: ExerciseNode[] | null;
+  edges?: ExerciseEdge[] | null;
+  targets?: ExerciseTarget[] | null;
+  sources?: ExerciseSource[] | null;
 }
+
+interface ExerciseNode {
+  id: string;
+  label: string
+}
+
+interface ExerciseEdge {
+  id: string;
+  label: string;
+  source: string;
+  target: string;
+}
+
+interface ExerciseNode {
+  id: string;
+  label: string
+}
+
+interface ExerciseEdge {
+  id: string;
+  label: string;
+  source: string;
+  target: string;
+}
+
+interface ExerciseTarget {
+  id: string;
+  label: string;
+}
+
+interface ExerciseSource {
+  label: string;
+  targets: string[];
+  explanation?: string | null;
+}
+
 
 export const HydratedExerciseInputType = inputObjectType({
   name: 'HydratedExerciseInput',
@@ -45,7 +86,7 @@ export const HydratedExerciseInputType = inputObjectType({
     t.nonNull.field('exerciseType', {type: "ExerciseType"});
     t.nonNull.list.field('files', {type: CustomFile});
     t.nonNull.list.nonNull.string('labels');
-    t.nonNull.field('languageCode', {type: 'LanguageCode'});
+    t.nullable.field('languageCode', {type: 'LanguageCode', description: 'Can be omitted for automatic detection. But expect that the automatic detection can fail.'});
     t.nullable.boolean('isStatementCorrect');
     t.nullable.list.field('possibleAnswers', {type: PossibleAnswer});
     t.nullable.list.nonNull.string('orderingItems');

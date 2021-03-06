@@ -6,6 +6,7 @@ import {exerciseObjectType} from "../../types/exercise";
 import {validateExercise} from "../../../utils/validators/exercise-validation";
 import {getHydratedExercisePath} from "../../../utils/object-storage-utils";
 import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
+import {detectLanguageFromExercise} from "../../../utils/language-detection";
 
 export const createExercise = mutationField('createExercise', {
   type: exerciseObjectType,
@@ -15,14 +16,16 @@ export const createExercise = mutationField('createExercise', {
   resolve: async (
     root,
     {hydratedExerciseInput},
-    {jwtPayload, prisma, spacesClient, applicationConfiguration}
+    context
   ) => {
+    const {jwtPayload, prisma, spacesClient, applicationConfiguration} = context;
     const userId = jwtPayload?.userId;
     if (!userId) {
       throw new AuthenticationError('You can only create exercises when you are authenticated.');
     }
     validateExercise(applicationConfiguration, hydratedExerciseInput);
     await validateMembersRole(prisma, userId, 'member', hydratedExerciseInput.groupIds);
+    const languageCode = await detectLanguageFromExercise(context, hydratedExerciseInput);
     const versionTimestamp = new Date();
     const exercise: Exercise = await prisma.exercise.create({
       data: {
@@ -32,7 +35,7 @@ export const createExercise = mutationField('createExercise', {
         creator: {
           connect: {id: userId}
         },
-        languageCode: hydratedExerciseInput.languageCode,
+        languageCode,
         exerciseLabels: {
           create: hydratedExerciseInput.labels.map(label => {
             return {
@@ -72,6 +75,7 @@ export const createExercise = mutationField('createExercise', {
     const hydratedExercise = {
       ...hydratedExerciseInput,
       id: exercise.id,
+      languageCode,
       versionTimestamp: versionTimestamp.toISOString()
     } as HydratedExercise;
     const upload = spacesClient.putObject({

@@ -33,6 +33,11 @@ export interface Environment extends DotenvParseOptions {
    */
   SPACES_SECRET: string;
 
+  /**
+   * Key for [language detection API](https://detectlanguage.com/)
+   * We decided to use this API instead of a library because it achieved better results in tests.
+   */
+  DETECT_LANGUAGE_API_KEY: string;
 }
 
 const result = dotenv.config()

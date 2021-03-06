@@ -163,7 +163,11 @@ input HydratedExerciseInput {
   groupIds: [Int!]
   isStatementCorrect: Boolean
   labels: [String!]!
-  languageCode: LanguageCode!
+
+  """
+  Can be omitted for automatic detection. But expect that the automatic detection can fail.
+  """
+  languageCode: LanguageCode
   nodes: [NodeInput!]
   orderingItems: [String!]
   possibleAnswers: [PossibleAnswer!]
