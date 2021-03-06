@@ -81,10 +81,13 @@
   "member": "member",
   "members": "members",
   "messages": {
+    "exercise-created": "exercise created",
+    "exercise-updated": "exercise updated",
     "experience-suspended": "The exercise will not be shown to you anymore.",
     "failure": "failure",
     "group-created": "group created",
     "group-edited": "saved changes",
+    "language-undetermined": "Language undetermined",
     "member-removed": "member removed",
     "min-password-length": "Min password length: {{minPasswordLength}}",
     "new-pwa-version": "New version of this app is available. It is recommended to reload the application.",
@@ -125,6 +128,7 @@
   "profile": "profile",
   "prompt-solutions": "prompt solutions",
   "questions": {
+    "determine-language": "Please specify the language manually.",
     "is-statement-correct": "Is statement correct?",
     "role-of-added-members": "Which role should the added members get?",
     "suspend-experience": "Do you want to suspend the experience so that the exercise will not be shown to you anymore?"

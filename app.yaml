@@ -39,6 +39,10 @@ services:
   - key: SPACES_ENDPOINT
     scope: RUN_TIME
     value: fra1.digitaloceanspaces.com
+  - key: DETECT_LANGUAGE_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:wSDd98jCzsEKd1KwD/Xe0YGGh/1UREOB:EUCNBoVmNidkeTSQ59J3Gv6TJhafX6nVSkSzsZevb0XhuRQvZmKmbtm0CXbmt/4a]
   github:
     branch: master
     deploy_on_push: true
@@ -55,6 +59,7 @@ static_sites:
   dockerfile_path: lammes-assistant-ionic-app/Dockerfile
   github:
     branch: master
+    deploy_on_push: true
     repo: simon-lammes/lammes-assistant
   name: lammes-assistant-ionic-app
   output_dir: /app

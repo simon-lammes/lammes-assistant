@@ -22,6 +22,7 @@ import {IonicStorageEngine} from './shared/ionic-storage-engine';
 import {NgxsAsyncStoragePluginModule} from '@ngxs-labs/async-storage-plugin';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {StudyState} from './shared/state/study/study.state';
+import {ExerciseState} from './shared/state/exercise/exercise.state';
 
 @NgModule({
   declarations: [AppComponent],
@@ -48,7 +49,7 @@ import {StudyState} from './shared/state/study/study.state';
         deps: [HttpClient]
       }
     }),
-    NgxsModule.forRoot([SettingsState, StudyState], {
+    NgxsModule.forRoot([SettingsState, StudyState, ExerciseState], {
       developmentMode: !environment.production,
       selectorOptions: {
         // This will be the default in NGXS 4.x.

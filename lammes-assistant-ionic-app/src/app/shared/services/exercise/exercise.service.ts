@@ -289,22 +289,24 @@ export class ExerciseService {
     );
   }
 
-  async createExercise(hydratedExerciseInput: any): Promise<any> {
-    await this.apollo.mutate<{ createExercise: Exercise }, any>({
+  createExercise(hydratedExerciseInput: any) {
+    return this.apollo.mutate<{ createExercise: Exercise }, any>({
       mutation: createExerciseMutation,
       variables: {hydratedExerciseInput},
+      errorPolicy: 'all',
       refetchQueries: ['FilteredExercisesQuery']
-    }).toPromise();
+    });
   }
 
-  async updateExercise(args: { hydratedExerciseInput, id }): Promise<any> {
+  updateExercise(args: { hydratedExerciseInput, id }) {
     return this.apollo.mutate<{ updateExercise: Exercise }, any>({
       mutation: updateExerciseMutation,
+      errorPolicy: 'all',
       variables: {
         id: args.id,
         hydratedExerciseInput: args.hydratedExerciseInput
       }
-    }).toPromise();
+    });
   }
 
   /**

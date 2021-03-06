@@ -81,10 +81,13 @@
   "member": "Mitglied",
   "members": "Mitglieder",
   "messages": {
+    "exercise-created": "Aufgabe erstellt",
+    "exercise-updated": "Aufgabe angepasst",
     "experience-suspended": "Die Übungsaufgabe wird dir nicht mehr angezeigt.",
     "failure": "Fehlschlag",
     "group-created": "Gruppe wurde erstellt.",
     "group-edited": "Änderungen gespeichert",
+    "language-undetermined": "Sprache nicht festgelegt",
     "member-removed": "Mitglied entfernt",
     "min-password-length": "Minimale Passwortlänge: {{minPasswordLength}}",
     "new-pwa-version": "Es ist eine neue Version dieser App verfügbar. Es wird empfohlen, die Seite neu zu laden.",
@@ -125,6 +128,7 @@
   "profile": "Profil",
   "prompt-solutions": "Abfragelösungen",
   "questions": {
+    "determine-language": "Bitte lege die Sprache manuell fest.",
     "is-statement-correct": "Ist die Aussage richtig?",
     "role-of-added-members": "Welche Rolle sollen die hinzugefügten Mitglieder bekommen?",
     "suspend-experience": "Möchtest du, dass dir diese Übungsaufgabe nicht mehr angezeigt wird?"

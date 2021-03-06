@@ -1,16 +1,30 @@
-import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {AlertController, ModalController, ToastController} from '@ionic/angular';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CustomFormsService} from '../../shared/services/custom-forms.service';
-import {Exercise, ExerciseService, ExerciseType, HydratedExercise, PossibleAnswer} from '../../shared/services/exercise/exercise.service';
+import {
+  Exercise,
+  ExerciseService,
+  ExerciseType,
+  HydratedExercise,
+  LanguageCodeIso639_1,
+  PossibleAnswer
+} from '../../shared/services/exercise/exercise.service';
 import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
-import {distinctUntilChanged, map, pairwise, shareReplay, startWith} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map, pairwise, shareReplay, startWith} from 'rxjs/operators';
 import {ReadFile} from 'ngx-file-helpers';
 import {ApplicationConfigurationService} from '../../shared/services/application-configuration/application-configuration.service';
 import {ItemReorderEventDetail} from '@ionic/core';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {v4 as uuidv4} from 'uuid';
+import {Actions, ofActionDispatched, Store} from '@ngxs/store';
+import {
+  ExerciseCreationFailureReason,
+  ExerciseSaved,
+  ExerciseSavingFailed,
+  SaveExercise
+} from '../../shared/state/exercise/exercise.actions';
 
 /**
  * This value represents that the language of the exercise should be automatically detected.
@@ -483,12 +497,15 @@ export class SaveExerciseModalPage implements OnInit {
     private alertController: AlertController,
     private applicationConfigurationService: ApplicationConfigurationService,
     private translateService: TranslateService,
+    private store: Store,
+    private actions: Actions
   ) {
   }
 
   async ngOnInit(): Promise<any> {
     await this.setupForm();
     await this.setupPreview();
+    await this.setupAutomaticToasts();
   }
 
   async dismissModal() {
@@ -506,17 +523,9 @@ export class SaveExerciseModalPage implements OnInit {
       exercise.languageCode = null;
     }
     if (this.editedExercise && this.doesUserOwnEditedExercise) {
-      await this.exerciseService.updateExercise({
-        id: this.editedExercise.id,
-        hydratedExerciseInput: exercise
-      });
-      await this.dismissModal();
+      this.store.dispatch(new SaveExercise(exercise, this.editedExercise.id));
     } else {
-      await this.exerciseService.createExercise(exercise);
-      await Promise.all([
-        this.showHint('Exercise created', 'primary', 2000),
-        this.resetForm()
-      ]);
+      this.store.dispatch(new SaveExercise(exercise, null));
     }
   }
 
@@ -649,5 +658,59 @@ export class SaveExerciseModalPage implements OnInit {
 
   onNextExerciseRequested() {
     this.nextExerciseRequestedSubject.next(true);
+  }
+
+  private async setupAutomaticToasts() {
+    this.actions.pipe(
+      untilDestroyed(this),
+      ofActionDispatched(ExerciseSaved)
+    ).subscribe(async ({editedExerciseId}: ExerciseSaved) => {
+      if (editedExerciseId) {
+        await Promise.all([
+          this.showHint(await this.translateService.get('messages.exercise-updated').toPromise(), 'primary', 2000),
+          this.dismissModal()
+        ]);
+      } else {
+        await Promise.all([
+          this.showHint(await this.translateService.get('messages.exercise-created').toPromise(), 'primary', 2000),
+          this.resetForm()
+        ]);
+      }
+    });
+    this.actions.pipe(
+      untilDestroyed(this),
+      ofActionDispatched(ExerciseSavingFailed),
+      filter((failure: ExerciseSavingFailed) => failure.reason === ExerciseCreationFailureReason.LanguageUndetermined)
+    ).subscribe(async ({exercise, editedExerciseId}) => {
+      const alert = await this.alertController.create({
+        header: await this.translateService.get('messages.language-undetermined').toPromise(),
+        message: await this.translateService.get('questions.determine-language').toPromise(),
+        inputs: [
+          {
+            label: await this.translateService.get('language-list.english').toPromise(),
+            type: 'radio',
+            value: 'en'
+          },
+          {
+            label: await this.translateService.get('language-list.german').toPromise(),
+            type: 'radio',
+            value: 'de'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: await this.translateService.get('save').toPromise(),
+            handler: async (languageCode: LanguageCodeIso639_1) => {
+              this.store.dispatch(new SaveExercise({...exercise, languageCode}, editedExerciseId));
+            }
+          }
+        ]
+      });
+      await alert.present();
+    });
   }
 }
