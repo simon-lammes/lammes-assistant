@@ -3,3 +3,4 @@ export * from './language-code';
 export * from './note-label';
 export * from './group-membership';
 export * from './exercise-type';
+export * from './group-note';

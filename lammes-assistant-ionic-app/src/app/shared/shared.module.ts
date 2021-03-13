@@ -11,6 +11,8 @@ import {IonInputFocusDirective} from './directives/ion-input-focus.directive';
 import {TranslateModule} from '@ngx-translate/core';
 import {GroupSelectComponent} from './components/group-select/group-select.component';
 import {GroupSelectModalComponent} from './components/group-select/group-select-modal/group-select-modal.component';
+import {GroupAccessSelectComponent} from './components/group-access-select/group-access-select.component';
+import {GroupAccessSelectModalComponent} from './components/group-access-select/group-access-select-modal/group-access-select-modal.component';
 
 
 @NgModule({
@@ -22,7 +24,9 @@ import {GroupSelectModalComponent} from './components/group-select/group-select-
     ValidationFeedbackComponent,
     IonInputFocusDirective,
     GroupSelectComponent,
-    GroupSelectModalComponent
+    GroupSelectModalComponent,
+    GroupAccessSelectComponent,
+    GroupAccessSelectModalComponent
   ],
   exports: [
     LabelSelectorComponent,
@@ -31,7 +35,8 @@ import {GroupSelectModalComponent} from './components/group-select/group-select-
     IonInputFocusDirective,
     TranslateModule,
     GroupSelectComponent,
-    IonicModule
+    IonicModule,
+    GroupAccessSelectComponent
   ],
   imports: [
     CommonModule,

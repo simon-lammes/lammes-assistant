@@ -33,6 +33,7 @@ model Note {
   startTimestamp    DateTime?   @default(now()) @map("start_timestamp")
   deadlineTimestamp DateTime?   @map("deadline_timestamp")
   creator           User        @relation("notesToUsers", fields: [creatorId], references: [id])
+  groupNotes        GroupNote[] @relation("group_notesTonotes")
   noteLabels        NoteLabel[] @relation("noteLabelToNote")
 
   @@map("notes")
@@ -123,6 +124,7 @@ model Group {
   description      String?
   groupExercises   GroupExercise[]   @relation("groupExercisesToGroups")
   groupMemberships GroupMembership[] @relation("groupMembershipsToGroups")
+  groupNotes       GroupNote[]       @relation("group_notesTogroups")
 
   @@map("groups")
 }
@@ -135,6 +137,17 @@ model GroupExercise {
 
   @@id([groupId, exerciseId])
   @@map("group_exercises")
+}
+
+model GroupNote {
+  groupId         Int             @map("group_id")
+  noteId          Int             @map("note_id")
+  protectionLevel ProtectionLevel @map("protection_level")
+  groups          Group           @relation("group_notesTogroups", fields: [groupId], references: [id])
+  notes           Note            @relation("group_notesTonotes", fields: [noteId], references: [id])
+
+  @@id([groupId, noteId])
+  @@map("group_notes")
 }
 
 enum LanguageCode {
@@ -162,4 +175,12 @@ enum GroupMemberRole {
   member
 
    @@map("group_member_role")
+}
+
+enum ProtectionLevel {
+  essential
+  informative
+  delicate
+
+   @@map("protection_level")
 }

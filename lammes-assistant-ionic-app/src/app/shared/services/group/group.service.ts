@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {map} from 'rxjs/operators';
+import {map, shareReplay} from 'rxjs/operators';
 import {Observable, of} from 'rxjs';
 import {User} from '../users/user.service';
 
@@ -68,7 +68,8 @@ export class GroupService {
       ${groupFragment}
     `
   }).valueChanges.pipe(
-    map(result => result.data.myGroups)
+    map(result => result.data.myGroups),
+    shareReplay(1)
   );
 
   constructor(

@@ -13,6 +13,10 @@ export interface Note {
       title: string;
     };
   }[];
+  groupNotes: {
+    groupId: number;
+    protectionLevel: string;
+  }[];
   resolvedTimestamp?: string;
   startTimestamp?: string;
   deadlineTimestamp?: string;
@@ -25,10 +29,18 @@ export interface NoteInput {
   labels?: string[];
   startTimestamp?: string;
   deadlineTimestamp?: string;
+  addedGroupAccesses?: GroupAccess[];
+  editedGroupAccesses?: GroupAccess[];
+  removedGroupIds?: number[];
 }
 
 export interface NoteFilter {
   labels?: string[];
+}
+
+export interface GroupAccess {
+  groupId: number;
+  protectionLevel: string;
 }
 
 /**
@@ -36,99 +48,103 @@ export interface NoteFilter {
  * so that our cache for all queries can be updated with all required fields.
  */
 const noteFragment = gql`
-  fragment NoteFragment on Note {
-    id,
-    title,
-    description,
-    resolvedTimestamp,
-    startTimestamp,
-    updatedTimestamp,
-    deadlineTimestamp,
-    noteLabels {
-      label {
-        title
-      }
+    fragment NoteFragment on Note {
+        id,
+        title,
+        description,
+        resolvedTimestamp,
+        startTimestamp,
+        updatedTimestamp,
+        deadlineTimestamp,
+        noteLabels {
+            label {
+                title
+            }
+        },
+        groupNotes {
+            groupId,
+            protectionLevel
+        }
     }
-  }
 `;
 
 const myFilteredNotes = gql`
-  query MyFilteredNotes($filter: NoteFilterDefinition!) {
-    myFilteredNotes(filter: $filter) {
-      ...NoteFragment
+    query MyFilteredNotes($filter: NoteFilterDefinition!) {
+        myFilteredNotes(filter: $filter) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const fetchNoteQuery = gql`
-  query FetchNote($noteId: Int!) {
-    note(id: $noteId) {
-      ...NoteFragment
+    query FetchNote($noteId: Int!) {
+        note(id: $noteId) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const createNoteMutation = gql`
-  mutation CreateNote($noteInput: NoteInput!) {
-    createNote(noteInput: $noteInput) {
-      ...NoteFragment
+    mutation CreateNote($noteInput: NoteInput!) {
+        createNote(noteInput: $noteInput) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const resolveNotesMutation = gql`
-  mutation ResolveNotes($noteId: Int!) {
-    resolveNote(noteId: $noteId) {
-      ...NoteFragment
+    mutation ResolveNotes($noteId: Int!) {
+        resolveNote(noteId: $noteId) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const reopenNoteMutation = gql`
-  mutation ReopenNote($noteId: Int!) {
-    reopenNote(noteId: $noteId) {
-      ...NoteFragment
+    mutation ReopenNote($noteId: Int!) {
+        reopenNote(noteId: $noteId) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const deleteNoteMutation = gql`
-  mutation DeleteNote($noteId: Int!) {
-    deleteNote(noteId: $noteId) {
-      ...NoteFragment
+    mutation DeleteNote($noteId: Int!) {
+        deleteNote(noteId: $noteId) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const editNoteMutation = gql`
-  mutation EditNote($id: Int!, $noteInput: NoteInput!) {
-    editNote(id: $id, noteInput: $noteInput) {
-      ...NoteFragment
+    mutation EditNote($id: Int!, $noteInput: NoteInput!) {
+        editNote(id: $id, noteInput: $noteInput) {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 const myNoteToReview = gql`
-  query MyNoteToReview {
-    myNoteToReview {
-      ...NoteFragment
+    query MyNoteToReview {
+        myNoteToReview {
+            ...NoteFragment
+        }
     }
-  }
-  ${noteFragment}
+    ${noteFragment}
 `;
 
 @Injectable({
   providedIn: 'root'
 })
 export class NoteService {
-  myNoteToReview$ = this.apollo.watchQuery<{myNoteToReview: Note | null}>({
+  myNoteToReview$ = this.apollo.watchQuery<{ myNoteToReview: Note | null }>({
     query: myNoteToReview
   }).valueChanges.pipe(
     map(result => result.data.myNoteToReview)

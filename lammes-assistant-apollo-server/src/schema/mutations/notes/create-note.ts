@@ -1,6 +1,8 @@
 import {arg, mutationField, nonNull} from "@nexus/schema";
-import {ApolloError, AuthenticationError} from "apollo-server";
+import {ApolloError} from "apollo-server";
 import {NoteInput, noteObjectType} from "../../types/note";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
+import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
 
 export const createNote = mutationField("createNote", {
   type: noteObjectType,
@@ -9,16 +11,14 @@ export const createNote = mutationField("createNote", {
   },
   resolve: async (
     _,
-    {noteInput: {title, deadlineTimestamp, description, startTimestamp, labels}},
+    {noteInput: {title, deadlineTimestamp, description, startTimestamp, labels, addedGroupAccesses}},
     {jwtPayload, prisma}
   ) => {
-    const userId = jwtPayload?.userId;
-    if (!userId) {
-      throw new AuthenticationError('You can only create notes when you are authenticated.');
-    }
+    const userId = validateAuthenticated(jwtPayload);
     if (!title) {
       throw new ApolloError('Title required');
     }
+    await validateMembersRole(prisma, userId, 'member', addedGroupAccesses?.map(x => x.groupId));
     return prisma.note.create({
       data: {
         title,
@@ -38,6 +38,14 @@ export const createNote = mutationField("createNote", {
                   }
                 }
               }
+            };
+          })
+        },
+        groupNotes: {
+          create: addedGroupAccesses?.map(groupAccess => {
+            return {
+              groupId: groupAccess.groupId,
+              protectionLevel: groupAccess.protectionLevel
             };
           })
         },

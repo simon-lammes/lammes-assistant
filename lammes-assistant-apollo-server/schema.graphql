@@ -124,6 +124,11 @@ type Group {
   name: String
 }
 
+input GroupAccessInput {
+  groupId: Int!
+  protectionLevel: ProtectionLevelInput!
+}
+
 input GroupFilterDefinition {
   groupIds: [Int!]
 }
@@ -153,6 +158,21 @@ input GroupMembershipMemberIdGroupIdCompoundUniqueInput {
 
 input GroupMembershipWhereUniqueInput {
   memberId_groupId: GroupMembershipMemberIdGroupIdCompoundUniqueInput
+}
+
+type GroupNote {
+  groupId: Int
+  noteId: Int
+  protectionLevel: ProtectionLevel
+}
+
+input GroupNoteGroupIdNoteIdCompoundUniqueInput {
+  groupId: Int!
+  noteId: Int!
+}
+
+input GroupNoteWhereUniqueInput {
+  groupId_noteId: GroupNoteGroupIdNoteIdCompoundUniqueInput
 }
 
 input HydratedExerciseInput {
@@ -247,6 +267,7 @@ type Note {
   creatorId: Int
   deadlineTimestamp: DateTime
   description: String
+  groupNotes(after: GroupNoteWhereUniqueInput, before: GroupNoteWhereUniqueInput, first: Int, last: Int): [GroupNote!]!
   id: Int
   noteLabels(after: NoteLabelWhereUniqueInput, before: NoteLabelWhereUniqueInput, first: Int, last: Int): [NoteLabel!]!
   resolvedTimestamp: DateTime
@@ -261,9 +282,12 @@ input NoteFilterDefinition {
 }
 
 input NoteInput {
+  addedGroupAccesses: [GroupAccessInput!]
   deadlineTimestamp: String
   description: String
+  editedGroupAccesses: [GroupAccessInput!]
   labels: [String!]
+  removedGroupIds: [Int!]
   startTimestamp: String
   title: String
 }
@@ -312,6 +336,18 @@ input PossibleAnswer {
 input PromptSolution {
   """one possible answer to the exercise's assignement"""
   value: String!
+}
+
+enum ProtectionLevel {
+  delicate
+  essential
+  informative
+}
+
+enum ProtectionLevelInput {
+  delicate
+  essential
+  informative
 }
 
 type Query {

@@ -21,6 +21,8 @@
       <ion-label>{{ 'description' | translate | titlecase }}</ion-label>
       <ion-textarea type="text" formControlName="description" (ionBlur)="trim('description')" rows="4"></ion-textarea>
     </ion-item>
+    <app-group-access-select [label]="'group-accesses' | translate | titlecase"
+                        formControlName="groupAccesses"></app-group-access-select>
     <app-label-selector [heading]="'labels' | translate | titlecase"
                         formControlName="labels"></app-label-selector>
     <ion-item>

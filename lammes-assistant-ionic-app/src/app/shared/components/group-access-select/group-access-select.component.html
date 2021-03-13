@@ -1,0 +1,8 @@
+<ion-item button (click)="openGroupSelectModal()">
+  <ion-label>
+    <h2>{{ label }}</h2>
+    <ion-chip *ngFor="let selection of currentSelections$ | async">
+      <ion-label>{{selection.group.name}}: {{selection.access.protectionLevel}}</ion-label>
+    </ion-chip>
+  </ion-label>
+</ion-item>

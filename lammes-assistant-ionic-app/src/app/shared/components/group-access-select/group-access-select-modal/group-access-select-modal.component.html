@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'group-accesses' | translate | titlecase }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'cancel' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button [disabled]="!areChangesPresent()"
+                  (click)="set()">{{ 'set.verb' | translate | titlecase }}</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let selectionOption of selectionOptions$ | async">
+      <ion-label>
+        <h3>{{selectionOption.group.name}}</h3>
+        <p *ngIf="selectionOption.group.description">{{selectionOption.group.description}}</p>
+      </ion-label>
+      <ion-select interface="popover" [value]="selectionOption.protectionLevel" (ionChange)="onChange($event, selectionOption.group.id)">
+        <ion-select-option value="essential">{{ 'essential' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="informative">{{ 'informative' | translate | titlecase }}</ion-select-option>
+        <ion-select-option value="delicate">{{ 'delicate' | translate | titlecase }}</ion-select-option>
+        <ion-select-option *ngIf="selectionOption.protectionLevel"
+                           [value]="null">{{ 'remove' | translate | titlecase }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -1,8 +1,9 @@
-import {arg, intArg, mutationField, nonNull, nullable, stringArg} from "@nexus/schema";
-import {AuthenticationError} from "apollo-server";
+import {arg, intArg, mutationField, nonNull} from "@nexus/schema";
 import {generateNotFoundError} from "../../../custom-errors/not-found-error";
 import {generateAuthorizationError} from "../../../custom-errors/authorization-error";
 import {NoteInput, noteObjectType} from "../../types/note";
+import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 
 export const editNoteMutation = mutationField("editNote", {
   type: noteObjectType,
@@ -15,14 +16,12 @@ export const editNoteMutation = mutationField("editNote", {
     {id, noteInput},
     {prisma, jwtPayload}
   ) => {
-    const userId = jwtPayload?.userId;
-    if (!userId) {
-      throw new AuthenticationError('You can only edit notes when you are authenticated.');
-    }
+    const userId = validateAuthenticated(jwtPayload);
     const note = await prisma.note.findFirst({
       where: {id},
       include: {noteLabels: {include: {label: true}}}
     });
+    await validateMembersRole(prisma, userId, 'member', noteInput.addedGroupAccesses?.map(x => x.groupId));
     if (!note) {
       throw generateNotFoundError(`There is no note with the id ${id}.`);
     }
@@ -42,6 +41,29 @@ export const editNoteMutation = mutationField("editNote", {
         title: noteInput.title ?? undefined,
         startTimestamp: noteInput.startTimestamp,
         deadlineTimestamp: noteInput.deadlineTimestamp,
+        groupNotes: {
+          create: noteInput.addedGroupAccesses?.map(({groupId, protectionLevel}) => ({
+            groupId,
+            protectionLevel
+          })),
+          update: noteInput.editedGroupAccesses?.map(({groupId, protectionLevel}) => ({
+            where: {
+              groupId_noteId: {
+                groupId,
+                noteId: id
+              }
+            },
+            data: {
+              protectionLevel
+            }
+          })),
+          delete: noteInput.removedGroupIds?.map(groupId => ({
+            groupId_noteId: {
+              groupId,
+              noteId: id
+            }
+          }))
+        },
         noteLabels: {
           deleteMany: removeLabels.length > 0 ? removeLabels.map(label => {
             return {
