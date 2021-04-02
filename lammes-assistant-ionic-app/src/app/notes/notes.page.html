@@ -22,7 +22,7 @@
     <app-label-selector heading="{{ 'labels' | translate | titlecase }}" formControlName="labels"
                         [noSelectionText]="'messages.no-label-filter' | translate"></app-label-selector>
   </ion-list>
-
+  <ion-progress-bar *ngIf="isLoading$ | async" type="indeterminate"></ion-progress-bar>
   <ion-list>
     <ion-list-header>
       <h3>{{ 'notes' | translate | titlecase }}</h3>

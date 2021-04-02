@@ -1,12 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {Note, NoteFilter, NoteService} from '../shared/services/note/note.service';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import {SaveNoteModalPage} from './save-note/save-note-modal-page.component';
 import {AlertController, ModalController} from '@ionic/angular';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {filter, startWith, switchMap} from 'rxjs/operators';
-import {debounceFilterQuery} from '../shared/operators/debounce-filter-query';
+import {filter, startWith} from 'rxjs/operators';
 import {ApplicationConfigurationService} from '../shared/services/application-configuration/application-configuration.service';
+import {Select, Store} from '@ngxs/store';
+import {NoteState} from '../shared/state/notes/note.state';
+import {UntilDestroy, untilDestroyed} from '@ngneat/until-destroy';
+import {FetchFilteredNotes} from '../shared/state/notes/notes.actions';
 
 /**
  * The status of a notes deadline.
@@ -21,6 +24,7 @@ enum UrgencyStatus {
   Resolved
 }
 
+@UntilDestroy()
 @Component({
   selector: 'app-notes',
   templateUrl: './notes.page.html',
@@ -29,7 +33,8 @@ enum UrgencyStatus {
 export class NotesPage implements OnInit {
   filterForm: FormGroup;
   currentValidFilter$: Observable<NoteFilter>;
-  filteredNotes$: Observable<Note[]>;
+  @Select(NoteState.filteredNotes) filteredNotes$: Observable<Note[]>;
+  @Select(NoteState.isLoading) isLoading$: Observable<Note[]>;
 
   /**
    * This is member variable only exists, so that this enum can be used inside the html template.
@@ -41,12 +46,12 @@ export class NotesPage implements OnInit {
     private applicationConfigurationService: ApplicationConfigurationService,
     private alertController: AlertController,
     private modalController: ModalController,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private store: Store
   ) {
   }
 
   ngOnInit() {
-    this.filteredNotes$ = of([]);
     this.filterForm = this.fb.group({
       groupIds: this.fb.control([]),
       labels: this.fb.control([]),
@@ -56,10 +61,9 @@ export class NotesPage implements OnInit {
       startWith(this.filterForm.value as NoteFilter),
       filter(() => this.filterForm.valid)
     );
-    this.filteredNotes$ = this.currentValidFilter$.pipe(
-      debounceFilterQuery(this.applicationConfigurationService.applicationConfiguration$),
-      switchMap(currentFilter => this.noteService.fetchFilteredNotes(currentFilter))
-    );
+    this.currentValidFilter$.pipe(
+      untilDestroyed(this)
+    ).subscribe(noteFilter => this.store.dispatch(new FetchFilteredNotes(noteFilter)));
   }
 
   async createNote() {

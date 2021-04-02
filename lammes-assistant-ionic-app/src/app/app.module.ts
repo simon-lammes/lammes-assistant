@@ -23,6 +23,7 @@ import {NgxsAsyncStoragePluginModule} from '@ngxs-labs/async-storage-plugin';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {StudyState} from './shared/state/study/study.state';
 import {ExerciseState} from './shared/state/exercise/exercise.state';
+import {NoteState} from './shared/state/notes/note.state';
 
 @NgModule({
   declarations: [AppComponent],
@@ -49,7 +50,7 @@ import {ExerciseState} from './shared/state/exercise/exercise.state';
         deps: [HttpClient]
       }
     }),
-    NgxsModule.forRoot([SettingsState, StudyState, ExerciseState], {
+    NgxsModule.forRoot([SettingsState, StudyState, ExerciseState, NoteState], {
       developmentMode: !environment.production,
       selectorOptions: {
         // This will be the default in NGXS 4.x.
