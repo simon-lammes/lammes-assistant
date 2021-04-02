@@ -1,8 +1,8 @@
 import {arg, nonNull, queryField} from "@nexus/schema";
 import {noteObjectType} from "../../types/note";
-import {AuthenticationError} from "apollo-server";
 import {NoteFilterDefinition} from "../../types/note-filter";
 import {validateAuthenticated} from "../../../utils/validators/authorization/validate-authenticated";
+import {validateMembersRole} from "../../../utils/validators/group-validation/validate-members-role";
 
 export const myFilteredNotes = queryField('myFilteredNotes', {
   type: noteObjectType,
@@ -10,11 +10,19 @@ export const myFilteredNotes = queryField('myFilteredNotes', {
   args: {
     filter: nonNull(arg({type: NoteFilterDefinition}))
   },
-  resolve: (root, {filter}, {jwtPayload, prisma}) => {
+  resolve: async (root, {filter}, {jwtPayload, prisma}) => {
     const userId = validateAuthenticated(jwtPayload);
+    await validateMembersRole(prisma, userId, 'member', filter.groupIds);
     return prisma.note.findMany({
-      where:  {
+      where: {
         creatorId: userId,
+        groupNotes: filter.groupIds && filter.groupIds.length ? {
+          some: {
+            groupId: {
+              in: filter.groupIds
+            }
+          }
+        } : undefined,
         noteLabels: filter.labels && filter.labels.length > 0 ? {
           some: {
             label: {

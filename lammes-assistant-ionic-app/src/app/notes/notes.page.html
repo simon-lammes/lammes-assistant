@@ -9,6 +9,8 @@
     <ion-list-header>
       <h3>{{ 'filter.noun' | translate | titlecase }}</h3>
     </ion-list-header>
+    <app-group-select formControlName="groupIds" [label]="'groups' | translate | titlecase"
+                      [noSelectionText]="'messages.no-group-filter' | translate"></app-group-select>
     <ion-item>
       <ion-label>{{ 'note-status' | translate | titlecase }}</ion-label>
       <ion-select formControlName="noteStatus" multiple placeholder="({{ 'optional' | translate | titlecase }})">

@@ -277,6 +277,7 @@ type Note {
 }
 
 input NoteFilterDefinition {
+  groupIds: [Int!]
   labels: [String!]
   noteStatus: [String!]
 }

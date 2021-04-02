@@ -48,6 +48,7 @@ export class NotesPage implements OnInit {
   ngOnInit() {
     this.filteredNotes$ = of([]);
     this.filterForm = this.fb.group({
+      groupIds: this.fb.control([]),
       labels: this.fb.control([]),
       noteStatus: this.fb.control(['pending'])
     });
