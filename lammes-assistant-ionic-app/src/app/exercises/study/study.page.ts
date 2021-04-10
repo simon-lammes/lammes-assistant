@@ -66,7 +66,7 @@ export class StudyPage implements OnInit {
     // Scrolling needs to happen after change detection. Therefore, we use setTimeout.
     const scrollPromise = new Promise((resolve) => {
       setTimeout(() => {
-        this.ionContent.scrollToBottom(600).then(() => resolve());
+        this.ionContent.scrollToBottom(600).then(() => resolve(undefined));
       }, 0);
     });
     await scrollPromise;
