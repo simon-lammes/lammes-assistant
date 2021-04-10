@@ -1,0 +1,15 @@
+<ion-list>
+  <ion-list-header>{{ 'exercises' | translate | titlecase }}</ion-list-header>
+  <ion-item button (click)="resolveNote()" *ngIf="!input.note.resolvedTimestamp">
+    <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+    <ion-label>{{ 'resolve' | translate | titlecase }}</ion-label>
+  </ion-item>
+  <ion-item button (click)="reopenNote()" *ngIf="input.note.resolvedTimestamp">
+    <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+    <ion-label>{{ 'reopen' | translate | titlecase }}</ion-label>
+  </ion-item>
+  <ion-item button (click)="editNote()">
+    <ion-icon slot="start" name="create-outline"></ion-icon>
+    <ion-label>{{ 'edit' | translate | titlecase }}</ion-label>
+  </ion-item>
+</ion-list>

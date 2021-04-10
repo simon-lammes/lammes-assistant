@@ -1,0 +1,9 @@
+div.wrapper {
+  height: 100%;
+  display: flex;
+
+  ion-card {
+    flex-grow: 1;
+  }
+}
+

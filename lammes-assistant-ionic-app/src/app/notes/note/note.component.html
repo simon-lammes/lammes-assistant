@@ -1,0 +1,37 @@
+<div class="wrapper">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title style="display: flex; justify-content: space-between">
+        <span>{{note.title}}</span>
+        <ion-button (click)="showPopover($event, note)" fill="clear" color="medium">
+          <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+        </ion-button>
+      </ion-card-title>
+      <ion-card-subtitle>
+        <ng-container [ngSwitch]="getUrgencyStatus()">
+        <span *ngSwitchCase="UrgencyStatus.Resolved" style="color: var(--ion-color-success)">
+          {{ 'resolved-on' | translate }} {{note.resolvedTimestamp | date:'short' }}
+        </span>
+          <span *ngSwitchCase="UrgencyStatus.Overdue" style="color: var(--ion-color-danger)">
+          {{ 'overdue-since' | translate }} {{note.deadlineTimestamp | date:'short' }}
+        </span>
+          <span *ngSwitchCase="UrgencyStatus.DueSoon" style="color: var(--ion-color-warning)">
+          {{ 'urgently-due-till' | translate }} {{note.deadlineTimestamp | date:'short' }}
+        </span>
+          <span *ngSwitchCase="UrgencyStatus.DueSometime">
+          {{ 'due-till' | translate }} {{note.deadlineTimestamp | date:'short' }}
+        </span>
+          <span *ngSwitchCase="UrgencyStatus.Deferred">
+          {{ 'deferred-till' | translate }} {{note.startTimestamp | date:'short' }}
+        </span>
+          <span *ngSwitchCase="UrgencyStatus.NoStartTimeOrDeadline">
+          {{ 'no-start-time' | translate | titlecase }}
+        </span>
+        </ng-container>
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <app-enriched-markdown [data]="note.description"></app-enriched-markdown>
+    </ion-card-content>
+  </ion-card>
+</div>

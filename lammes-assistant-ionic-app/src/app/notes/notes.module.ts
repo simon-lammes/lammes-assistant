@@ -9,6 +9,9 @@ import {NotesPageRoutingModule} from './notes-routing.module';
 import {NotesPage} from './notes.page';
 import {SaveNoteModalPageModule} from './save-note/save-note-modal.module';
 import {SharedModule} from '../shared/shared.module';
+import {NoteComponent} from './note/note.component';
+import {EnrichedMarkdownModule} from '../shared/components/enriched-markdown/enriched-markdown.module';
+import {NotePopoverComponent} from './note-popover/note-popover.component';
 
 @NgModule({
   imports: [
@@ -18,8 +21,14 @@ import {SharedModule} from '../shared/shared.module';
     NotesPageRoutingModule,
     SaveNoteModalPageModule,
     SharedModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    EnrichedMarkdownModule
   ],
-  declarations: [NotesPage]
+  declarations: [
+    NotesPage,
+    NoteComponent,
+    NotePopoverComponent
+  ]
 })
-export class NotesPageModule {}
+export class NotesPageModule {
+}
